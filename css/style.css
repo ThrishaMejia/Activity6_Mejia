@@ -1,262 +1,174 @@
-
+/* Design Tokens */
 :root {
-    --primary: #5b4b8a;
-    --primary-dark: #403363;
-    --accent: #f2c6d5;
-    --background: #fbf9fd;
-    --surface: #ffffff;
-    --text: #282433;
-    --muted: #6f6878;
-    --border: #e6e0ec;
-
-    --font-main: Arial, Helvetica, sans-serif;
-    --font-size: 16px;
-
-    --max-width: 1100px;
-    --spacing: 24px;
-    --radius: 12px;
-    --shadow: 0 4px 15px rgba(40, 36, 51, 0.08);
+    --primary-color: #5b4b8a;
+    --secondary-color: #f2c6d5;
+    --background-color: #fbf9fd;
+    --text-color: #282433;
+    --font-family: Arial, sans-serif;
 }
 
+/* Basic Reset */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-html {
-    scroll-behavior: smooth;
-}
-
+/* Body */
 body {
-    font-family: var(--font-main);
-    font-size: var(--font-size);
+    font-family: var(--font-family);
+    background-color: var(--background-color);
+    color: var(--text-color);
     line-height: 1.6;
-    color: var(--text);
-    background: var(--background);
-}
-
-a {
-    color: inherit;
-    text-decoration: none;
-}
-
-ul {
-    list-style: none;
-}
-
-.container {
-    width: 90%;
-    max-width: var(--max-width);
-    margin: 0 auto;
 }
 
 /* Header */
-
 header {
-    background: var(--surface);
-    padding: 18px 0;
-    border-bottom: 1px solid var(--border);
-}
-
-header .container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 20px;
-}
-
-.logo {
-    color: var(--primary);
-    font-size: 24px;
-    font-weight: bold;
-}
-
-nav ul {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 22px;
-}
-
-nav a {
-    color: var(--muted);
-    font-size: 14px;
-    font-weight: bold;
-}
-
-nav a:hover {
-    color: var(--primary);
-}
-
-/* Hero Section */
-
-.hero {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 20px;
     text-align: center;
-    padding: 90px 20px;
-    background: linear-gradient(
-        135deg,
-        #f2c6d5,
-        #eee8fa
-    );
 }
 
-.hero h1 {
-    font-size: clamp(32px, 5vw, 48px);
-    color: var(--primary-dark);
+/* Navigation */
+.navbar {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+/* Main Layout */
+.main-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 20px;
+    gap: 25px;
+}
+
+/* Interface Card */
+.card {
+    width: 100%;
+    max-width: 700px;
+    background-color: white;
+    padding: 25px;
+    border: 1px solid #dddddd;
+    border-radius: 10px;
+    text-align: center;
+}
+
+/* Headings */
+h2 {
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+/* Image */
+.quiz-image {
+    width: 100%;
+    max-width: 300px;
+    height: 150px;
+    object-fit: cover;
     margin-bottom: 15px;
 }
 
-.hero p {
-    max-width: 600px;
-    margin: 0 auto 25px;
-    color: var(--muted);
-}
-
 /* Buttons */
-
+button,
 .button {
     display: inline-block;
-    background: var(--primary);
+    background-color: var(--primary-color);
     color: white;
-    padding: 12px 25px;
-    border-radius: 8px;
-    font-weight: bold;
-    transition: 0.2s;
+    border: none;
+    padding: 10px 18px;
+    margin-top: 15px;
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: 5px;
 }
 
-.button:hover {
-    background: var(--primary-dark);
-    transform: translateY(-2px);
+/* Gallery and Categories */
+.gallery-container,
+.category-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
 }
 
-/* General Sections */
-
-section {
-    padding: 65px 0;
+.gallery-item,
+.category-item {
+    background-color: var(--secondary-color);
+    padding: 20px;
+    border-radius: 5px;
+    flex: 1 1 120px;
 }
 
-section h2 {
-    text-align: center;
-    color: var(--primary-dark);
-    font-size: 30px;
-    margin-bottom: 30px;
+/* Forms */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-align: left;
+    margin-top: 15px;
 }
 
-/* Categories */
-
-.categories ul {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 18px;
+input,
+textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #cccccc;
+    border-radius: 5px;
+    font-family: var(--font-family);
 }
 
-.categories li {
-    background: var(--surface);
-    padding: 25px 15px;
-    text-align: center;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    font-weight: bold;
+/* Radio Options */
+input[type="radio"] {
+    width: auto;
 }
 
-/* Daily Challenge */
-
-.daily-challenge {
-    background: #f3eff9;
-    text-align: center;
-}
-
-.daily-challenge p {
-    margin-bottom: 20px;
-    color: var(--muted);
-}
-
-/* Leaderboard */
-
+/* Table */
 table {
     width: 100%;
     border-collapse: collapse;
-    background: var(--surface);
-    border-radius: var(--radius);
-    overflow: hidden;
-    box-shadow: var(--shadow);
+    margin-top: 15px;
 }
 
 th,
 td {
-    padding: 15px;
+    border: 1px solid #dddddd;
+    padding: 10px;
     text-align: center;
-    border-bottom: 1px solid var(--border);
 }
 
 th {
-    background: var(--primary);
-    color: white;
-}
-
-tr:last-child td {
-    border-bottom: none;
-}
-
-/* About */
-
-.about {
-    text-align: center;
-}
-
-.about p {
-    max-width: 750px;
-    margin: 0 auto;
-    color: var(--muted);
+    background-color: var(--secondary-color);
 }
 
 /* Footer */
-
 footer {
-    background: var(--primary-dark);
-    color: white;
+    background-color: var(--secondary-color);
     text-align: center;
-    padding: 25px 15px;
-    font-size: 14px;
+    padding: 20px;
 }
 
-/* Mobile Layout */
-
-@media (max-width: 768px) {
-    header .container {
+/* Responsive Layout */
+@media (max-width: 600px) {
+    .navbar {
         flex-direction: column;
     }
 
-    nav ul {
-        justify-content: center;
-        gap: 12px;
-    }
-
-    .categories ul {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .hero {
-        padding: 65px 20px;
-    }
-
-    section {
-        padding: 45px 0;
-    }
-
-    table {
-        font-size: 13px;
-    }
-
-    th,
-    td {
-        padding: 10px 6px;
-    }
-}
-
-@media (max-width: 400px) {
-    .categories ul {
-        grid-template-columns: 1fr;
+    .card {
+        padding: 18px;
     }
 }
