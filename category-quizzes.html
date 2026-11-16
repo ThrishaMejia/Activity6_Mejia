@@ -31,14 +31,14 @@
         <p class="eyebrow">✦ YOUR NEXT CHALLENGE ✦</p>
         <h2 id="category-title">Choose Your <span>Quiz!</span></h2>
         <p id="category-description">
-            Pick a quiz and test what you know!
+            Pick a difficulty and test what you know!
         </p>
     </section>
 
     <section class="quiz-list-section">
         <div class="quiz-list-heading">
-            <h2>AVAILABLE QUIZ</h2>
-            <p>Choose a challenge to begin your adventure.</p>
+            <h2>CHOOSE YOUR DIFFICULTY</h2>
+            <p>Explore, learn, and challenge yourself!</p>
         </div>
 
         <div class="category-quiz-grid" id="quiz-grid"></div>
@@ -61,60 +61,80 @@ const category = params.get("category");
 const quizData = {
     history: {
         title: "History",
-        description: "Travel through time and explore the past.",
+        description: "Discover the stories and events that shaped the Philippines.",
         icon: "🏛️",
         quizzes: [
             {
-                title: "Ancient Civilizations",
-                level: "BEGINNER",
-                questions: 10,
-                time: "5 MINUTES",
-                id: "ancient-civilizations"
+                title: "Philippine Beginnings",
+                difficulty: "easy"
+            },
+            {
+                title: "Across the Centuries",
+                difficulty: "medium"
+            },
+            {
+                title: "Untold History",
+                difficulty: "hard"
             }
         ]
     },
 
     science: {
         title: "Science",
-        description: "Discover the wonders of science and nature.",
+        description: "Explore science, nature, and discoveries around the Philippines.",
         icon: "🔬",
         quizzes: [
             {
-                title: "Our Solar System",
-                level: "BEGINNER",
-                questions: 10,
-                time: "5 MINUTES",
-                id: "solar-system"
+                title: "Science Around Us",
+                difficulty: "easy"
+            },
+            {
+                title: "Nature & Discovery",
+                difficulty: "medium"
+            },
+            {
+                title: "Philippine Science Challenge",
+                difficulty: "hard"
             }
         ]
     },
 
     mathematics: {
         title: "Mathematics",
-        description: "Challenge your mind with numbers and equations.",
+        description: "Use numbers and problem-solving in everyday Filipino life.",
         icon: "📐",
         quizzes: [
             {
-                title: "Basic Mathematics",
-                level: "BEGINNER",
-                questions: 10,
-                time: "5 MINUTES",
-                id: "basic-mathematics"
+                title: "Everyday Math",
+                difficulty: "easy"
+            },
+            {
+                title: "Numbers in Action",
+                difficulty: "medium"
+            },
+            {
+                title: "Math Mastery",
+                difficulty: "hard"
             }
         ]
     },
 
     "general-knowledge": {
         title: "General Knowledge",
-        description: "Test your knowledge about the world around you.",
-        icon: "🌎",
+        description: "Test what you know about the Philippines and its people.",
+        icon: "🇵🇭",
         quizzes: [
             {
-                title: "Everyday Knowledge",
-                level: "BEGINNER",
-                questions: 10,
-                time: "5 MINUTES",
-                id: "everyday-knowledge"
+                title: "Know the Philippines",
+                difficulty: "easy"
+            },
+            {
+                title: "Beyond the Basics",
+                difficulty: "medium"
+            },
+            {
+                title: "Pinoy Brain Challenge",
+                difficulty: "hard"
             }
         ]
     }
@@ -132,7 +152,13 @@ if (selectedCategory) {
     document.getElementById("category-description").textContent =
         selectedCategory.description;
 
-    selectedCategory.quizzes.forEach((quiz, index) => {
+    selectedCategory.quizzes.forEach((quiz) => {
+
+        // Only Science - Easy is available for now.
+        const isAvailable =
+            category === "science" &&
+            quiz.difficulty === "easy";
+
         const card = document.createElement("article");
         card.className = "category-quiz-card";
 
@@ -140,13 +166,30 @@ if (selectedCategory) {
             <div class="quiz-card-icon">${selectedCategory.icon}</div>
 
             <div class="quiz-card-details">
-                <span class="quiz-card-level">${quiz.level}</span>
+                <span class="quiz-card-level">
+                    ${quiz.difficulty.toUpperCase()}
+                </span>
+
                 <h3>${quiz.title}</h3>
-                <p>${quiz.questions} Questions · ${quiz.time}</p>
-                <a href="quiz.html?category=${encodeURIComponent(category)}&quiz=${encodeURIComponent(quiz.id)}"
-                   class="btn">
-                    PLAY QUIZ →
-                </a>
+
+                <p>
+                    ${isAvailable ? "10 Questions · 5 MINUTES" : "Quiz questions coming soon"}
+                </p>
+
+                ${
+                    isAvailable
+                    ? `
+                        <a href="quiz.html?category=${encodeURIComponent(category)}&difficulty=${encodeURIComponent(quiz.difficulty)}"
+                           class="btn">
+                            PLAY QUIZ →
+                        </a>
+                    `
+                    : `
+                        <span class="btn" style="opacity: 0.55; cursor: not-allowed;">
+                            COMING SOON
+                        </span>
+                    `
+                }
             </div>
         `;
 
