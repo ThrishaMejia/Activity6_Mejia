@@ -54,14 +54,12 @@
         <div class="quiz-question-area">
             <span class="quiz-question-label">✦ YOUR QUESTION</span>
             <h2 id="question-text">Loading question...</h2>
-
             <div class="quiz-options" id="answer-options"></div>
         </div>
 
         <p class="quiz-feedback" id="quiz-feedback" aria-live="polite"></p>
 
         <div class="quiz-game-bottom">
-
             <button
                 type="button"
                 class="btn"
@@ -69,7 +67,6 @@
                 disabled>
                 SUBMIT ANSWER
             </button>
-
         </div>
 
     </section>
@@ -103,10 +100,9 @@ const supabase = createClient(
 const params = new URLSearchParams(window.location.search);
 
 const category = (params.get("category") || "").toLowerCase();
-const quizId = params.get("quiz") || "";
 const difficulty = (params.get("difficulty") || "easy").toLowerCase();
 
-// QUIZ INFORMATION
+// CATEGORY NAMES
 
 const categoryNames = {
     history: "History",
@@ -115,14 +111,38 @@ const categoryNames = {
     "general-knowledge": "General Knowledge"
 };
 
+// QUIZ TITLES BY CATEGORY AND DIFFICULTY
+
 const quizTitles = {
-    "ancient-civilizations": "Ancient Civilizations",
-    "solar-system": "Our Solar System",
-    "basic-mathematics": "Basic Mathematics",
-    "everyday-knowledge": "Everyday Knowledge"
+    history: {
+        easy: "Philippine Beginnings",
+        medium: "Across the Centuries",
+        hard: "Untold History"
+    },
+
+    science: {
+        easy: "Science Around Us",
+        medium: "Nature & Discovery",
+        hard: "Philippine Science Challenge"
+    },
+
+    mathematics: {
+        easy: "Everyday Math",
+        medium: "Numbers in Action",
+        hard: "Math Mastery"
+    },
+
+    "general-knowledge": {
+        easy: "Know the Philippines",
+        medium: "Beyond the Basics",
+        hard: "Pinoy Brain Challenge"
+    }
 };
 
-const quizTitle = quizTitles[quizId] || "Category Quiz";
+const validDifficulties = ["easy", "medium", "hard"];
+
+const quizTitle =
+    quizTitles[category]?.[difficulty] || "Category Quiz";
 
 // ELEMENTS
 
@@ -181,8 +201,8 @@ async function loadQuestions() {
 
     if (
         !categoryNames[category] ||
-        !quizTitles[quizId] ||
-        !["easy", "medium", "hard"].includes(difficulty)
+        !quizTitles[category]?.[difficulty] ||
+        !validDifficulties.includes(difficulty)
     ) {
         showError("Invalid quiz selection. Please choose a quiz again.");
         return;
@@ -225,11 +245,13 @@ async function loadQuestions() {
         titleSpan.textContent = "Challenge!";
         title.appendChild(titleSpan);
 
+        const formattedDifficulty =
+            difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+
         description.textContent =
             categoryNames[category] +
             " • " +
-            difficulty.charAt(0).toUpperCase() +
-            difficulty.slice(1) +
+            formattedDifficulty +
             " • Test your knowledge and earn XP!";
 
         document.title = quizTitle + " | Quizivia";
@@ -308,8 +330,6 @@ function renderQuestion() {
         button.appendChild(letter);
         button.appendChild(answerText);
 
-        // SELECT ANSWER
-
         button.addEventListener("click", () => {
 
             if (submitted || checkingAnswer || finished) return;
@@ -336,8 +356,7 @@ async function handleAction() {
 
     if (finished || checkingAnswer) return;
 
-    // IF ANSWER IS ALREADY CHECKED:
-    // GO TO NEXT QUESTION OR RESULTS
+    // MOVE TO NEXT QUESTION OR RESULTS
 
     if (submitted) {
 
@@ -350,8 +369,6 @@ async function handleAction() {
 
         return;
     }
-
-    // REQUIRE AN ANSWER BEFORE SUBMISSION
 
     if (selectedAnswer === null) return;
 
@@ -385,8 +402,6 @@ async function handleAction() {
         submitted = true;
         checkingAnswer = false;
 
-        // SHOW FEEDBACK
-
         if (data.correct) {
 
             score++;
@@ -402,7 +417,7 @@ async function handleAction() {
             feedback.className = "quiz-feedback wrong";
         }
 
-        // LOCK ALL ANSWERS
+        // LOCK ANSWERS AFTER SUBMISSION
 
         document.querySelectorAll(".quiz-option")
             .forEach(button => {
@@ -413,7 +428,6 @@ async function handleAction() {
                     button.querySelector("span:last-child").textContent;
 
                 if (optionText === selectedAnswer) {
-
                     button.classList.add(
                         data.correct ? "correct" : "wrong"
                     );
@@ -499,7 +513,7 @@ function finishQuiz() {
 
     const result = {
         category: category,
-        quizId: quizId,
+        quizId: category + "-" + difficulty,
         difficulty: difficulty,
         title: quizTitle,
         score: score,
