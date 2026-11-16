@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Category Quizzes | Quizivia</title>
-    <link rel="stylesheet" href="css/style.css?v=7">
+    <title>Quizzes | Quizivia</title>
+    <link rel="stylesheet" href="css/style.css?v=10">
 </head>
 <body>
 
@@ -29,64 +29,23 @@
 
     <section class="page-intro">
         <p class="eyebrow">✦ YOUR NEXT CHALLENGE ✦</p>
-        <h2 id="category-title">Explore <span>Quizzes!</span></h2>
+        <h2 id="category-title">Choose Your <span>Quiz!</span></h2>
         <p id="category-description">
-            Choose a quiz and test what you know!
+            Pick a quiz and test what you know!
         </p>
     </section>
 
     <section class="quiz-list-section">
-
         <div class="quiz-list-heading">
-            <h2>Available Quizzes</h2>
-            <p>Pick your challenge, quizzer!</p>
+            <h2>AVAILABLE QUIZ</h2>
+            <p>Choose a challenge to begin your adventure.</p>
         </div>
 
-        <div class="category-quiz-grid" id="quiz-grid">
+        <div class="category-quiz-grid" id="quiz-grid"></div>
 
-            <article class="category-quiz-card">
-                <div class="quiz-card-icon">📚</div>
-                <span class="quiz-card-level">EASY</span>
-                <h3>Quiz 1</h3>
-                <p>Test your knowledge with this beginner-friendly challenge.</p>
-                <div class="quiz-card-details">
-                    <span>✦ 10 Questions</span>
-                    <span>⏱ 5 Minutes</span>
-                </div>
-                <a href="daily-quiz.html" class="btn">PLAY QUIZ →</a>
-            </article>
-
-            <article class="category-quiz-card">
-                <div class="quiz-card-icon">🧠</div>
-                <span class="quiz-card-level medium">MEDIUM</span>
-                <h3>Quiz 2</h3>
-                <p>Ready for a little more challenge? Give this one a try!</p>
-                <div class="quiz-card-details">
-                    <span>✦ 10 Questions</span>
-                    <span>⏱ 7 Minutes</span>
-                </div>
-                <a href="daily-quiz.html" class="btn">PLAY QUIZ →</a>
-            </article>
-
-            <article class="category-quiz-card">
-                <div class="quiz-card-icon">🏆</div>
-                <span class="quiz-card-level hard">HARD</span>
-                <h3>Quiz 3</h3>
-                <p>Challenge yourself and see if you can master this quiz!</p>
-                <div class="quiz-card-details">
-                    <span>✦ 15 Questions</span>
-                    <span>⏱ 10 Minutes</span>
-                </div>
-                <a href="daily-quiz.html" class="btn">PLAY QUIZ →</a>
-            </article>
-
+        <div class="category-back">
+            <a href="categories.html">← Back to Categories</a>
         </div>
-
-    </section>
-
-    <section class="category-back">
-        <p>Want to explore another subject?</p>
-        <a href="categories.html" class="btn">← BACK TO CATEGORIES</a>
     </section>
 
 </main>
@@ -97,99 +56,112 @@
 
 <script>
 const params = new URLSearchParams(window.location.search);
-const selectedCategory = params.get("category");
+const category = params.get("category");
 
-const categoryData = {
+const quizData = {
     history: {
-        name: "History",
-        description: "Travel through time and discover the stories of our past!",
-        icon: "📜",
+        title: "History",
+        description: "Travel through time and explore the past.",
+        icon: "🏛️",
         quizzes: [
-            ["Ancient Civilizations", "Explore the world's earliest civilizations.", "EASY"],
-            ["World History", "Discover important events that shaped our world.", "MEDIUM"],
-            ["Historical Figures", "Test what you know about famous people in history.", "HARD"]
+            {
+                title: "Ancient Civilizations",
+                level: "BEGINNER",
+                questions: 10,
+                time: "5 MINUTES",
+                id: "ancient-civilizations"
+            }
         ]
     },
 
     science: {
-        name: "Science",
-        description: "Discover the wonders of science, nature, and space!",
+        title: "Science",
+        description: "Discover the wonders of science and nature.",
         icon: "🔬",
         quizzes: [
-            ["Our Solar System", "Explore planets, stars, and outer space.", "EASY"],
-            ["Human Body", "Learn about the amazing human body.", "MEDIUM"],
-            ["Scientific Discoveries", "Challenge yourself with famous discoveries.", "HARD"]
+            {
+                title: "Our Solar System",
+                level: "BEGINNER",
+                questions: 10,
+                time: "5 MINUTES",
+                id: "solar-system"
+            }
         ]
     },
 
     mathematics: {
-        name: "Mathematics",
-        description: "Put your problem-solving skills to the test!",
+        title: "Mathematics",
+        description: "Challenge your mind with numbers and equations.",
         icon: "📐",
         quizzes: [
-            ["Basic Mathematics", "Practice numbers and simple operations.", "EASY"],
-            ["Fractions and Decimals", "Test your skills with fractions and decimals.", "MEDIUM"],
-            ["Math Challenge", "Solve more challenging mathematical problems.", "HARD"]
+            {
+                title: "Basic Mathematics",
+                level: "BEGINNER",
+                questions: 10,
+                time: "5 MINUTES",
+                id: "basic-mathematics"
+            }
         ]
     },
 
     "general-knowledge": {
-        name: "General Knowledge",
-        description: "A little bit of everything! How much do you know?",
-        icon: "🌍",
+        title: "General Knowledge",
+        description: "Test your knowledge about the world around you.",
+        icon: "🌎",
         quizzes: [
-            ["Everyday Knowledge", "Test what you know about everyday life.", "EASY"],
-            ["World and Culture", "Explore geography, culture, and traditions.", "MEDIUM"],
-            ["Ultimate Trivia", "Take on a challenging mix of trivia questions.", "HARD"]
+            {
+                title: "Everyday Knowledge",
+                level: "BEGINNER",
+                questions: 10,
+                time: "5 MINUTES",
+                id: "everyday-knowledge"
+            }
         ]
     }
 };
 
-const category = categoryData[selectedCategory];
-const title = document.getElementById("category-title");
-const description = document.getElementById("category-description");
-const grid = document.getElementById("quiz-grid");
+const selectedCategory = quizData[category];
+const quizGrid = document.getElementById("quiz-grid");
 
-if (category) {
-    document.title = category.name + " Quizzes | Quizivia";
-    title.innerHTML = category.name + " <span>Quizzes!</span>";
-    description.textContent = category.description;
+if (selectedCategory) {
+    document.title = selectedCategory.title + " Quizzes | Quizivia";
 
-    grid.innerHTML = category.quizzes.map((quiz, index) => {
-        const levelClass = quiz[2] === "MEDIUM"
-            ? "medium"
-            : quiz[2] === "HARD" ? "hard" : "";
+    document.getElementById("category-title").innerHTML =
+        selectedCategory.title + " <span>Quizzes!</span>";
 
-        const icon = index === 0 ? category.icon
-            : index === 1 ? "🧠" : "🏆";
+    document.getElementById("category-description").textContent =
+        selectedCategory.description;
 
-        const questions = index === 2 ? 15 : 10;
-        const minutes = index === 0 ? 5 : index === 1 ? 7 : 10;
+    selectedCategory.quizzes.forEach((quiz, index) => {
+        const card = document.createElement("article");
+        card.className = "category-quiz-card";
 
-        return `
-            <article class="category-quiz-card">
-                <div class="quiz-card-icon">${icon}</div>
-                <span class="quiz-card-level ${levelClass}">
-                    ${quiz[2]}
-                </span>
-                <h3>${quiz[0]}</h3>
-                <p>${quiz[1]}</p>
-                <div class="quiz-card-details">
-                    <span>✦ ${questions} Questions</span>
-                    <span>⏱ ${minutes} Minutes</span>
-                </div>
-                <a href="daily-quiz.html" class="btn">PLAY QUIZ →</a>
-            </article>
+        card.innerHTML = `
+            <div class="quiz-card-icon">${selectedCategory.icon}</div>
+
+            <div class="quiz-card-details">
+                <span class="quiz-card-level">${quiz.level}</span>
+                <h3>${quiz.title}</h3>
+                <p>${quiz.questions} Questions · ${quiz.time}</p>
+                <a href="quiz.html?category=${encodeURIComponent(category)}&quiz=${encodeURIComponent(quiz.id)}"
+                   class="btn">
+                    PLAY QUIZ →
+                </a>
+            </div>
         `;
-    }).join("");
+
+        quizGrid.appendChild(card);
+    });
 
 } else {
-    title.innerHTML = "Category <span>Not Found!</span>";
-    description.textContent = "Please choose a valid quiz category.";
-    grid.innerHTML = `
-        <div class="category-back">
-            <a href="categories.html" class="btn">BACK TO CATEGORIES</a>
-        </div>
+    document.getElementById("category-title").textContent =
+        "Category Not Found";
+
+    document.getElementById("category-description").textContent =
+        "Please choose a valid category.";
+
+    quizGrid.innerHTML = `
+        <p>Please return to the Categories page and choose a category.</p>
     `;
 }
 </script>
