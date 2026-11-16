@@ -334,10 +334,6 @@ function renderQuestion() {
         optionsContainer.appendChild(label);
     });
 
-    nextButton.textContent =
-    currentIndex === questions.length - 1
-        ? "SUBMIT QUIZ →"
-        : "NEXT QUESTION →";
 }
 
 // SUBMIT ANSWER
@@ -416,8 +412,6 @@ async function submitAnswer(event) {
 
         submitButton.hidden = true;
 
-        nextButton.hidden = false;
-        nextButton.disabled = false;
 
     } catch (error) {
 
