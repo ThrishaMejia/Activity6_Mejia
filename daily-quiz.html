@@ -128,8 +128,7 @@
 import { createClient } from
     "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
-// Use the SAME project URL and Publishable Key from admin.html.
-// Never put your Supabase Secret Key here.
+// SUPABASE CONNECTION
 
 const SUPABASE_URL = "https://mnknxizgpkznkboingbf.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_2Y6PlxPEFUdgIXuTTAhtag_XGPy-008";
@@ -155,8 +154,7 @@ const questionText = document.getElementById("daily-question");
 const optionsContainer = document.getElementById("daily-options");
 
 const answerForm = document.getElementById("daily-answer-form");
-const submitButton = document.getElementById("daily-submit");
-const actionButton = submitButton;
+const actionButton = document.getElementById("daily-submit");
 const feedback = document.getElementById("daily-feedback");
 
 // QUIZ STATE
@@ -194,8 +192,7 @@ async function loadDailyQuestions() {
 
         if (data.questions.length < 10) {
             showError(
-                "There are not enough active questions in the question bank. " +
-                "Please ask the admin to add at least 10 questions."
+                "There are not enough active questions in the question bank. Please ask the admin to add at least 10 questions."
             );
             return;
         }
@@ -270,12 +267,9 @@ function renderQuestion() {
     feedback.textContent = "";
     feedback.className = "quiz-feedback";
 
-    submitButton.disabled = true;
-    submitButton.hidden = false;
-    submitButton.textContent = "SUBMIT ANSWER →";
-
-    nextButton.hidden = true;
-    nextButton.disabled = true;
+    actionButton.disabled = true;
+    actionButton.hidden = false;
+    actionButton.textContent = "SUBMIT ANSWER →";
 
     let options = item.options;
 
@@ -328,33 +322,44 @@ function renderQuestion() {
 
             label.classList.add("selected");
 
-            submitButton.disabled = false;
+            actionButton.disabled = false;
         });
 
         optionsContainer.appendChild(label);
     });
-
 }
 
-// SUBMIT ANSWER
+// SUBMIT ANSWER OR MOVE TO NEXT QUESTION
 
-async function submitAnswer(event) {
+async function handleAction(event) {
 
     event.preventDefault();
 
-    if (
-        selectedAnswer === null ||
-        submitted ||
-        checkingAnswer ||
-        finished
-    ) {
+    if (finished || checkingAnswer) return;
+
+    // ANSWER ALREADY CHECKED:
+    // MOVE TO NEXT QUESTION OR FINISH QUIZ
+
+    if (submitted) {
+
+        if (currentIndex === questions.length - 1) {
+            finishQuiz();
+        } else {
+            currentIndex++;
+            renderQuestion();
+        }
+
         return;
     }
 
+    // NO ANSWER SELECTED
+
+    if (selectedAnswer === null) return;
+
     checkingAnswer = true;
 
-    submitButton.disabled = true;
-    submitButton.textContent = "CHECKING...";
+    actionButton.disabled = true;
+    actionButton.textContent = "CHECKING...";
 
     try {
 
@@ -410,8 +415,14 @@ async function submitAnswer(event) {
                 }
             });
 
-        submitButton.hidden = true;
+        // CHANGE THE SAME BUTTON LABEL
 
+        actionButton.disabled = false;
+
+        actionButton.textContent =
+            currentIndex === questions.length - 1
+                ? "SUBMIT QUIZ →"
+                : "NEXT QUESTION →";
 
     } catch (error) {
 
@@ -419,30 +430,14 @@ async function submitAnswer(event) {
 
         checkingAnswer = false;
 
-        submitButton.disabled = false;
-        submitButton.textContent = "SUBMIT ANSWER →";
+        actionButton.disabled = false;
+        actionButton.textContent = "SUBMIT ANSWER →";
 
         feedback.textContent =
             "Unable to check your answer. Please try again.";
 
         feedback.className = "quiz-feedback wrong";
     }
-}
-
-// NEXT QUESTION
-
-function nextQuestion() {
-
-    if (!submitted || checkingAnswer || finished) return;
-
-    currentIndex++;
-
-    if (currentIndex >= questions.length) {
-        finishQuiz();
-        return;
-    }
-
-    renderQuestion();
 }
 
 // TIMER
@@ -460,9 +455,7 @@ function formatTime(seconds) {
 }
 
 function updateTimer() {
-
     timerDisplay.textContent = formatTime(timeLeft);
-
 }
 
 function startTimer() {
@@ -514,9 +507,7 @@ function finishQuiz() {
 
 // EVENTS
 
-answerForm.addEventListener("submit", submitAnswer);
-
-nextButton.addEventListener("click", nextQuestion);
+answerForm.addEventListener("submit", handleAction);
 
 // START DAILY QUIZ
 
