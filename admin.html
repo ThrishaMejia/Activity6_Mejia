@@ -51,7 +51,11 @@
       color: #51436f;
     }
 
-    textarea { min-height: 85px; resize: vertical; }
+    textarea {
+      min-height: 250px;
+      resize: vertical;
+      line-height: 1.6;
+    }
 
     label { font-weight: 800; }
 
@@ -67,6 +71,11 @@
     }
 
     button:hover { background: #8e70ca; }
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
     button.danger { background: #df8fae; }
     button.secondary { background: #9c91b5; }
 
@@ -80,9 +89,77 @@
       background: #fcfaff;
     }
 
-    .muted { color: #9589aa; font-size: 13px; }
-    #message { font-weight: 800; margin: 12px 0; }
-    .topline { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .muted {
+      color: #9589aa;
+      font-size: 13px;
+    }
+
+    #message {
+      font-weight: 800;
+      margin: 12px 0;
+      overflow-wrap: anywhere;
+    }
+
+    .topline {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .help-box {
+      background: #f7f2ff;
+      border: 1px dashed #c9b5ed;
+      border-radius: 12px;
+      padding: 14px;
+      margin: 12px 0 18px;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .preview-item {
+      border: 1px solid #e6dcf8;
+      border-radius: 12px;
+      padding: 14px;
+      margin: 10px 0;
+      background: #fcfaff;
+    }
+
+    .preview-item p {
+      margin: 5px 0;
+    }
+
+    .preview-item ul {
+      padding-left: 22px;
+      line-height: 1.6;
+    }
+
+    .correct {
+      color: #6b9b79;
+      font-weight: 800;
+    }
+
+    .error {
+      color: #c65b82;
+      font-weight: 800;
+    }
+
+    .success {
+      color: #6b9b79;
+      font-weight: 800;
+    }
+
+    .count {
+      font-family: 'Pixelify Sans', cursive;
+      color: #8064bd;
+      font-size: 20px;
+    }
+
+    @media (max-width: 550px) {
+      .panel { padding: 17px; }
+      body { padding: 16px 10px; }
+    }
   </style>
 </head>
 
@@ -122,54 +199,77 @@
       <button id="logoutButton" class="secondary">Log out</button>
     </section>
 
-    <!-- ADD QUESTION -->
+    <!-- BULK IMPORTER -->
     <section class="panel">
-      <h2>add a question</h2>
+      <h2>🎀 bulk question importer</h2>
+      <p class="muted">
+        Add multiple questions at once. Choose your category and difficulty only once!
+      </p>
 
-      <form id="questionForm">
+      <label for="bulkCategory">Category</label>
+      <select id="bulkCategory">
+        <option value="history">History</option>
+        <option value="science">Science</option>
+        <option value="mathematics">Mathematics</option>
+        <option value="general-knowledge">General Knowledge</option>
+      </select>
 
-        <label for="category">Category</label>
-        <select id="category" required>
-          <option value="history">History</option>
-          <option value="science">Science</option>
-          <option value="mathematics">Mathematics</option>
-          <option value="general-knowledge">General Knowledge</option>
-        </select>
+      <label for="bulkDifficulty">Difficulty</label>
+      <select id="bulkDifficulty">
+        <option value="easy">Easy</option>
+        <option value="medium">Medium</option>
+        <option value="hard">Hard</option>
+      </select>
 
-        <label for="difficulty">Difficulty</label>
-        <select id="difficulty" required>
-          <option value="easy">Easy</option>
-          <option value="medium">Medium</option>
-          <option value="hard">Hard</option>
-        </select>
+      <div class="help-box">
+        <strong>♡ how to paste your questions:</strong><br>
+        Each question must have a number, four choices (A–D), and a correct answer.
 
-        <label for="questionText">Question</label>
-        <textarea id="questionText" required maxlength="1000"
-          placeholder="Enter your question..."></textarea>
+        <br><br>
+        <strong>Example:</strong><br>
+        1. What is the capital of the Philippines?<br>
+        A. Cebu City<br>
+        B. Manila<br>
+        C. Davao City<br>
+        D. Baguio City<br>
+        Correct: B
 
-        <label for="optionA">Option A</label>
-        <input id="optionA" required maxlength="250">
+        <br><br>
+        Leave a blank line between questions. You can paste all 10 questions together!
+      </div>
 
-        <label for="optionB">Option B</label>
-        <input id="optionB" required maxlength="250">
+      <label for="bulkText">Paste your questions here</label>
+      <textarea
+        id="bulkText"
+        placeholder="1. What is the capital of the Philippines?
 
-        <label for="optionC">Option C</label>
-        <input id="optionC" required maxlength="250">
+A. Cebu City
+B. Manila
+C. Davao City
+D. Baguio City
+Correct: B
 
-        <label for="optionD">Option D</label>
-        <input id="optionD" required maxlength="250">
+2. Your next question..."
+      ></textarea>
 
-        <label for="correctAnswer">Correct answer</label>
-        <select id="correctAnswer" required>
-          <option value="">Choose correct answer</option>
-          <option value="A">Option A</option>
-          <option value="B">Option B</option>
-          <option value="C">Option C</option>
-          <option value="D">Option D</option>
-        </select>
+      <button type="button" id="previewButton">
+        Preview Questions
+      </button>
 
-        <button type="submit">+ Add question</button>
-      </form>
+      <div id="previewArea" class="hidden">
+        <hr style="border:0;border-top:1px solid #e6dcf8;margin:20px 0;">
+
+        <div class="topline">
+          <h3>question preview</h3>
+          <span id="previewCount" class="count">0 questions</span>
+        </div>
+
+        <div id="previewList"></div>
+
+        <button type="button" id="importButton" disabled>
+          Import All Questions
+        </button>
+      </div>
     </section>
 
     <!-- QUESTION BANK -->
@@ -189,9 +289,11 @@
   import { createClient } from
     "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
-  // Replace these with your own Supabase public credentials.
-  const SUPABASE_URL = "https://mnknxizgpkznkboingbf.supabase.co";
-  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_2Y6PlxPEFUdgIXuTTAhtag_XGPy-008";
+  const SUPABASE_URL =
+    "https://mnknxizgpkznkboingbf.supabase.co";
+
+  const SUPABASE_PUBLISHABLE_KEY =
+    "sb_publishable_2Y6PlxPEFUdgIXuTTAhtag_XGPy-008";
 
   const supabase = createClient(
     SUPABASE_URL,
@@ -202,6 +304,8 @@
   const dashboard = document.getElementById("dashboard");
   const message = document.getElementById("message");
   const questionList = document.getElementById("questionList");
+
+  let parsedQuestions = [];
 
   function showMessage(text, isError = false) {
     message.textContent = text;
@@ -219,13 +323,16 @@
   }
 
   async function updateScreen() {
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } =
+      await supabase.auth.getSession();
 
     if (session) {
       loginPanel.classList.add("hidden");
       dashboard.classList.remove("hidden");
+
       document.getElementById("adminEmail").textContent =
         session.user.email || "admin";
+
       await loadQuestions();
     } else {
       dashboard.classList.add("hidden");
@@ -245,73 +352,340 @@
     return data;
   }
 
-  document.getElementById("loginForm").addEventListener("submit", async (event) => {
-    event.preventDefault();
-    showMessage("Logging in...");
+  // LOGIN
+  document.getElementById("loginForm").addEventListener(
+    "submit",
+    async (event) => {
+      event.preventDefault();
+      showMessage("Logging in...");
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email: document.getElementById("email").value.trim(),
-      password: document.getElementById("password").value
-    });
-
-    if (error) {
-      showMessage(error.message, true);
-      return;
-    }
-
-    showMessage("Welcome to Quizivia Admin!");
-    await updateScreen();
-  });
-
-  document.getElementById("logoutButton").addEventListener("click", async () => {
-    await supabase.auth.signOut();
-    showMessage("You have logged out.");
-    await updateScreen();
-  });
-
-  document.getElementById("questionForm").addEventListener("submit", async (event) => {
-    event.preventDefault();
-    showMessage("Saving question...");
-
-    const options = [
-      document.getElementById("optionA").value.trim(),
-      document.getElementById("optionB").value.trim(),
-      document.getElementById("optionC").value.trim(),
-      document.getElementById("optionD").value.trim()
-    ];
-
-    const correctLetter = document.getElementById("correctAnswer").value;
-    const correctAnswer = options[["A", "B", "C", "D"].indexOf(correctLetter)];
-
-    if (new Set(options.map(option => option.toLowerCase())).size !== 4) {
-      showMessage("Please enter four different choices.", true);
-      return;
-    }
-
-    try {
-      await callAdminFunction({
-        action: "add",
-        category: document.getElementById("category").value,
-        difficulty: document.getElementById("difficulty").value,
-        question_text: document.getElementById("questionText").value.trim(),
-        options,
-        correct_answer: correctAnswer
+      const { error } = await supabase.auth.signInWithPassword({
+        email: document.getElementById("email").value.trim(),
+        password: document.getElementById("password").value
       });
 
-      document.getElementById("questionForm").reset();
-      showMessage("Question added successfully!");
-      await loadQuestions();
+      if (error) {
+        showMessage(error.message, true);
+        return;
+      }
 
-    } catch (error) {
-      showMessage(error.message, true);
+      showMessage("Welcome to Quizivia Admin!");
+      await updateScreen();
     }
-  });
+  );
 
+  // LOGOUT
+  document.getElementById("logoutButton").addEventListener(
+    "click",
+    async () => {
+      await supabase.auth.signOut();
+      showMessage("You have logged out.");
+      await updateScreen();
+    }
+  );
+
+  // PARSE BULK QUESTIONS
+  function parseQuestions(rawText) {
+    const lines = rawText.split(/\r?\n/);
+
+    const blocks = [];
+    let current = null;
+
+    function finishCurrent() {
+      if (current) {
+        blocks.push(current);
+        current = null;
+      }
+    }
+
+    for (let rawLine of lines) {
+      let line = rawLine.trim();
+
+      if (!line) continue;
+
+      // Remove markdown bold markers if copied from formatted text.
+      line = line.replace(/^\*+/, "").replace(/\*+$/, "").trim();
+
+      // New numbered question.
+      const questionMatch = line.match(/^\d+[\).]\s*(.+)$/);
+
+      if (questionMatch) {
+        finishCurrent();
+
+        current = {
+          question_text: questionMatch[1].trim(),
+          options: {},
+          correct_letter: ""
+        };
+
+        continue;
+      }
+
+      // Ignore text before the first numbered question.
+      if (!current) continue;
+
+      // Answer choice: A. / A) / A:
+      const optionMatch = line.match(
+        /^(?:[-*]\s*)?([A-D])[.)\:]\s*(.+)$/i
+      );
+
+      if (optionMatch) {
+        const letter = optionMatch[1].toUpperCase();
+        current.options[letter] = optionMatch[2].trim();
+        continue;
+      }
+
+      // Correct answer: B or Correct Answer: B.
+      const answerMatch = line.match(
+        /^(?:correct(?:\s+answer)?|answer)\s*[:\-]\s*([A-D])(?:\b|[.)])/i
+      );
+
+      if (answerMatch) {
+        current.correct_letter = answerMatch[1].toUpperCase();
+      }
+    }
+
+    finishCurrent();
+
+    return blocks;
+  }
+
+  // VALIDATE QUESTIONS
+  function validateQuestions(blocks) {
+    const valid = [];
+    const errors = [];
+
+    const seen = new Set();
+
+    blocks.forEach((question, index) => {
+      const number = index + 1;
+      const options = ["A", "B", "C", "D"];
+
+      const missingOptions = options.filter(
+        letter => !question.options[letter]
+      );
+
+      if (!question.question_text) {
+        errors.push(`Question ${number}: Missing question text.`);
+        return;
+      }
+
+      if (missingOptions.length) {
+        errors.push(
+          `Question ${number}: Missing option(s) ${missingOptions.join(", ")}.`
+        );
+        return;
+      }
+
+      if (!question.correct_letter) {
+        errors.push(`Question ${number}: Missing correct answer.`);
+        return;
+      }
+
+      const choiceValues = options.map(
+        letter => question.options[letter].trim().toLowerCase()
+      );
+
+      if (new Set(choiceValues).size !== 4) {
+        errors.push(`Question ${number}: Choices must be different.`);
+        return;
+      }
+
+      if (!question.options[question.correct_letter]) {
+        errors.push(`Question ${number}: Invalid correct answer.`);
+        return;
+      }
+
+      const duplicateKey = question.question_text
+        .trim()
+        .toLowerCase();
+
+      if (seen.has(duplicateKey)) {
+        errors.push(`Question ${number}: Duplicate question in this batch.`);
+        return;
+      }
+
+      seen.add(duplicateKey);
+
+      valid.push({
+        question_text: question.question_text,
+        options: options.map(letter => question.options[letter]),
+        correct_answer: question.options[question.correct_letter]
+      });
+    });
+
+    return { valid, errors };
+  }
+
+  // PREVIEW
+  document.getElementById("previewButton").addEventListener(
+    "click",
+    () => {
+      const rawText = document.getElementById("bulkText").value;
+
+      if (!rawText.trim()) {
+        showMessage("Please paste your questions first.", true);
+        return;
+      }
+
+      const blocks = parseQuestions(rawText);
+      const result = validateQuestions(blocks);
+
+      parsedQuestions = result.valid;
+
+      const previewArea = document.getElementById("previewArea");
+      const previewList = document.getElementById("previewList");
+      const previewCount = document.getElementById("previewCount");
+      const importButton = document.getElementById("importButton");
+
+      previewArea.classList.remove("hidden");
+
+      previewCount.textContent =
+        `${parsedQuestions.length} valid question(s)`;
+
+      let html = "";
+
+      if (parsedQuestions.length) {
+        html += parsedQuestions.map((question, index) => `
+          <article class="preview-item">
+            <strong>
+              ${index + 1}. ${escapeHTML(question.question_text)}
+            </strong>
+
+            <ul>
+              ${question.options.map((option, optionIndex) => `
+                <li>
+                  ${"ABCD"[optionIndex]}. ${escapeHTML(option)}
+                  ${
+                    question.correct_answer === option
+                      ? '<span class="correct"> ✓ Correct</span>'
+                      : ""
+                  }
+                </li>
+              `).join("")}
+            </ul>
+          </article>
+        `).join("");
+      }
+
+      if (result.errors.length) {
+        html += `
+          <div class="help-box">
+            <strong class="error">
+              Please fix these problems:
+            </strong>
+            <ul>
+              ${result.errors.map(error => `
+                <li>${escapeHTML(error)}</li>
+              `).join("")}
+            </ul>
+          </div>
+        `;
+      }
+
+      previewList.innerHTML = html;
+
+      importButton.disabled =
+        parsedQuestions.length === 0 ||
+        result.errors.length > 0;
+
+      if (result.errors.length) {
+        showMessage(
+          `${parsedQuestions.length} valid question(s), but there are errors to fix.`,
+          true
+        );
+      } else {
+        showMessage(
+          `${parsedQuestions.length} question(s) ready to import!`
+        );
+      }
+    }
+  );
+
+  // BULK IMPORT
+  document.getElementById("importButton").addEventListener(
+    "click",
+    async () => {
+      if (!parsedQuestions.length) return;
+
+      const category =
+        document.getElementById("bulkCategory").value;
+
+      const difficulty =
+        document.getElementById("bulkDifficulty").value;
+
+      const confirmed = confirm(
+        `Import ${parsedQuestions.length} question(s) into ${category} - ${difficulty}?`
+      );
+
+      if (!confirmed) return;
+
+      const importButton =
+        document.getElementById("importButton");
+
+      const previewButton =
+        document.getElementById("previewButton");
+
+      importButton.disabled = true;
+      previewButton.disabled = true;
+
+      let imported = 0;
+
+      try {
+        for (let i = 0; i < parsedQuestions.length; i++) {
+          const question = parsedQuestions[i];
+
+          showMessage(
+            `Importing question ${i + 1} of ${parsedQuestions.length}...`
+          );
+
+          await callAdminFunction({
+            action: "add",
+            category,
+            difficulty,
+            question_text: question.question_text,
+            options: question.options,
+            correct_answer: question.correct_answer
+          });
+
+          imported++;
+        }
+
+        showMessage(
+          `Successfully imported all ${imported} questions!`
+        );
+
+        document.getElementById("bulkText").value = "";
+        document.getElementById("previewArea").classList.add("hidden");
+
+        parsedQuestions = [];
+
+        await loadQuestions();
+
+      } catch (error) {
+        showMessage(
+          `${imported} question(s) saved. Import stopped at question ${imported + 1}: ${error.message}. Please check the question bank before trying again.`,
+          true
+        );
+
+        await loadQuestions();
+
+      } finally {
+        importButton.disabled = false;
+        previewButton.disabled = false;
+      }
+    }
+  );
+
+  // QUESTION BANK
   async function loadQuestions() {
     questionList.textContent = "Loading questions...";
 
     try {
-      const result = await callAdminFunction({ action: "list" });
+      const result = await callAdminFunction({
+        action: "list"
+      });
+
       const questions = result.questions || [];
 
       if (!questions.length) {
@@ -321,12 +695,16 @@
 
       questionList.innerHTML = questions.map(question => `
         <article class="question">
-          <strong>${escapeHTML(question.question_text)}</strong>
+          <strong>
+            ${escapeHTML(question.question_text)}
+          </strong>
+
           <p class="muted">
             Category ID: ${escapeHTML(question.category_id)}
             · ${escapeHTML(question.difficulty)}
             · ${question.is_active ? "Active" : "Inactive"}
           </p>
+
           ${
             question.is_active
               ? `<button class="danger" data-deactivate="${Number(question.id)}">Deactivate</button>`
@@ -340,8 +718,10 @@
     }
   }
 
+  // DEACTIVATE QUESTION
   questionList.addEventListener("click", async (event) => {
     const button = event.target.closest("[data-deactivate]");
+
     if (!button) return;
 
     if (!confirm("Deactivate this question?")) return;
@@ -360,6 +740,7 @@
     }
   });
 
+  // REFRESH
   document.getElementById("refreshButton").addEventListener(
     "click",
     loadQuestions
