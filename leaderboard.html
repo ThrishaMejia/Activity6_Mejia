@@ -1,19 +1,21 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leaderboard | Quizivia</title>
-    <link rel="stylesheet" href="css/style.css?v=4">
+    <link rel="stylesheet" href="css/style.css?v=6">
 </head>
 <body>
-    <!-- HEADER -->
-    <header class="site-header">
-        <h1 class="logo">
-            <a href="index.html">
-                <img src="assets/images/quizivia_logo.png" alt="Quizivia Logo">
-            </a>
-        </h1>
+
+<header class="site-header">
+    <h1 class="logo">
+        <a href="index.html">
+            <img src="assets/images/quizivia_logo.png" alt="Quizivia Logo">
+        </a>
+    </h1>
+
     <nav class="main-nav">
         <a href="index.html">Home</a>
         <a href="categories.html">Categories</a>
@@ -21,94 +23,119 @@
         <a href="leaderboard.html" class="active">Leaderboard</a>
         <a href="index.html#about">About</a>
     </nav>
-    </header>
-    <main>
-        <!-- LEADERBOARD INTRO -->
-        <section class="container">
-            <h2>Quizivia Leaderboard 🏆</h2>
-            <p>
-                Meet our top players! Keep learning,
-                keep playing, and aim for the top!
-            </p>
-            <p><strong>Updated Today</strong></p>
-        </section>
-        <!-- TOP THREE PLAYERS -->
-        <section class="container">
+</header>
+
+<main class="leaderboard-page">
+
+    <section class="page-intro">
+        <p class="eyebrow">✦ THE HALL OF FAME ✦</p>
+        <h2>Quizivia <span>Leaderboard!</span></h2>
+        <p>
+            Meet our top players! Keep learning,
+            keep playing, and aim for the top!
+        </p>
+        <span class="leaderboard-updated">✦ UPDATED TODAY ✦</span>
+    </section>
+
+    <section class="champions-section">
+        <div class="leaderboard-heading">
+            <p class="eyebrow">✦ BEST OF THE BEST ✦</p>
             <h2>Top 3 Champions</h2>
-            <div class="category-grid">
-                <div class="category-card">
-                    <h3>🥇 1st Place</h3>
-                    <p><strong>Ava Thompson</strong></p>
-                    <p>980 Points</p>
-                </div>
-                <div class="category-card">
-                    <h3>🥈 2nd Place</h3>
-                    <p><strong>Liam Chen</strong></p>
-                    <p>940 Points</p>
-                </div>
-                <div class="category-card">
-                    <h3>🥉 3rd Place</h3>
-                    <p><strong>Noor Haddad</strong></p>
-                    <p>910 Points</p>
-                </div>
-            </div>
-        </section>
-        <!-- PLAYER RANKINGS -->
-        <section class="container">
+        </div>
+
+        <div class="champions-grid">
+
+            <article class="champion-card second-place">
+                <div class="champion-rank">2ND</div>
+                <div class="champion-avatar">👑</div>
+                <p class="champion-title">SILVER CHAMPION</p>
+                <h3>Liam Chen</h3>
+                <div class="champion-score">940 <span>PTS</span></div>
+            </article>
+
+            <article class="champion-card first-place">
+                <div class="champion-rank">1ST</div>
+                <div class="champion-avatar">🏆</div>
+                <p class="champion-title">GRAND CHAMPION</p>
+                <h3>Ava Thompson</h3>
+                <div class="champion-score">980 <span>PTS</span></div>
+            </article>
+
+            <article class="champion-card third-place">
+                <div class="champion-rank">3RD</div>
+                <div class="champion-avatar">⭐</div>
+                <p class="champion-title">BRONZE CHAMPION</p>
+                <h3>Noor Haddad</h3>
+                <div class="champion-score">910 <span>PTS</span></div>
+            </article>
+
+        </div>
+    </section>
+
+    <section class="rankings-section">
+        <div class="leaderboard-heading">
+            <p class="eyebrow">✦ RANKINGS ✦</p>
             <h2>Player Rankings</h2>
+            <p>Every point brings you closer to the top!</p>
+        </div>
+
+        <div class="rankings-card">
             <table class="leaderboard-table">
                 <thead>
                     <tr>
-                        <th>Rank</th>
-                        <th>Player</th>
-                        <th>Score</th>
+                        <th>RANK</th>
+                        <th>PLAYER</th>
+                        <th>SCORE</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>🥇 1</td>
-                        <td>Ava Thompson</td>
-                        <td>980</td>
+                    <tr class="top-rank">
+                        <td><span class="rank-number">01</span></td>
+                        <td class="player-name">Ava Thompson</td>
+                        <td class="player-score">980 XP</td>
+                    </tr>
+                    <tr class="top-rank">
+                        <td><span class="rank-number">02</span></td>
+                        <td class="player-name">Liam Chen</td>
+                        <td class="player-score">940 XP</td>
+                    </tr>
+                    <tr class="top-rank">
+                        <td><span class="rank-number">03</span></td>
+                        <td class="player-name">Noor Haddad</td>
+                        <td class="player-score">910 XP</td>
                     </tr>
                     <tr>
-                        <td>🥈 2</td>
-                        <td>Liam Chen</td>
-                        <td>940</td>
+                        <td><span class="rank-number">04</span></td>
+                        <td class="player-name">Emma Wilson</td>
+                        <td class="player-score">875 XP</td>
                     </tr>
                     <tr>
-                        <td>🥉 3</td>
-                        <td>Noor Haddad</td>
-                        <td>910</td>
-                    </tr>
-                    <tr>
-                        <td>4</td>
-                        <td>Emma Wilson</td>
-                        <td>875</td>
-                    </tr>
-                    <tr>
-                        <td>5</td>
-                        <td>Lucas Garcia</td>
-                        <td>850</td>
+                        <td><span class="rank-number">05</span></td>
+                        <td class="player-name">Lucas Garcia</td>
+                        <td class="player-score">850 XP</td>
                     </tr>
                 </tbody>
             </table>
-        </section>
-        <!-- CALL TO ACTION -->
-        <section class="container">
-            <div class="quiz-card">
-                <h3>Ready to Join the Champions?</h3>
-                <p>
-                    Take a quiz, improve your score,
-                    and see if you can reach the top!
-                </p>
-                <a href="daily-quiz.html">Play Now</a>
-            </div>
-        </section>
-    </main>
-    <!-- FOOTER -->
-    <footer class="site-footer">
-        <p>© 2026 Quizivia. All rights reserved.</p>
-        <p>Learn, Play, and Challenge Yourself! ✦</p>
-    </footer>
+        </div>
+    </section>
+
+    <section class="leaderboard-cta">
+        <div class="cta-trophy">🏆</div>
+        <p class="eyebrow">✦ YOUR ADVENTURE AWAITS ✦</p>
+        <h2>Ready to Join the Champions?</h2>
+        <p>
+            Take a quiz, improve your score,
+            and see if you can reach the top!
+        </p>
+        <a href="daily-quiz.html" class="btn">PLAY NOW ✦</a>
+    </section>
+
+</main>
+
+<footer class="site-footer">
+    <p>© 2026 Quizivia. All rights reserved.</p>
+    <p>Learn, Play, and Challenge Yourself! ✦</p>
+</footer>
+
 </body>
 </html>
