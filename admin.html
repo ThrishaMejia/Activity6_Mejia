@@ -1,0 +1,376 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quizivia | Admin Dashboard</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 24px 16px;
+      background: #f4efff;
+      color: #51436f;
+      font-family: 'Nunito', sans-serif;
+    }
+
+    .container {
+      max-width: 850px;
+      margin: auto;
+    }
+
+    h1, h2, h3 {
+      font-family: 'Pixelify Sans', cursive;
+      color: #8064bd;
+    }
+
+    .panel {
+      background: white;
+      padding: 24px;
+      margin: 18px 0;
+      border: 2px solid #e2d5ff;
+      border-radius: 18px;
+      box-shadow: 0 5px 0 #dfd1f7;
+    }
+
+    input, select, textarea {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0 14px;
+      border: 2px solid #e4d9f8;
+      border-radius: 10px;
+      font: inherit;
+      background: #fcfaff;
+      color: #51436f;
+    }
+
+    textarea { min-height: 85px; resize: vertical; }
+
+    label { font-weight: 800; }
+
+    button {
+      padding: 11px 17px;
+      border: 0;
+      border-radius: 10px;
+      background: #a78bdf;
+      color: white;
+      font: 800 14px 'Nunito', sans-serif;
+      cursor: pointer;
+      margin: 4px;
+    }
+
+    button:hover { background: #8e70ca; }
+    button.danger { background: #df8fae; }
+    button.secondary { background: #9c91b5; }
+
+    .hidden { display: none !important; }
+
+    .question {
+      padding: 15px;
+      margin: 12px 0;
+      border: 1px solid #e6dcf8;
+      border-radius: 12px;
+      background: #fcfaff;
+    }
+
+    .muted { color: #9589aa; font-size: 13px; }
+    #message { font-weight: 800; margin: 12px 0; }
+    .topline { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+  </style>
+</head>
+
+<body>
+<div class="container">
+
+  <header>
+    <h1>🎀 quizivia admin</h1>
+    <p>your little control room for quiz questions!</p>
+  </header>
+
+  <div id="message" role="status" aria-live="polite"></div>
+
+  <!-- LOGIN -->
+  <section id="loginPanel" class="panel">
+    <h2>admin login</h2>
+
+    <form id="loginForm">
+      <label for="email">Email address</label>
+      <input id="email" type="email" required autocomplete="username">
+
+      <label for="password">Password</label>
+      <input id="password" type="password" required autocomplete="current-password">
+
+      <button type="submit">Log in</button>
+    </form>
+  </section>
+
+  <!-- DASHBOARD -->
+  <main id="dashboard" class="hidden">
+
+    <section class="panel topline">
+      <div>
+        <h2>dashboard</h2>
+        <p id="adminEmail" class="muted"></p>
+      </div>
+      <button id="logoutButton" class="secondary">Log out</button>
+    </section>
+
+    <!-- ADD QUESTION -->
+    <section class="panel">
+      <h2>add a question</h2>
+
+      <form id="questionForm">
+
+        <label for="category">Category</label>
+        <select id="category" required>
+          <option value="history">History</option>
+          <option value="science">Science</option>
+          <option value="mathematics">Mathematics</option>
+          <option value="general-knowledge">General Knowledge</option>
+        </select>
+
+        <label for="difficulty">Difficulty</label>
+        <select id="difficulty" required>
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+
+        <label for="questionText">Question</label>
+        <textarea id="questionText" required maxlength="1000"
+          placeholder="Enter your question..."></textarea>
+
+        <label for="optionA">Option A</label>
+        <input id="optionA" required maxlength="250">
+
+        <label for="optionB">Option B</label>
+        <input id="optionB" required maxlength="250">
+
+        <label for="optionC">Option C</label>
+        <input id="optionC" required maxlength="250">
+
+        <label for="optionD">Option D</label>
+        <input id="optionD" required maxlength="250">
+
+        <label for="correctAnswer">Correct answer</label>
+        <select id="correctAnswer" required>
+          <option value="">Choose correct answer</option>
+          <option value="A">Option A</option>
+          <option value="B">Option B</option>
+          <option value="C">Option C</option>
+          <option value="D">Option D</option>
+        </select>
+
+        <button type="submit">+ Add question</button>
+      </form>
+    </section>
+
+    <!-- QUESTION BANK -->
+    <section class="panel">
+      <div class="topline">
+        <h2>question bank</h2>
+        <button id="refreshButton" class="secondary">Refresh</button>
+      </div>
+
+      <div id="questionList">Loading questions...</div>
+    </section>
+
+  </main>
+</div>
+
+<script type="module">
+  import { createClient } from
+    "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+  // Replace these with your own Supabase public credentials.
+  const SUPABASE_URL = "PASTE_YOUR_PROJECT_URL";
+  const SUPABASE_PUBLISHABLE_KEY = "PASTE_YOUR_PUBLISHABLE_KEY";
+
+  const supabase = createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
+
+  const loginPanel = document.getElementById("loginPanel");
+  const dashboard = document.getElementById("dashboard");
+  const message = document.getElementById("message");
+  const questionList = document.getElementById("questionList");
+
+  function showMessage(text, isError = false) {
+    message.textContent = text;
+    message.style.color = isError ? "#c65b82" : "#6b9b79";
+  }
+
+  function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, character => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    })[character]);
+  }
+
+  async function updateScreen() {
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (session) {
+      loginPanel.classList.add("hidden");
+      dashboard.classList.remove("hidden");
+      document.getElementById("adminEmail").textContent =
+        session.user.email || "admin";
+      await loadQuestions();
+    } else {
+      dashboard.classList.add("hidden");
+      loginPanel.classList.remove("hidden");
+    }
+  }
+
+  async function callAdminFunction(body) {
+    const { data, error } = await supabase.functions.invoke(
+      "admin-questions",
+      { body }
+    );
+
+    if (error) throw error;
+    if (data?.error) throw new Error(data.error);
+
+    return data;
+  }
+
+  document.getElementById("loginForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    showMessage("Logging in...");
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: document.getElementById("email").value.trim(),
+      password: document.getElementById("password").value
+    });
+
+    if (error) {
+      showMessage(error.message, true);
+      return;
+    }
+
+    showMessage("Welcome to Quizivia Admin!");
+    await updateScreen();
+  });
+
+  document.getElementById("logoutButton").addEventListener("click", async () => {
+    await supabase.auth.signOut();
+    showMessage("You have logged out.");
+    await updateScreen();
+  });
+
+  document.getElementById("questionForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    showMessage("Saving question...");
+
+    const options = [
+      document.getElementById("optionA").value.trim(),
+      document.getElementById("optionB").value.trim(),
+      document.getElementById("optionC").value.trim(),
+      document.getElementById("optionD").value.trim()
+    ];
+
+    const correctLetter = document.getElementById("correctAnswer").value;
+    const correctAnswer = options[["A", "B", "C", "D"].indexOf(correctLetter)];
+
+    if (new Set(options.map(option => option.toLowerCase())).size !== 4) {
+      showMessage("Please enter four different choices.", true);
+      return;
+    }
+
+    try {
+      await callAdminFunction({
+        action: "add",
+        category: document.getElementById("category").value,
+        difficulty: document.getElementById("difficulty").value,
+        question_text: document.getElementById("questionText").value.trim(),
+        options,
+        correct_answer: correctAnswer
+      });
+
+      document.getElementById("questionForm").reset();
+      showMessage("Question added successfully!");
+      await loadQuestions();
+
+    } catch (error) {
+      showMessage(error.message, true);
+    }
+  });
+
+  async function loadQuestions() {
+    questionList.textContent = "Loading questions...";
+
+    try {
+      const result = await callAdminFunction({ action: "list" });
+      const questions = result.questions || [];
+
+      if (!questions.length) {
+        questionList.textContent = "No questions added yet.";
+        return;
+      }
+
+      questionList.innerHTML = questions.map(question => `
+        <article class="question">
+          <strong>${escapeHTML(question.question_text)}</strong>
+          <p class="muted">
+            Category ID: ${escapeHTML(question.category_id)}
+            · ${escapeHTML(question.difficulty)}
+            · ${question.is_active ? "Active" : "Inactive"}
+          </p>
+          ${
+            question.is_active
+              ? `<button class="danger" data-deactivate="${Number(question.id)}">Deactivate</button>`
+              : ""
+          }
+        </article>
+      `).join("");
+
+    } catch (error) {
+      questionList.textContent = error.message;
+    }
+  }
+
+  questionList.addEventListener("click", async (event) => {
+    const button = event.target.closest("[data-deactivate]");
+    if (!button) return;
+
+    if (!confirm("Deactivate this question?")) return;
+
+    try {
+      await callAdminFunction({
+        action: "deactivate",
+        question_id: Number(button.dataset.deactivate)
+      });
+
+      showMessage("Question deactivated.");
+      await loadQuestions();
+
+    } catch (error) {
+      showMessage(error.message, true);
+    }
+  });
+
+  document.getElementById("refreshButton").addEventListener(
+    "click",
+    loadQuestions
+  );
+
+  supabase.auth.onAuthStateChange(() => {
+    updateScreen();
+  });
+
+  await updateScreen();
+</script>
+
+</body>
+</html>
