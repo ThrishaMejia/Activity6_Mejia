@@ -252,5 +252,219 @@
     <p>© 2026 Quizivia. Learn, play, and challenge yourself!</p>
 </footer>
 
+<!-- QUIZIVIA PLAYER ACCOUNT -->
+
+<div id="qv-player-overlay">
+    <div id="qv-player-box">
+
+        <div style="font-size:38px;">🎓</div>
+
+        <div id="qv-player-start">
+            <h2>Welcome to Quizivia!</h2>
+            <p>
+                Ready to play, learn, and earn XP?
+                Create your player account to save your progress!
+            </p>
+            <button onclick="qvShowAccountForm('register')">
+                Yes, let's play!
+            </button>
+            <button class="secondary" onclick="qvClosePopup()">
+                Maybe later
+            </button>
+        </div>
+
+        <div id="qv-player-welcome-back">
+            <h2>Welcome back!</h2>
+            <p id="qv-player-return-name"></p>
+            <button onclick="qvClosePopup()">Continue playing</button>
+            <button class="secondary" onclick="qvLogout()">Switch account</button>
+        </div>
+
+        <div id="qv-player-form">
+            <h2 id="qv-form-title">Create your account</h2>
+            <p id="qv-form-description">
+                Choose a username and a 6-digit PIN.
+            </p>
+
+            <input id="qv-username" type="text"
+                placeholder="Username" minlength="3"
+                maxlength="20" autocomplete="username">
+
+            <input id="qv-pin" type="password"
+                placeholder="6-digit PIN" inputmode="numeric"
+                maxlength="6" autocomplete="new-password">
+
+            <button id="qv-account-submit" onclick="qvSubmitAccount()">
+                Create account
+            </button>
+
+            <button class="secondary" id="qv-switch-mode"
+                onclick="qvToggleMode()">
+                Already have an account? Log in
+            </button>
+
+            <button class="secondary" onclick="qvShowStart()">
+                Back
+            </button>
+
+            <div id="qv-player-message"></div>
+        </div>
+
+        <p class="qv-small">
+            Quizivia Player Account · Keep your PIN private
+        </p>
+    </div>
+</div>
+
+<script>
+(function () {
+    const PLAYER_AUTH_URL =
+        "https://mnknxizgpkznkboingbf.supabase.co/functions/v1/player-auth";
+
+    const SUPABASE_PUBLIC_KEY =
+        "sb_publishable_2Y6PlxPEFUdgIXuTTAhtag_XGPy-008";
+
+    const overlay = document.getElementById("qv-player-overlay");
+    const startPanel = document.getElementById("qv-player-start");
+    const formPanel = document.getElementById("qv-player-form");
+    const welcomePanel = document.getElementById("qv-player-welcome-back");
+
+    let currentMode = "register";
+
+    window.qvClosePopup = function () {
+        overlay.style.display = "none";
+    };
+
+    window.qvShowStart = function () {
+        startPanel.style.display = "block";
+        formPanel.style.display = "none";
+        welcomePanel.style.display = "none";
+    };
+
+    window.qvShowAccountForm = function (mode) {
+        currentMode = mode;
+        startPanel.style.display = "none";
+        welcomePanel.style.display = "none";
+        formPanel.style.display = "block";
+
+        document.getElementById("qv-form-title").textContent =
+            mode === "register" ? "Create your account" : "Welcome back!";
+
+        document.getElementById("qv-form-description").textContent =
+            mode === "register"
+                ? "Choose a username and a 6-digit PIN."
+                : "Enter your username and PIN to log in.";
+
+        document.getElementById("qv-account-submit").textContent =
+            mode === "register" ? "Create account" : "Log in";
+
+        document.getElementById("qv-switch-mode").textContent =
+            mode === "register"
+                ? "Already have an account? Log in"
+                : "New player? Create an account";
+
+        document.getElementById("qv-player-message").textContent = "";
+    };
+
+    window.qvToggleMode = function () {
+        qvShowAccountForm(
+            currentMode === "register" ? "login" : "register"
+        );
+    };
+
+    window.qvLogout = function () {
+        localStorage.removeItem("quizivia_player");
+        qvShowAccountForm("login");
+    };
+
+    window.qvSubmitAccount = async function () {
+        const username = document.getElementById("qv-username").value.trim();
+        const pin = document.getElementById("qv-pin").value;
+        const message = document.getElementById("qv-player-message");
+        const submitButton = document.getElementById("qv-account-submit");
+
+        if (!/^[A-Za-z0-9_]{3,20}$/.test(username)) {
+            message.textContent =
+                "Username must be 3–20 letters, numbers, or underscores.";
+            return;
+        }
+
+        if (!/^\d{6}$/.test(pin)) {
+            message.textContent = "Your PIN must contain exactly 6 digits.";
+            return;
+        }
+
+        submitButton.disabled = true;
+        submitButton.textContent = "Please wait...";
+        message.textContent = "";
+
+        try {
+            const response = await fetch(PLAYER_AUTH_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "apikey": SUPABASE_PUBLIC_KEY
+                },
+                body: JSON.stringify({
+                    action: currentMode,
+                    username: username,
+                    pin: pin
+                })
+            });
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(result.error || "Unable to continue.");
+            }
+
+            localStorage.setItem("quizivia_player", JSON.stringify({
+                player: result.player,
+                token: result.token
+            }));
+
+            document.getElementById("qv-player-return-name").textContent =
+                "You're playing as " + result.player.display_name + ".";
+
+            formPanel.style.display = "none";
+            welcomePanel.style.display = "block";
+
+        } catch (error) {
+            message.textContent = error.message;
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent =
+                currentMode === "register" ? "Create account" : "Log in";
+        }
+    };
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const saved = localStorage.getItem("quizivia_player");
+
+        overlay.style.display = "flex";
+
+        if (saved) {
+            try {
+                const account = JSON.parse(saved);
+
+                if (account.player && account.token) {
+                    document.getElementById("qv-player-return-name").textContent =
+                        "You're playing as " + account.player.display_name + ".";
+
+                    startPanel.style.display = "none";
+                    formPanel.style.display = "none";
+                    welcomePanel.style.display = "block";
+                    return;
+                }
+            } catch (error) {
+                localStorage.removeItem("quizivia_player");
+            }
+        }
+
+        qvShowStart();
+    });
+})();
+</script>
+
 </body>
 </html>
