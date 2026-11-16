@@ -1,0 +1,198 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category Quizzes | Quizivia</title>
+    <link rel="stylesheet" href="css/style.css?v=7">
+</head>
+<body>
+
+<header class="site-header">
+    <h1 class="logo">
+        <a href="index.html">
+            <img src="assets/images/quizivia_logo.png" alt="Quizivia Logo">
+        </a>
+    </h1>
+
+    <nav class="main-nav">
+        <a href="index.html">Home</a>
+        <a href="categories.html" class="active">Categories</a>
+        <a href="daily-quiz.html">Daily Quiz</a>
+        <a href="leaderboard.html">Leaderboard</a>
+        <a href="index.html#about">About</a>
+    </nav>
+</header>
+
+<main class="category-quizzes-page">
+
+    <section class="page-intro">
+        <p class="eyebrow">✦ YOUR NEXT CHALLENGE ✦</p>
+        <h2 id="category-title">Explore <span>Quizzes!</span></h2>
+        <p id="category-description">
+            Choose a quiz and test what you know!
+        </p>
+    </section>
+
+    <section class="quiz-list-section">
+
+        <div class="quiz-list-heading">
+            <h2>Available Quizzes</h2>
+            <p>Pick your challenge, quizzer!</p>
+        </div>
+
+        <div class="category-quiz-grid" id="quiz-grid">
+
+            <article class="category-quiz-card">
+                <div class="quiz-card-icon">📚</div>
+                <span class="quiz-card-level">EASY</span>
+                <h3>Quiz 1</h3>
+                <p>Test your knowledge with this beginner-friendly challenge.</p>
+                <div class="quiz-card-details">
+                    <span>✦ 10 Questions</span>
+                    <span>⏱ 5 Minutes</span>
+                </div>
+                <a href="daily-quiz.html" class="btn">PLAY QUIZ →</a>
+            </article>
+
+            <article class="category-quiz-card">
+                <div class="quiz-card-icon">🧠</div>
+                <span class="quiz-card-level medium">MEDIUM</span>
+                <h3>Quiz 2</h3>
+                <p>Ready for a little more challenge? Give this one a try!</p>
+                <div class="quiz-card-details">
+                    <span>✦ 10 Questions</span>
+                    <span>⏱ 7 Minutes</span>
+                </div>
+                <a href="daily-quiz.html" class="btn">PLAY QUIZ →</a>
+            </article>
+
+            <article class="category-quiz-card">
+                <div class="quiz-card-icon">🏆</div>
+                <span class="quiz-card-level hard">HARD</span>
+                <h3>Quiz 3</h3>
+                <p>Challenge yourself and see if you can master this quiz!</p>
+                <div class="quiz-card-details">
+                    <span>✦ 15 Questions</span>
+                    <span>⏱ 10 Minutes</span>
+                </div>
+                <a href="daily-quiz.html" class="btn">PLAY QUIZ →</a>
+            </article>
+
+        </div>
+
+    </section>
+
+    <section class="category-back">
+        <p>Want to explore another subject?</p>
+        <a href="categories.html" class="btn">← BACK TO CATEGORIES</a>
+    </section>
+
+</main>
+
+<footer class="site-footer">
+    <p>© 2026 Quizivia. Learn, play, and challenge yourself!</p>
+</footer>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const selectedCategory = params.get("category");
+
+const categoryData = {
+    history: {
+        name: "History",
+        description: "Travel through time and discover the stories of our past!",
+        icon: "📜",
+        quizzes: [
+            ["Ancient Civilizations", "Explore the world's earliest civilizations.", "EASY"],
+            ["World History", "Discover important events that shaped our world.", "MEDIUM"],
+            ["Historical Figures", "Test what you know about famous people in history.", "HARD"]
+        ]
+    },
+
+    science: {
+        name: "Science",
+        description: "Discover the wonders of science, nature, and space!",
+        icon: "🔬",
+        quizzes: [
+            ["Our Solar System", "Explore planets, stars, and outer space.", "EASY"],
+            ["Human Body", "Learn about the amazing human body.", "MEDIUM"],
+            ["Scientific Discoveries", "Challenge yourself with famous discoveries.", "HARD"]
+        ]
+    },
+
+    mathematics: {
+        name: "Mathematics",
+        description: "Put your problem-solving skills to the test!",
+        icon: "📐",
+        quizzes: [
+            ["Basic Mathematics", "Practice numbers and simple operations.", "EASY"],
+            ["Fractions and Decimals", "Test your skills with fractions and decimals.", "MEDIUM"],
+            ["Math Challenge", "Solve more challenging mathematical problems.", "HARD"]
+        ]
+    },
+
+    "general-knowledge": {
+        name: "General Knowledge",
+        description: "A little bit of everything! How much do you know?",
+        icon: "🌍",
+        quizzes: [
+            ["Everyday Knowledge", "Test what you know about everyday life.", "EASY"],
+            ["World and Culture", "Explore geography, culture, and traditions.", "MEDIUM"],
+            ["Ultimate Trivia", "Take on a challenging mix of trivia questions.", "HARD"]
+        ]
+    }
+};
+
+const category = categoryData[selectedCategory];
+const title = document.getElementById("category-title");
+const description = document.getElementById("category-description");
+const grid = document.getElementById("quiz-grid");
+
+if (category) {
+    document.title = category.name + " Quizzes | Quizivia";
+    title.innerHTML = category.name + " <span>Quizzes!</span>";
+    description.textContent = category.description;
+
+    grid.innerHTML = category.quizzes.map((quiz, index) => {
+        const levelClass = quiz[2] === "MEDIUM"
+            ? "medium"
+            : quiz[2] === "HARD" ? "hard" : "";
+
+        const icon = index === 0 ? category.icon
+            : index === 1 ? "🧠" : "🏆";
+
+        const questions = index === 2 ? 15 : 10;
+        const minutes = index === 0 ? 5 : index === 1 ? 7 : 10;
+
+        return `
+            <article class="category-quiz-card">
+                <div class="quiz-card-icon">${icon}</div>
+                <span class="quiz-card-level ${levelClass}">
+                    ${quiz[2]}
+                </span>
+                <h3>${quiz[0]}</h3>
+                <p>${quiz[1]}</p>
+                <div class="quiz-card-details">
+                    <span>✦ ${questions} Questions</span>
+                    <span>⏱ ${minutes} Minutes</span>
+                </div>
+                <a href="daily-quiz.html" class="btn">PLAY QUIZ →</a>
+            </article>
+        `;
+    }).join("");
+
+} else {
+    title.innerHTML = "Category <span>Not Found!</span>";
+    description.textContent = "Please choose a valid quiz category.";
+    grid.innerHTML = `
+        <div class="category-back">
+            <a href="categories.html" class="btn">BACK TO CATEGORIES</a>
+        </div>
+    `;
+}
+</script>
+
+</body>
+</html>
