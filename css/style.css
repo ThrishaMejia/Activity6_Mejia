@@ -60,16 +60,13 @@ a {
 /* HEADER AND NAVIGATION */
 
 .site-header {
-    position: relative;
-    z-index: 10;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 24px;
-    padding: 14px 5%;
-    background: linear-gradient(90deg, #30105f, #5825a8, #30105f);
-    border-bottom: 5px solid #1d0b42;
-    box-shadow: 0 5px 0 rgba(38, 12, 77, 0.25);
 }
 
 .logo {
