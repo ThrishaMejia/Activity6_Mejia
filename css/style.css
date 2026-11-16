@@ -1233,3 +1233,307 @@ textarea {
     }
 }
 
+/* =====================================
+   QUIZIVIA LEADERBOARD - PIXEL RPG
+===================================== */
+
+.leaderboard-page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 35px 20px 70px;
+}
+
+.leaderboard-updated {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 9px 15px;
+    color: #7047b1;
+    background: #fff0ad;
+    border: 2px solid #d6b653;
+    box-shadow: 0 4px 0 #c5a34d;
+    font-family: 'Pixelify Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.leaderboard-heading {
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.leaderboard-heading h2,
+.leaderboard-cta h2 {
+    color: var(--deep);
+    font-family: 'Pixelify Sans', sans-serif;
+    font-size: clamp(25px, 4vw, 34px);
+    text-shadow: 2px 2px 0 var(--lavender);
+}
+
+.leaderboard-heading > p:last-child {
+    margin-top: 8px;
+    color: var(--muted);
+    font-weight: 700;
+}
+
+/* CHAMPION CARDS */
+
+.champions-section {
+    margin-top: 45px;
+}
+
+.champions-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    align-items: end;
+    gap: 18px;
+}
+
+.champion-card {
+    position: relative;
+    padding: 25px 15px;
+    text-align: center;
+    background: #ffffff;
+    border: 3px solid #a987df;
+    box-shadow: 0 7px 0 #c5afe7;
+}
+
+.first-place {
+    padding-top: 38px;
+    padding-bottom: 38px;
+    background: linear-gradient(180deg, #fff5c9, #ffffff);
+    border-color: #d6b653;
+    box-shadow: 0 8px 0 #c5a34d;
+}
+
+.second-place {
+    background: linear-gradient(180deg, #f0e8ff, #ffffff);
+}
+
+.third-place {
+    background: linear-gradient(180deg, #ffe7f3, #ffffff);
+    border-color: #d99bc9;
+    box-shadow: 0 7px 0 #d9b0ce;
+}
+
+.champion-rank {
+    display: inline-block;
+    padding: 7px 13px;
+    color: #ffffff;
+    background: #8053c9;
+    border: 2px solid #57368c;
+    font-family: 'Pixelify Sans', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.first-place .champion-rank {
+    color: #57368c;
+    background: #ffd968;
+    border-color: #c49a32;
+}
+
+.third-place .champion-rank {
+    background: #d98bbd;
+    border-color: #a85d91;
+}
+
+.champion-avatar {
+    margin: 18px 0 10px;
+    font-size: 43px;
+}
+
+.champion-title {
+    color: #9876c4;
+    font-family: 'Pixelify Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.champion-card h3 {
+    margin: 9px 0;
+    color: var(--deep);
+    font-family: 'Pixelify Sans', sans-serif;
+    font-size: clamp(16px, 2vw, 21px);
+}
+
+.champion-score {
+    margin-top: 15px;
+    color: #8053c9;
+    font-family: 'Pixelify Sans', sans-serif;
+    font-size: 27px;
+    font-weight: 700;
+}
+
+.champion-score span {
+    font-size: 13px;
+}
+
+.first-place .champion-score {
+    color: #b28a23;
+}
+
+/* PLAYER RANKINGS */
+
+.rankings-section {
+    margin-top: 65px;
+}
+
+.rankings-card {
+    padding: 12px;
+    overflow-x: auto;
+    background: #ffffff;
+    border: 3px solid #9674cb;
+    box-shadow: 0 7px 0 #c5afe7;
+}
+
+.leaderboard-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 8px;
+}
+
+.leaderboard-table th {
+    padding: 15px 12px;
+    color: #ffffff;
+    background: #8053c9;
+    font-family: 'Pixelify Sans', sans-serif;
+    font-size: 14px;
+    letter-spacing: 1px;
+    text-align: left;
+}
+
+.leaderboard-table td {
+    padding: 16px 12px;
+    color: #57368c;
+    background: #f3edff;
+    border-top: 2px solid #d5c3f2;
+    border-bottom: 2px solid #d5c3f2;
+    font-weight: 700;
+}
+
+.leaderboard-table td:first-child {
+    border-left: 2px solid #d5c3f2;
+}
+
+.leaderboard-table td:last-child {
+    border-right: 2px solid #d5c3f2;
+}
+
+.leaderboard-table tbody tr:nth-child(even) td {
+    background: #fff0f8;
+}
+
+.rank-number {
+    color: #8053c9;
+    font-family: 'Pixelify Sans', sans-serif;
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.top-rank:first-child .rank-number {
+    color: #c49a32;
+}
+
+.player-name {
+    font-family: 'Fredoka', sans-serif;
+}
+
+.player-score {
+    color: #7047b1;
+    font-family: 'Pixelify Sans', sans-serif;
+    white-space: nowrap;
+}
+
+/* CALL TO ACTION */
+
+.leaderboard-cta {
+    margin-top: 60px;
+    padding: 35px 20px;
+    text-align: center;
+    background: linear-gradient(120deg, #e4d5ff, #fce4f3);
+    border: 3px solid #a987df;
+    box-shadow: 0 7px 0 #c5afe7;
+}
+
+.cta-trophy {
+    margin-bottom: 12px;
+    font-size: 42px;
+}
+
+.leaderboard-cta h2 {
+    margin: 12px 0;
+}
+
+.leaderboard-cta > p:not(.eyebrow) {
+    margin: 0 auto 22px;
+    max-width: 500px;
+    color: #665080;
+    font-weight: 700;
+    line-height: 1.7;
+}
+
+.leaderboard-cta .btn {
+    display: inline-block;
+    padding: 14px 28px;
+    color: #ffffff;
+    background: #8053c9;
+    border: 3px solid #57368c;
+    box-shadow: 0 5px 0 #57368c;
+    font-family: 'Pixelify Sans', sans-serif;
+    font-weight: 700;
+    text-decoration: none;
+    transition: .15s ease;
+}
+
+.leaderboard-cta .btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 0 #57368c;
+}
+
+/* MOBILE */
+
+@media (max-width: 650px) {
+    .leaderboard-page {
+        padding: 25px 14px 50px;
+    }
+
+    .champions-grid {
+        grid-template-columns: 1fr;
+        align-items: stretch;
+        max-width: 380px;
+        margin: 0 auto;
+    }
+
+    .first-place {
+        order: -1;
+    }
+
+    .champion-card {
+        padding: 22px 15px;
+    }
+
+    .first-place {
+        padding: 28px 15px;
+    }
+
+    .rankings-card {
+        padding: 7px;
+    }
+
+    .leaderboard-table th,
+    .leaderboard-table td {
+        padding: 13px 9px;
+        font-size: 13px;
+    }
+
+    .rank-number {
+        font-size: 16px;
+    }
+
+    .leaderboard-cta {
+        padding: 28px 16px;
+    }
+}
+
+
