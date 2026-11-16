@@ -1,0 +1,361 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Play Quiz | Quizivia</title>
+    <link rel="stylesheet" href="css/style.css?v=8">
+</head>
+<body>
+
+<header class="site-header">
+    <h1 class="logo">
+        <a href="index.html">
+            <img src="assets/images/quizivia_logo.png" alt="Quizivia Logo">
+        </a>
+    </h1>
+
+    <nav class="main-nav">
+        <a href="index.html">Home</a>
+        <a href="categories.html" class="active">Categories</a>
+        <a href="daily-quiz.html">Daily Quiz</a>
+        <a href="leaderboard.html">Leaderboard</a>
+        <a href="index.html#about">About</a>
+    </nav>
+</header>
+
+<main class="play-quiz-page">
+
+    <section class="page-intro">
+        <p class="eyebrow">✦ LET THE CHALLENGE BEGIN ✦</p>
+        <h2 id="quiz-title">Quiz <span>Challenge!</span></h2>
+        <p id="quiz-description">Test your knowledge and earn XP!</p>
+    </section>
+
+    <section class="quiz-game-card">
+
+        <div class="quiz-game-top">
+            <div>
+                <span class="quiz-small-label">QUESTION</span>
+                <h3 id="question-number">1 / 10</h3>
+            </div>
+
+            <div class="quiz-timer">
+                <span>⏱ TIME LEFT</span>
+                <strong id="timer">05:00</strong>
+            </div>
+        </div>
+
+        <div class="quiz-progress-track">
+            <div class="quiz-progress-fill" id="quiz-progress"></div>
+        </div>
+
+        <div class="quiz-question-area">
+            <span class="quiz-question-label">✦ YOUR QUESTION</span>
+            <h2 id="question-text">Loading question...</h2>
+
+            <div class="quiz-options" id="answer-options"></div>
+        </div>
+
+        <p class="quiz-feedback" id="quiz-feedback" aria-live="polite"></p>
+
+        <div class="quiz-game-bottom">
+            <button type="button" class="btn quiz-next-btn" id="next-button" disabled>
+                NEXT QUESTION →
+            </button>
+        </div>
+
+    </section>
+
+    <div class="quiz-exit">
+        <a href="categories.html">← EXIT QUIZ</a>
+    </div>
+
+</main>
+
+<footer class="site-footer">
+    <p>© 2026 Quizivia. Learn, play, and challenge yourself!</p>
+</footer>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+
+const category = params.get("category") || "science";
+const quizId = params.get("quiz") || "solar-system";
+
+const quizData = {
+
+    science: {
+        "solar-system": {
+            title: "Our Solar System",
+            description: "Explore planets, stars, and outer space!",
+            time: 300,
+            questions: [
+                {
+                    question: "Which planet is known as the Red Planet?",
+                    options: ["Venus", "Mars", "Jupiter", "Mercury"],
+                    answer: 1
+                },
+                {
+                    question: "Which planet is the largest in our solar system?",
+                    options: ["Earth", "Saturn", "Jupiter", "Neptune"],
+                    answer: 2
+                },
+                {
+                    question: "Which planet is closest to the Sun?",
+                    options: ["Mercury", "Venus", "Earth", "Mars"],
+                    answer: 0
+                },
+                {
+                    question: "What is the natural satellite of Earth?",
+                    options: ["The Sun", "The Moon", "Mars", "Venus"],
+                    answer: 1
+                },
+                {
+                    question: "Which planet is famous for its rings?",
+                    options: ["Earth", "Mars", "Saturn", "Mercury"],
+                    answer: 2
+                },
+                {
+                    question: "What is at the center of our solar system?",
+                    options: ["Earth", "The Moon", "Jupiter", "The Sun"],
+                    answer: 3
+                },
+                {
+                    question: "Which planet is known as the Blue Planet?",
+                    options: ["Neptune", "Earth", "Uranus", "Venus"],
+                    answer: 1
+                },
+                {
+                    question: "How many planets are in our solar system?",
+                    options: ["7", "8", "9", "10"],
+                    answer: 1
+                },
+                {
+                    question: "Which planet is farthest from the Sun?",
+                    options: ["Saturn", "Uranus", "Neptune", "Jupiter"],
+                    answer: 2
+                },
+                {
+                    question: "What force keeps planets in orbit around the Sun?",
+                    options: ["Magnetism", "Gravity", "Friction", "Electricity"],
+                    answer: 1
+                }
+            ]
+        }
+    },
+
+    history: {
+        "ancient-civilizations": {
+            title: "Ancient Civilizations",
+            description: "Explore the world's earliest civilizations!",
+            time: 300,
+            questions: [
+                { question: "Which ancient civilization built the pyramids at Giza?", options: ["Romans", "Egyptians", "Greeks", "Persians"], answer: 1 },
+                { question: "Which river was central to ancient Egyptian civilization?", options: ["Amazon", "Nile", "Danube", "Yangtze"], answer: 1 },
+                { question: "Where did ancient Greek civilization develop?", options: ["Greece", "Egypt", "India", "China"], answer: 0 },
+                { question: "Which ancient civilization developed cuneiform writing?", options: ["Sumerians", "Romans", "Vikings", "Aztecs"], answer: 0 },
+                { question: "The Colosseum is located in which ancient city?", options: ["Athens", "Rome", "Babylon", "Alexandria"], answer: 1 },
+                { question: "Which civilization built Machu Picchu?", options: ["Maya", "Inca", "Aztec", "Egyptian"], answer: 1 },
+                { question: "What was the main writing material in ancient Egypt?", options: ["Papyrus", "Plastic", "Silk", "Cotton"], answer: 0 },
+                { question: "Which ancient civilization is associated with the city of Babylon?", options: ["Babylonians", "Romans", "Greeks", "Chinese"], answer: 0 },
+                { question: "Which sea was important to ancient Greek trade?", options: ["Caribbean Sea", "Mediterranean Sea", "Baltic Sea", "Red Sea"], answer: 1 },
+                { question: "What was the main language of ancient Rome?", options: ["Greek", "Latin", "Arabic", "Sanskrit"], answer: 1 }
+            ]
+        }
+    },
+
+    mathematics: {
+        "basic-mathematics": {
+            title: "Basic Mathematics",
+            description: "Practice numbers and simple operations!",
+            time: 300,
+            questions: [
+                { question: "What is 15 + 12?", options: ["25", "26", "27", "28"], answer: 2 },
+                { question: "What is 9 × 6?", options: ["45", "54", "56", "63"], answer: 1 },
+                { question: "What is 100 - 37?", options: ["53", "63", "73", "67"], answer: 1 },
+                { question: "What is 81 ÷ 9?", options: ["7", "8", "9", "10"], answer: 2 },
+                { question: "What is 12 × 12?", options: ["124", "132", "144", "154"], answer: 2 },
+                { question: "What is 45 + 28?", options: ["63", "73", "83", "72"], answer: 1 },
+                { question: "What is 7 × 8?", options: ["54", "56", "58", "64"], answer: 1 },
+                { question: "What is 90 ÷ 10?", options: ["8", "9", "10", "11"], answer: 1 },
+                { question: "What is 50% of 80?", options: ["20", "30", "40", "50"], answer: 2 },
+                { question: "What is 125 - 49?", options: ["74", "75", "76", "77"], answer: 2 }
+            ]
+        }
+    },
+
+    "general-knowledge": {
+        "everyday-knowledge": {
+            title: "Everyday Knowledge",
+            description: "Test what you know about everyday life!",
+            time: 300,
+            questions: [
+                { question: "What is the capital city of Japan?", options: ["Seoul", "Tokyo", "Beijing", "Bangkok"], answer: 1 },
+                { question: "How many days are there in a leap year?", options: ["364", "365", "366", "367"], answer: 2 },
+                { question: "Which ocean is the largest?", options: ["Atlantic", "Indian", "Arctic", "Pacific"], answer: 3 },
+                { question: "What is the official currency of Japan?", options: ["Won", "Yuan", "Yen", "Dollar"], answer: 2 },
+                { question: "Which animal is known as the King of the Jungle?", options: ["Tiger", "Lion", "Elephant", "Leopard"], answer: 1 },
+                { question: "How many colors are traditionally in a rainbow?", options: ["5", "6", "7", "8"], answer: 2 },
+                { question: "Which country is famous for the Eiffel Tower?", options: ["Italy", "France", "Spain", "Germany"], answer: 1 },
+                { question: "What is the hardest natural substance?", options: ["Gold", "Iron", "Diamond", "Silver"], answer: 2 },
+                { question: "Which language is primarily spoken in Brazil?", options: ["Spanish", "Portuguese", "French", "English"], answer: 1 },
+                { question: "How many continents are there?", options: ["5", "6", "7", "8"], answer: 2 }
+            ]
+        }
+    }
+};
+
+const quiz = quizData[category]?.[quizId];
+
+if (!quiz) {
+    document.getElementById("quiz-title").textContent = "Quiz Not Found!";
+    document.getElementById("quiz-description").textContent =
+        "Please return to the categories page and choose a quiz.";
+    document.querySelector(".quiz-game-card").innerHTML =
+        '<p class="quiz-feedback">This quiz is not available yet.</p><a class="btn" href="categories.html">BACK TO CATEGORIES</a>';
+} else {
+
+    let currentQuestion = 0;
+    let score = 0;
+    let selectedAnswer = null;
+    let timeLeft = quiz.time;
+    let timerInterval;
+    let finished = false;
+
+    const title = document.getElementById("quiz-title");
+    const description = document.getElementById("quiz-description");
+    const questionNumber = document.getElementById("question-number");
+    const questionText = document.getElementById("question-text");
+    const optionsContainer = document.getElementById("answer-options");
+    const progress = document.getElementById("quiz-progress");
+    const timerDisplay = document.getElementById("timer");
+    const feedback = document.getElementById("quiz-feedback");
+    const nextButton = document.getElementById("next-button");
+
+    title.innerHTML = quiz.title + " <span>Challenge!</span>";
+    description.textContent = quiz.description;
+    document.title = quiz.title + " | Quizivia";
+
+    function formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const remaining = seconds % 60;
+
+        return String(minutes).padStart(2, "0") + ":" +
+            String(remaining).padStart(2, "0");
+    }
+
+    function updateTimer() {
+        timerDisplay.textContent = formatTime(timeLeft);
+
+        if (timeLeft <= 0) {
+            finishQuiz();
+            return;
+        }
+
+        timeLeft--;
+    }
+
+    function startTimer() {
+        updateTimer();
+        timerInterval = setInterval(updateTimer, 1000);
+    }
+
+    function loadQuestion() {
+        selectedAnswer = null;
+
+        const item = quiz.questions[currentQuestion];
+
+        questionNumber.textContent =
+            (currentQuestion + 1) + " / " + quiz.questions.length;
+
+        questionText.textContent = item.question;
+
+        progress.style.width =
+            ((currentQuestion + 1) / quiz.questions.length * 100) + "%";
+
+        optionsContainer.innerHTML = "";
+        feedback.textContent = "";
+        nextButton.disabled = true;
+
+        item.options.forEach((option, index) => {
+            const button = document.createElement("button");
+
+            button.type = "button";
+            button.className = "quiz-option";
+            button.innerHTML =
+                '<span class="option-letter">' +
+                String.fromCharCode(65 + index) +
+                '</span><span>' + option + '</span>';
+
+            button.addEventListener("click", () => {
+                if (selectedAnswer !== null || finished) return;
+
+                selectedAnswer = index;
+
+                document.querySelectorAll(".quiz-option").forEach(btn => {
+                    btn.disabled = true;
+                });
+
+                if (selectedAnswer === item.answer) {
+                    score++;
+                    button.classList.add("correct");
+                    feedback.textContent = "✦ Correct! Great job!";
+                } else {
+                    button.classList.add("wrong");
+                    feedback.textContent =
+                        "Not quite! The correct answer is " +
+                        item.options[item.answer] + ".";
+                }
+
+                nextButton.disabled = false;
+            });
+
+            optionsContainer.appendChild(button);
+        });
+
+        nextButton.textContent =
+            currentQuestion === quiz.questions.length - 1
+                ? "FINISH QUIZ ✦"
+                : "NEXT QUESTION →";
+    }
+
+    function finishQuiz() {
+        if (finished) return;
+
+        finished = true;
+        clearInterval(timerInterval);
+
+        const result = {
+            category: category,
+            quizId: quizId,
+            title: quiz.title,
+            score: score,
+            total: quiz.questions.length,
+            timeLeft: timeLeft
+        };
+
+        sessionStorage.setItem("quiziviaResult", JSON.stringify(result));
+
+        window.location.href = "quiz-results.html";
+    }
+
+    nextButton.addEventListener("click", () => {
+        if (selectedAnswer === null || finished) return;
+
+        if (currentQuestion < quiz.questions.length - 1) {
+            currentQuestion++;
+            loadQuestion();
+        } else {
+            finishQuiz();
+        }
+    });
+
+    loadQuestion();
+    startTimer();
+}
+</script>
+
+</body>
+</html>
