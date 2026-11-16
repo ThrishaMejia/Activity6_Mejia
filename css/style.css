@@ -859,3 +859,10 @@ textarea {
         font-size: 23px;
     }
 }
+
+@media (max-width: 600px) {
+    .logo img {
+        width: 58px;
+        height: 58px;
+    }
+}
