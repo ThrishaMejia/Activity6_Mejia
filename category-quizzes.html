@@ -56,7 +56,7 @@
 
 <script>
 const params = new URLSearchParams(window.location.search);
-const category = params.get("category");
+const category = (params.get("category") || "").toLowerCase();
 
 const quizData = {
     history: {
@@ -144,6 +144,7 @@ const selectedCategory = quizData[category];
 const quizGrid = document.getElementById("quiz-grid");
 
 if (selectedCategory) {
+
     document.title = selectedCategory.title + " Quizzes | Quizivia";
 
     document.getElementById("category-title").innerHTML =
@@ -154,11 +155,6 @@ if (selectedCategory) {
 
     selectedCategory.quizzes.forEach((quiz) => {
 
-        // Only Science - Easy is available for now.
-        const isAvailable =
-            category === "science" &&
-            quiz.difficulty === "easy";
-
         const card = document.createElement("article");
         card.className = "category-quiz-card";
 
@@ -166,30 +162,20 @@ if (selectedCategory) {
             <div class="quiz-card-icon">${selectedCategory.icon}</div>
 
             <div class="quiz-card-details">
+
                 <span class="quiz-card-level">
                     ${quiz.difficulty.toUpperCase()}
                 </span>
 
                 <h3>${quiz.title}</h3>
 
-                <p>
-                    ${isAvailable ? "10 Questions · 5 MINUTES" : "Quiz questions coming soon"}
-                </p>
+                <p>10 Questions · 5 MINUTES</p>
 
-                ${
-                    isAvailable
-                    ? `
-                        <a href="quiz.html?category=${encodeURIComponent(category)}&difficulty=${encodeURIComponent(quiz.difficulty)}"
-                           class="btn">
-                            PLAY QUIZ →
-                        </a>
-                    `
-                    : `
-                        <span class="btn" style="opacity: 0.55; cursor: not-allowed;">
-                            COMING SOON
-                        </span>
-                    `
-                }
+                <a href="quiz.html?category=${encodeURIComponent(category)}&difficulty=${encodeURIComponent(quiz.difficulty)}"
+                   class="btn">
+                    PLAY QUIZ →
+                </a>
+
             </div>
         `;
 
@@ -197,6 +183,7 @@ if (selectedCategory) {
     });
 
 } else {
+
     document.getElementById("category-title").textContent =
         "Category Not Found";
 
