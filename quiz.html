@@ -65,18 +65,9 @@
             <button
                 type="button"
                 class="btn"
-                id="submit-button"
+                id="action-button"
                 disabled>
                 SUBMIT ANSWER
-            </button>
-
-            <button
-                type="button"
-                class="btn quiz-next-btn"
-                id="next-button"
-                disabled
-                hidden>
-                NEXT QUESTION →
             </button>
 
         </div>
@@ -97,11 +88,10 @@
 import { createClient } from
     "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
-// Use the SAME values from your admin.html.
-// Never use your Supabase Secret Key here.
+// SUPABASE CONNECTION
 
-const SUPABASE_URL = "PASTE_YOUR_PROJECT_URL";
-const SUPABASE_PUBLISHABLE_KEY = "PASTE_YOUR_PUBLISHABLE_KEY";
+const SUPABASE_URL = "https://mnknxizgpkznkboingbf.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_2Y6PlxPEFUdgIXuTTAhtag_XGPy-008";
 
 const supabase = createClient(
     SUPABASE_URL,
@@ -144,8 +134,7 @@ const optionsContainer = document.getElementById("answer-options");
 const progress = document.getElementById("quiz-progress");
 const timerDisplay = document.getElementById("timer");
 const feedback = document.getElementById("quiz-feedback");
-const submitButton = document.getElementById("submit-button");
-const nextButton = document.getElementById("next-button");
+const actionButton = document.getElementById("action-button");
 const quizCard = document.getElementById("quiz-card");
 
 // QUIZ STATE
@@ -154,8 +143,10 @@ let questions = [];
 let currentQuestion = 0;
 let score = 0;
 let selectedAnswer = null;
+
 let timeLeft = 300;
 let timerInterval = null;
+
 let finished = false;
 let submitted = false;
 let checkingAnswer = false;
@@ -163,17 +154,25 @@ let checkingAnswer = false;
 // SHOW ERROR
 
 function showError(message) {
+
     clearInterval(timerInterval);
 
     title.textContent = "Quiz Unavailable!";
     description.textContent = message;
 
-    quizCard.innerHTML = `
-        <p class="quiz-feedback">${message}</p>
-        <a class="btn" href="categories.html">
-            BACK TO CATEGORIES
-        </a>
-    `;
+    quizCard.innerHTML = "";
+
+    const errorText = document.createElement("p");
+    errorText.className = "quiz-feedback";
+    errorText.textContent = message;
+
+    const backLink = document.createElement("a");
+    backLink.className = "btn";
+    backLink.href = "categories.html";
+    backLink.textContent = "BACK TO CATEGORIES";
+
+    quizCard.appendChild(errorText);
+    quizCard.appendChild(backLink);
 }
 
 // LOAD QUESTIONS FROM SUPABASE
@@ -190,6 +189,7 @@ async function loadQuestions() {
     }
 
     try {
+
         const { data, error } = await supabase.functions.invoke(
             "get-questions",
             {
@@ -208,9 +208,7 @@ async function loadQuestions() {
 
         if (data.questions.length < 10) {
             showError(
-                "Not enough active questions yet. " +
-                "Please ask the admin to add at least 10 questions " +
-                "for this category and difficulty."
+                "Not enough active questions yet. Please ask the admin to add at least 10 questions for this category and difficulty."
             );
             return;
         }
@@ -218,6 +216,7 @@ async function loadQuestions() {
         questions = data.questions.slice(0, 10);
 
         title.innerHTML = "";
+
         title.append(
             document.createTextNode(quizTitle + " ")
         );
@@ -239,6 +238,7 @@ async function loadQuestions() {
         startTimer();
 
     } catch (error) {
+
         console.error("Question loading error:", error);
 
         showError(
@@ -268,15 +268,13 @@ function renderQuestion() {
         (currentQuestion / questions.length * 100) + "%";
 
     optionsContainer.innerHTML = "";
+
     feedback.textContent = "";
     feedback.className = "quiz-feedback";
 
-    submitButton.disabled = true;
-    submitButton.hidden = false;
-    submitButton.textContent = "SUBMIT ANSWER";
-
-    nextButton.disabled = true;
-    nextButton.hidden = true;
+    actionButton.disabled = true;
+    actionButton.hidden = false;
+    actionButton.textContent = "SUBMIT ANSWER";
 
     let options = item.options;
 
@@ -310,8 +308,7 @@ function renderQuestion() {
         button.appendChild(letter);
         button.appendChild(answerText);
 
-        // SELECT ANSWER ONLY
-        // Player can still change their selection before submitting.
+        // SELECT ANSWER
 
         button.addEventListener("click", () => {
 
@@ -319,40 +316,49 @@ function renderQuestion() {
 
             selectedAnswer = option;
 
-            document.querySelectorAll(".quiz-option").forEach(btn => {
-                btn.classList.remove("selected");
-            });
+            document.querySelectorAll(".quiz-option")
+                .forEach(item => {
+                    item.classList.remove("selected");
+                });
 
             button.classList.add("selected");
 
-            submitButton.disabled = false;
+            actionButton.disabled = false;
         });
 
         optionsContainer.appendChild(button);
     });
-
-    nextButton.textContent =
-        currentQuestion === questions.length - 1
-            ? "FINISH QUIZ ✦"
-            : "NEXT QUESTION →";
 }
 
-// SUBMIT AND CHECK ANSWER
+// ONE BUTTON ACTION
 
-async function submitAnswer() {
+async function handleAction() {
 
-    if (
-        selectedAnswer === null ||
-        submitted ||
-        checkingAnswer ||
-        finished
-    ) {
+    if (finished || checkingAnswer) return;
+
+    // IF ANSWER IS ALREADY CHECKED:
+    // GO TO NEXT QUESTION OR RESULTS
+
+    if (submitted) {
+
+        if (currentQuestion === questions.length - 1) {
+            finishQuiz();
+        } else {
+            currentQuestion++;
+            renderQuestion();
+        }
+
         return;
     }
 
+    // REQUIRE AN ANSWER BEFORE SUBMISSION
+
+    if (selectedAnswer === null) return;
+
     checkingAnswer = true;
-    submitButton.disabled = true;
-    submitButton.textContent = "CHECKING...";
+
+    actionButton.disabled = true;
+    actionButton.textContent = "CHECKING...";
 
     try {
 
@@ -379,7 +385,10 @@ async function submitAnswer() {
         submitted = true;
         checkingAnswer = false;
 
+        // SHOW FEEDBACK
+
         if (data.correct) {
+
             score++;
 
             feedback.textContent = "✦ Correct! Great job!";
@@ -387,60 +396,53 @@ async function submitAnswer() {
 
         } else {
 
-            feedback.textContent = "Not quite! Better luck next time. ♡";
+            feedback.textContent =
+                "Not quite! Better luck next time. ♡";
+
             feedback.className = "quiz-feedback wrong";
         }
 
-        // LOCK ALL ANSWERS AFTER SUBMISSION
+        // LOCK ALL ANSWERS
 
-        document.querySelectorAll(".quiz-option").forEach(button => {
+        document.querySelectorAll(".quiz-option")
+            .forEach(button => {
 
-            button.disabled = true;
+                button.disabled = true;
 
-            const optionText =
-                button.querySelector("span:last-child").textContent;
+                const optionText =
+                    button.querySelector("span:last-child").textContent;
 
-            if (optionText === selectedAnswer) {
-                button.classList.add(
-                    data.correct ? "correct" : "wrong"
-                );
-            }
-        });
+                if (optionText === selectedAnswer) {
 
-        submitButton.hidden = true;
+                    button.classList.add(
+                        data.correct ? "correct" : "wrong"
+                    );
+                }
+            });
 
-        nextButton.hidden = false;
-        nextButton.disabled = false;
+        // UPDATE THE SAME BUTTON
+
+        actionButton.disabled = false;
+
+        actionButton.textContent =
+            currentQuestion === questions.length - 1
+                ? "SUBMIT QUIZ →"
+                : "NEXT QUESTION →";
 
     } catch (error) {
 
         console.error("Answer checking error:", error);
 
         checkingAnswer = false;
-        submitButton.disabled = false;
-        submitButton.textContent = "SUBMIT ANSWER";
+
+        actionButton.disabled = false;
+        actionButton.textContent = "SUBMIT ANSWER";
 
         feedback.textContent =
             "Unable to check your answer. Please try again.";
 
         feedback.className = "quiz-feedback wrong";
     }
-}
-
-// NEXT QUESTION
-
-function nextQuestion() {
-
-    if (!submitted || finished || checkingAnswer) return;
-
-    currentQuestion++;
-
-    if (currentQuestion >= questions.length) {
-        finishQuiz();
-        return;
-    }
-
-    renderQuestion();
 }
 
 // TIMER
@@ -464,7 +466,6 @@ function updateTimer() {
     if (timeLeft <= 60) {
         timerDisplay.classList.add("warning");
     }
-
 }
 
 function startTimer() {
@@ -514,13 +515,11 @@ function finishQuiz() {
     window.location.href = "quiz-results.html";
 }
 
-// BUTTON EVENTS
+// BUTTON EVENT
 
-submitButton.addEventListener("click", submitAnswer);
+actionButton.addEventListener("click", handleAction);
 
-nextButton.addEventListener("click", nextQuestion);
-
-// START
+// START QUIZ
 
 loadQuestions();
 
