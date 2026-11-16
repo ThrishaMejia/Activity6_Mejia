@@ -1,26 +1,28 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;500;600;700;800;900&display=swap');
 
-/* =====================================
-   QUIZIVIA - PIXEL GAME DESIGN SYSTEM
-===================================== */
+/* =========================================
+   QUIZIVIA — FANTASY GAME LOBBY DESIGN
+========================================= */
 
 :root {
-    --deep: #24104f;
-    --dark: #35146d;
-    --purple: #5524a8;
-    --violet: #743bd0;
-    --lavender: #a77af0;
-    --light: #d9c2ff;
-    --pale: #f1e8ff;
-    --pink: #ffb9df;
+    --bg: #100a24;
+    --bg-light: #1b1038;
+    --panel: #25134b;
+    --panel-light: #38206c;
+    --purple: #6736bb;
+    --violet: #9661ee;
+    --lavender: #c6a5ff;
     --gold: #ffd45e;
+    --gold-light: #fff0a8;
+    --pink: #ff9fd7;
     --white: #fffaff;
-    --ink: #29134f;
-    --muted: #68558a;
+    --muted: #c3b1e5;
+    --deep: #090516;
 
-    --pixel-border: 3px solid var(--deep);
-    --pixel-shadow: 5px 5px 0 var(--deep);
+    --border: 3px solid #8c65d1;
+    --gold-border: 3px solid #e9bd50;
+    --shadow: 0 6px 0 #090516;
 }
 
 /* RESET */
@@ -33,20 +35,17 @@
 
 html {
     scroll-behavior: smooth;
+    scroll-padding-top: 150px;
 }
 
 body {
     min-height: 100vh;
     font-family: 'Nunito', sans-serif;
-    color: var(--ink);
-    background-color: #d8baff;
-    background-image:
-        linear-gradient(45deg, #c7a1ff 25%, transparent 25%),
-        linear-gradient(-45deg, #c7a1ff 25%, transparent 25%),
-        linear-gradient(45deg, transparent 75%, #c7a1ff 75%),
-        linear-gradient(-45deg, transparent 75%, #c7a1ff 75%);
-    background-size: 32px 32px;
-    background-position: 0 0, 0 16px, 16px -16px, -16px 0;
+    color: var(--white);
+    background:
+        radial-gradient(ellipse at top, #39206b 0%, transparent 55%),
+        linear-gradient(145deg, #100a24, #1b1038 55%, #100a24);
+    background-attachment: fixed;
 }
 
 img {
@@ -57,16 +56,26 @@ a {
     color: inherit;
 }
 
-/* HEADER AND NAVIGATION */
+/* =========================================
+   TOP HEADER & NAVIGATION
+========================================= */
 
 .site-header {
     position: sticky;
     top: 0;
     z-index: 1000;
+
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 20px;
+
+    padding: 12px 5%;
+    background: rgba(16, 10, 36, 0.96);
+    border-bottom: 2px solid #62449a;
+    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(12px);
 }
 
 .logo {
@@ -83,58 +92,65 @@ a {
 
 .logo img {
     display: block;
-    width: 100px;
-    height: 85px;
+    width: 90px;
+    height: 75px;
     object-fit: contain;
     image-rendering: pixelated;
 }
 
+/* THE NAVIGATION CARD */
 
 .main-nav {
-    position: sticky;
-    top: 10px;
-    z-index: 1001;
-
     display: flex;
     align-items: center;
     justify-content: center;
     flex-wrap: wrap;
     gap: 8px;
 
-    padding: 12px;
-    background: #35146d;
-    border: 3px solid #24104f;
-    border-radius: 14px;
-    box-shadow: 5px 5px 0 #24104f;
+    padding: 10px;
+    background: linear-gradient(145deg, #2e1959, #190e35);
+    border: 2px solid #8760c8;
+    border-radius: 13px;
+    box-shadow: 0 4px 0 #090516;
 }
-
 
 .main-nav a {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 11px 16px;
-    color: #fff;
-    background: #452080;
-    border: 2px solid #24104f;
-    border-radius: 9px;
+
+    padding: 10px 16px;
+    color: #e8dcff;
+    background: #382064;
+
+    border: 2px solid #7651b3;
+    border-radius: 8px;
+
     font-family: 'Fredoka', sans-serif;
     font-size: 15px;
     font-weight: 600;
     text-decoration: none;
+
     transition: 0.2s ease;
-    box-shadow: 3px 3px 0 #1c0a3c;
 }
 
-.main-nav a:hover,
-.main-nav a.active {
-    color: var(--deep);
-    background: var(--gold);
+.main-nav a:hover {
+    color: var(--gold-light);
+    background: #56318e;
+    border-color: var(--gold);
     transform: translateY(-2px);
-    box-shadow: 4px 5px 0 #1c0a3c;
 }
 
-/* GENERAL PAGE LAYOUT */
+.main-nav a.active {
+    color: #281747;
+    background: linear-gradient(180deg, #ffe88c, #eab944);
+    border-color: #fff0a8;
+    box-shadow: 0 3px 0 #9b6c21;
+}
+
+/* =========================================
+   GENERAL LAYOUT
+========================================= */
 
 main {
     width: min(1200px, 92%);
@@ -152,65 +168,93 @@ h3 {
     font-family: 'Fredoka', sans-serif;
 }
 
+.eyebrow {
+    color: var(--gold);
+    font-family: 'Pixelify Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+}
+
+/* =========================================
+   PAGE INTRO
+========================================= */
+
 .page-intro {
+    position: relative;
+    padding: 38px 25px;
+    margin-bottom: 40px;
+
     text-align: center;
-    padding: 32px 20px;
-    margin-bottom: 35px;
-    background: linear-gradient(135deg, #713bc5, #a77af0);
-    border: 4px solid var(--deep);
-    border-radius: 18px;
-    box-shadow: 7px 7px 0 var(--deep);
     color: white;
+
+    background:
+        radial-gradient(circle at top right, #7048b2, transparent 45%),
+        linear-gradient(135deg, #392064, #21113e);
+
+    border: 3px solid #9a74d9;
+    border-radius: 18px;
+    box-shadow: 0 7px 0 #090516;
 }
 
 .page-intro h2 {
+    color: var(--gold-light);
     font-family: 'Pixelify Sans', sans-serif;
     font-size: clamp(30px, 5vw, 48px);
-    color: white;
-    text-shadow: 3px 3px 0 var(--deep);
+    text-shadow: 3px 3px 0 #29134f;
     margin-bottom: 12px;
 }
 
 .page-intro p {
+    color: #e8dcff;
     font-size: 16px;
     font-weight: 800;
-    color: #fff3ff;
     line-height: 1.7;
 }
 
-/* HERO */
+/* =========================================
+   HOME HERO / GAME LOBBY
+========================================= */
 
 .hero {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 30px;
-    min-height: 350px;
+
+    min-height: 370px;
     padding: 45px;
-    background: linear-gradient(120deg, #b88cff, #e8caff);
-    border: 4px solid var(--deep);
-    border-radius: 22px;
-    box-shadow: 8px 8px 0 var(--deep);
+
+    background:
+        radial-gradient(circle at 80% 30%, #7548bd, transparent 45%),
+        linear-gradient(120deg, #29134f, #492578);
+
+    border: 3px solid #b18bea;
+    border-radius: 20px;
+    box-shadow: 0 8px 0 #090516;
     overflow: hidden;
 }
 
 .hero-content {
     flex: 1;
+    position: relative;
+    z-index: 1;
 }
 
 .hero h2 {
+    color: var(--gold-light);
     font-family: 'Pixelify Sans', sans-serif;
     font-size: clamp(38px, 6vw, 65px);
     line-height: 1.1;
-    color: white;
-    text-shadow:
-        4px 4px 0 #54238f,
-        7px 7px 0 var(--deep);
+    text-shadow: 4px 4px 0 #160b30;
     margin-bottom: 20px;
 }
 
 .hero p {
     max-width: 520px;
+    color: #e9dcff;
     font-size: 18px;
     font-weight: 800;
     line-height: 1.7;
@@ -221,16 +265,19 @@ h3 {
     flex: 1;
     display: flex;
     justify-content: center;
+    position: relative;
+    z-index: 1;
 }
 
 .hero-image img {
     width: min(100%, 390px);
     max-height: 350px;
     object-fit: contain;
-    image-rendering: auto;
 }
 
-/* BUTTONS */
+/* =========================================
+   BUTTONS
+========================================= */
 
 .btn,
 button {
@@ -238,38 +285,46 @@ button {
     align-items: center;
     justify-content: center;
     gap: 8px;
+
     padding: 13px 22px;
-    color: var(--deep);
-    background: var(--gold);
-    border: 3px solid var(--deep);
-    border-radius: 9px;
-    box-shadow: 4px 4px 0 var(--deep);
+    color: #281747;
+    background: linear-gradient(180deg, #ffe98e, #eab944);
+
+    border: 2px solid #fff0a8;
+    border-radius: 8px;
+    box-shadow: 0 5px 0 #95651c;
+
     font-family: 'Fredoka', sans-serif;
     font-size: 16px;
     font-weight: 700;
     text-decoration: none;
     cursor: pointer;
+
     transition: 0.18s ease;
 }
 
 .btn:hover,
 button:hover {
-    transform: translate(2px, 2px);
-    box-shadow: 2px 2px 0 var(--deep);
-    background: #ffe28b;
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #95651c;
+    background: #fff0a8;
 }
 
 .btn-purple {
     color: white;
-    background: var(--violet);
+    background: linear-gradient(180deg, #9363e4, #5b32a4);
+    border-color: #c4a3ff;
+    box-shadow: 0 5px 0 #28134f;
 }
 
 .btn-purple:hover {
     color: white;
-    background: var(--dark);
+    background: #7447c1;
 }
 
-/* CATEGORY CARDS */
+/* =========================================
+   CATEGORY / GAME MODE CARDS
+========================================= */
 
 .category-grid {
     display: grid;
@@ -280,23 +335,26 @@ button:hover {
 .category-card {
     display: flex;
     flex-direction: column;
-    background: var(--white);
-    border: 4px solid var(--deep);
-    border-radius: 15px;
-    box-shadow: 6px 6px 0 var(--deep);
+
+    background: linear-gradient(145deg, #382064, #20113d);
+    border: 2px solid #8d68c9;
+    border-radius: 14px;
+    box-shadow: 0 6px 0 #090516;
     overflow: hidden;
+
     transition: 0.2s ease;
 }
 
 .category-card:hover {
     transform: translateY(-5px);
-    box-shadow: 8px 10px 0 var(--deep);
+    border-color: var(--gold);
+    box-shadow: 0 9px 0 #090516;
 }
 
 .category-image {
     height: 190px;
-    background: linear-gradient(135deg, #b88cff, #f6c6ee);
-    border-bottom: 4px solid var(--deep);
+    background: #4b2a7c;
+    border-bottom: 2px solid #8d68c9;
     overflow: hidden;
 }
 
@@ -318,10 +376,13 @@ button:hover {
 .category-label {
     display: inline-block;
     padding: 6px 10px;
-    color: var(--deep);
-    background: var(--pink);
-    border: 2px solid var(--deep);
-    border-radius: 6px;
+
+    color: #35204f;
+    background: var(--gold);
+
+    border: 1px solid #fff0a8;
+    border-radius: 5px;
+
     font-size: 10px;
     font-weight: 900;
     letter-spacing: 1px;
@@ -329,7 +390,7 @@ button:hover {
 
 .category-card h3 {
     margin: 12px 0 8px;
-    color: var(--dark);
+    color: var(--gold-light);
     font-size: 24px;
 }
 
@@ -346,11 +407,15 @@ button:hover {
     width: 100%;
     padding: 10px;
     color: white;
-    background: var(--violet);
+    background: linear-gradient(180deg, #9363e4, #5b32a4);
+    border-color: #c4a3ff;
+    box-shadow: 0 4px 0 #130a27;
     font-size: 14px;
 }
 
-/* GENERAL CONTENT CARDS */
+/* =========================================
+   GENERAL CONTENT PANELS
+========================================= */
 
 .card,
 .content-card,
@@ -358,21 +423,24 @@ button:hover {
 .quiz-card,
 .leaderboard-card {
     padding: 25px;
-    background: var(--white);
-    border: 3px solid var(--deep);
-    border-radius: 15px;
-    box-shadow: 5px 5px 0 var(--deep);
+    color: var(--white);
+    background: linear-gradient(145deg, #382064, #21113e);
+    border: 2px solid #8762c4;
+    border-radius: 14px;
+    box-shadow: 0 6px 0 #090516;
 }
 
 .card h2,
 .content-card h2,
 .info-card h2 {
     margin-bottom: 15px;
-    color: var(--dark);
+    color: var(--gold-light);
     font-size: 25px;
 }
 
-/* DAILY QUIZ */
+/* =========================================
+   DAILY QUIZ / CHALLENGE
+========================================= */
 
 .quiz-card {
     max-width: 850px;
@@ -390,9 +458,9 @@ button:hover {
 
 .quiz-meta span {
     padding: 9px 13px;
-    color: white;
-    background: var(--purple);
-    border: 2px solid var(--deep);
+    color: var(--gold-light);
+    background: #160d2d;
+    border: 2px solid #9870d8;
     border-radius: 8px;
     font-weight: 800;
 }
@@ -400,14 +468,14 @@ button:hover {
 .question {
     padding: 25px;
     margin-bottom: 20px;
-    background: #eee2ff;
-    border: 3px solid var(--deep);
+    background: #2c1950;
+    border: 2px solid #9870d8;
     border-radius: 12px;
 }
 
 .question h3 {
     font-size: 24px;
-    color: var(--dark);
+    color: var(--gold-light);
     margin-bottom: 18px;
 }
 
@@ -417,64 +485,75 @@ button:hover {
     width: 100%;
     padding: 13px 16px;
     margin: 10px 0;
-    color: var(--deep);
-    background: white;
-    border: 2px solid var(--violet);
-    border-radius: 9px;
+
+    color: white;
+    background: #42276e;
+
+    border: 2px solid #9870d8;
+    border-radius: 8px;
+
     font-weight: 800;
     text-align: left;
 }
 
 .question-option:hover,
 .quiz-option:hover {
-    background: var(--pink);
+    color: var(--deep);
+    background: var(--gold);
+    border-color: var(--gold-light);
 }
 
-/* LEADERBOARD */
+/* =========================================
+   LEADERBOARD / RANKED MODE
+========================================= */
 
 .leaderboard-table,
 table {
     width: 100%;
     border-collapse: collapse;
+    background: #241342;
+    border: 2px solid #9870d8;
+    border-radius: 10px;
     overflow: hidden;
-    background: white;
-    border: 3px solid var(--deep);
-    border-radius: 12px;
 }
 
 th {
     padding: 15px;
-    color: white;
-    background: var(--purple);
+    color: #281747;
+    background: linear-gradient(180deg, #ffe98e, #dcae42);
     font-family: 'Fredoka', sans-serif;
     text-align: left;
 }
 
 td {
     padding: 14px 15px;
-    border-bottom: 2px solid #e2d2ff;
+    color: #eee4ff;
+    border-bottom: 1px solid #513578;
     font-weight: 800;
 }
 
 tr:nth-child(even) td {
-    background: #f1e8ff;
+    background: #30204e;
 }
 
 tr:hover td {
-    background: #ffe6f4;
+    background: #49316d;
 }
 
 .rank-card,
 .player-card {
     padding: 20px;
     text-align: center;
-    background: linear-gradient(145deg, #fff1c8, #ffd56e);
-    border: 3px solid var(--deep);
+    color: white;
+    background: linear-gradient(145deg, #65439a, #30204f);
+    border: 2px solid var(--gold);
     border-radius: 13px;
-    box-shadow: 5px 5px 0 var(--deep);
+    box-shadow: 0 6px 0 #090516;
 }
 
-/* FORMS */
+/* =========================================
+   FORMS
+========================================= */
 
 form {
     display: flex;
@@ -487,18 +566,25 @@ textarea,
 select {
     width: 100%;
     padding: 13px 15px;
-    color: var(--deep);
-    background: white;
-    border: 2px solid var(--violet);
+
+    color: white;
+    background: #160d2d;
+
+    border: 2px solid #9870d8;
     border-radius: 8px;
     font: inherit;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: #b9a5d9;
 }
 
 input:focus,
 textarea:focus,
 select:focus {
-    outline: 3px solid var(--pink);
-    border-color: var(--deep);
+    outline: 2px solid var(--gold);
+    border-color: var(--gold);
 }
 
 textarea {
@@ -506,22 +592,29 @@ textarea {
     resize: vertical;
 }
 
-/* ABOUT AND CTA */
+/* =========================================
+   ABOUT / CALL TO ACTION
+========================================= */
 
 .category-cta,
 .cta-section {
     padding: 35px 25px;
     color: white;
-    background: linear-gradient(120deg, #35146d, #743bd0);
-    border: 4px solid var(--deep);
-    border-radius: 18px;
-    box-shadow: 7px 7px 0 var(--deep);
+
+    background:
+        radial-gradient(circle at top right, #7145b2, transparent 50%),
+        linear-gradient(120deg, #28134f, #4b287b);
+
+    border: 2px solid var(--gold);
+    border-radius: 16px;
+    box-shadow: 0 7px 0 #090516;
     text-align: center;
 }
 
 .category-cta h2,
 .cta-section h2 {
     margin-bottom: 12px;
+    color: var(--gold-light);
     font-family: 'Pixelify Sans', sans-serif;
     font-size: 30px;
 }
@@ -529,27 +622,200 @@ textarea {
 .category-cta p,
 .cta-section p {
     margin-bottom: 20px;
+    color: #e5d7ff;
     font-weight: 700;
 }
 
-/* FOOTER */
+.about-section {
+    background: linear-gradient(145deg, #382064, #21113e);
+}
+
+.about-section h2 {
+    margin: 12px 0;
+    color: var(--gold-light);
+    font-family: 'Pixelify Sans', sans-serif;
+    font-size: 30px;
+}
+
+.about-section p:not(.category-label) {
+    max-width: 800px;
+    margin-bottom: 20px;
+    color: #e5d7ff;
+    line-height: 1.8;
+    font-weight: 700;
+}
+
+/* =========================================
+   HOME GAME LOBBY PANELS
+========================================= */
+
+.home-dashboard-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 24px;
+}
+
+.home-dashboard-grid .content-card {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(145deg, #382064, #21113e);
+}
+
+.player-panel h2,
+.daily-quest h2 {
+    color: var(--gold-light);
+    font-family: 'Pixelify Sans', sans-serif;
+    font-size: 27px;
+    margin: 14px 0;
+}
+
+.player-level {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 22px 0;
+    padding: 14px;
+    color: white;
+    background: #54318b;
+    border: 2px solid #9870d8;
+    border-radius: 10px;
+}
+
+.player-level strong {
+    padding: 10px;
+    color: #281747;
+    background: var(--gold);
+    border: 2px solid #fff0a8;
+    border-radius: 7px;
+    font-family: 'Pixelify Sans', sans-serif;
+}
+
+.player-panel h3 {
+    margin-bottom: 12px;
+    color: var(--gold-light);
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    color: #e8dcff;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.progress-track {
+    height: 17px;
+    margin: 10px 0;
+    background: #160d2d;
+    border: 2px solid #9870d8;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #ffd45e, #fff0a8);
+}
+
+.small-note {
+    margin-top: 12px;
+    color: #b9a5d9;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.daily-quest {
+    background: linear-gradient(145deg, #49296e, #281746) !important;
+}
+
+.quest-reward {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 22px 0;
+    padding: 15px;
+
+    color: #281747;
+    background: linear-gradient(180deg, #ffe98e, #eab944);
+
+    border: 2px solid #fff0a8;
+    border-radius: 10px;
+}
+
+.quest-reward span {
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.quest-reward strong {
+    font-family: 'Pixelify Sans', sans-serif;
+    font-size: 23px;
+}
+
+.section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 24px;
+}
+
+.section-heading h2 {
+    margin-top: 10px;
+    color: var(--gold-light);
+    font-family: 'Pixelify Sans', sans-serif;
+    font-size: clamp(23px, 4vw, 32px);
+}
+
+.home-categories {
+    padding: 25px;
+    background: linear-gradient(145deg, #382064, #21113e);
+    border: 2px solid #9870d8;
+    border-radius: 16px;
+    box-shadow: 0 7px 0 #090516;
+}
+
+.home-categories .section-heading h2 {
+    color: var(--gold-light);
+}
+
+.home-categories .category-card {
+    box-shadow: 0 5px 0 #090516;
+}
+
+.home-leaderboard {
+    overflow-x: auto;
+}
+
+.home-leaderboard .section-heading {
+    min-width: 280px;
+}
+
+/* =========================================
+   FOOTER
+========================================= */
 
 .site-footer {
     padding: 25px 5%;
-    color: white;
-    background: #24104f;
-    border-top: 5px solid #16082f;
+    color: #d9c9f4;
+    background: #0b0619;
+    border-top: 2px solid #62449a;
     text-align: center;
     font-size: 14px;
     font-weight: 800;
 }
 
-/* TABLET */
+/* =========================================
+   TABLET
+========================================= */
 
 @media (max-width: 950px) {
     .site-header {
         flex-direction: column;
-        gap: 15px;
+        gap: 12px;
     }
 
     .category-grid {
@@ -561,30 +827,38 @@ textarea {
     }
 }
 
-/* MOBILE */
+/* =========================================
+   MOBILE
+========================================= */
 
 @media (max-width: 600px) {
+    html {
+        scroll-padding-top: 180px;
+    }
+
     .site-header {
-        padding: 13px 4%;
+        padding: 10px 4%;
+        gap: 8px;
     }
 
     .logo img {
-        width: 75px;
-        height: 65px;
+        width: 65px;
+        height: 55px;
     }
 
     .main-nav {
         width: 100%;
         flex-wrap: nowrap;
         justify-content: flex-start;
+        gap: 7px;
         overflow-x: auto;
-        padding: 5px 2px 12px;
+        padding: 8px;
         scrollbar-width: thin;
     }
 
     .main-nav a {
         flex-shrink: 0;
-        padding: 10px 13px;
+        padding: 9px 13px;
         font-size: 13px;
     }
 
@@ -657,188 +931,9 @@ textarea {
     }
 }
 
-/* SMALL PHONES */
-
-@media (max-width: 380px) {
-    .hero h2 {
-        font-size: 34px;
-    }
-
-    .main-nav a {
-        font-size: 12px;
-        padding: 9px 11px;
-    }
-
-    .category-content {
-        padding: 15px;
-    }
-}
-
-/* =================================
-   QUIZIVIA - HOME GAME LOBBY
-================================= */
-
-.home-dashboard-grid {
-    display: grid;
-    grid-template-columns: 1.2fr 1fr;
-    gap: 24px;
-}
-
-.home-dashboard-grid .content-card {
-    position: relative;
-    overflow: hidden;
-    background: linear-gradient(145deg, #f7edff, #d9bdff);
-}
-
-.player-panel h2,
-.daily-quest h2 {
-    color: #35146d;
-    font-family: 'Pixelify Sans', sans-serif;
-    font-size: 27px;
-    margin: 14px 0;
-}
-
-.player-level {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    margin: 22px 0;
-    padding: 14px;
-    background: #7541d6;
-    color: white;
-    border: 3px solid #24104f;
-    border-radius: 10px;
-}
-
-.player-level strong {
-    padding: 10px;
-    color: #35146d;
-    background: #ffd45e;
-    border: 2px solid #24104f;
-    border-radius: 7px;
-    font-family: 'Pixelify Sans', sans-serif;
-}
-
-.player-panel h3 {
-    margin-bottom: 12px;
-    color: #35146d;
-}
-
-.progress-info {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-    font-size: 13px;
-    font-weight: 900;
-}
-
-.progress-track {
-    height: 17px;
-    margin: 10px 0;
-    background: #c5a4f2;
-    border: 2px solid #24104f;
-    border-radius: 5px;
-    overflow: hidden;
-}
-
-.progress-fill {
-    width: 0%;
-    height: 100%;
-    background: #ffd45e;
-}
-
-.small-note {
-    margin-top: 12px;
-    color: #68558a;
-    font-size: 12px;
-    font-weight: 700;
-}
-
-.daily-quest {
-    background: linear-gradient(145deg, #ffe7f5, #e3c9ff) !important;
-}
-
-.quest-reward {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin: 22px 0;
-    padding: 15px;
-    color: #35146d;
-    background: #ffd45e;
-    border: 3px solid #24104f;
-    border-radius: 10px;
-}
-
-.quest-reward span {
-    font-size: 12px;
-    font-weight: 900;
-}
-
-.quest-reward strong {
-    font-family: 'Pixelify Sans', sans-serif;
-    font-size: 23px;
-}
-
-.section-heading {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 15px;
-    margin-bottom: 24px;
-}
-
-.section-heading h2 {
-    margin-top: 10px;
-    color: #35146d;
-    font-family: 'Pixelify Sans', sans-serif;
-    font-size: clamp(23px, 4vw, 32px);
-}
-
-.home-categories {
-    padding: 25px;
-    background: linear-gradient(145deg, #a77af0, #713bc5);
-    border: 4px solid #24104f;
-    border-radius: 18px;
-    box-shadow: 7px 7px 0 #24104f;
-}
-
-.home-categories .section-heading h2 {
-    color: white;
-    text-shadow: 2px 2px 0 #35146d;
-}
-
-.home-categories .category-card {
-    box-shadow: 4px 4px 0 #24104f;
-}
-
-.home-leaderboard {
-    overflow-x: auto;
-}
-
-.home-leaderboard .section-heading {
-    min-width: 280px;
-}
-
-.about-section {
-    background: linear-gradient(120deg, #f8eaff, #d7bdff);
-}
-
-.about-section h2 {
-    margin: 12px 0;
-    color: #35146d;
-    font-family: 'Pixelify Sans', sans-serif;
-    font-size: 30px;
-}
-
-.about-section p:not(.category-label) {
-    max-width: 800px;
-    margin-bottom: 20px;
-    line-height: 1.8;
-    font-weight: 700;
-}
-
-/* HOME MOBILE LAYOUT */
+/* =========================================
+   HOME MOBILE LAYOUT
+========================================= */
 
 @media (max-width: 700px) {
     .home-dashboard-grid {
@@ -862,5 +957,24 @@ textarea {
     .player-panel h2,
     .daily-quest h2 {
         font-size: 23px;
+    }
+}
+
+/* =========================================
+   SMALL PHONES
+========================================= */
+
+@media (max-width: 380px) {
+    .hero h2 {
+        font-size: 34px;
+    }
+
+    .main-nav a {
+        font-size: 12px;
+        padding: 8px 10px;
+    }
+
+    .category-content {
+        padding: 15px;
     }
 }
