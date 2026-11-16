@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily Quiz | Quizivia</title>
-    <link rel="stylesheet" href="css/style.css?v=5">
+    <link rel="stylesheet" href="css/style.css?v=8">
 </head>
 <body>
 
@@ -39,14 +39,15 @@
     <section class="daily-quiz-container">
 
         <div class="daily-quiz-info">
+
             <div class="quiz-info-item">
                 <span class="info-label">CATEGORY</span>
-                <h3>Science</h3>
+                <h3 id="daily-category">Mixed</h3>
             </div>
 
             <div class="quiz-info-item">
                 <span class="info-label">QUESTIONS</span>
-                <h3>10</h3>
+                <h3 id="daily-total">10</h3>
             </div>
 
             <div class="quiz-info-item">
@@ -56,63 +57,65 @@
 
             <div class="quiz-info-item">
                 <span class="info-label">TIME LEFT</span>
-                <h3>10:00</h3>
+                <h3 id="daily-timer">10:00</h3>
             </div>
+
         </div>
 
-        <div class="daily-quiz-card">
+        <div class="daily-quiz-card" id="daily-quiz-card">
 
             <div class="quiz-progress-header">
-                <span>QUESTION 01 / 10</span>
-                <span>10% COMPLETE</span>
+                <span id="daily-question-number">QUESTION 01 / 10</span>
+                <span id="daily-progress-text">0% COMPLETE</span>
             </div>
 
             <div class="quiz-progress">
-                <div class="quiz-progress-fill"></div>
+                <div class="quiz-progress-fill" id="daily-progress-fill"></div>
             </div>
 
             <div class="quiz-question-content">
-                <p class="question-label">✦ SCIENCE CHALLENGE</p>
 
-                <h3>
-                    Which planet is known as the Red Planet?
+                <p class="question-label" id="daily-question-category">
+                    ✦ DAILY CHALLENGE
+                </p>
+
+                <h3 id="daily-question">
+                    Loading today's question...
                 </h3>
 
-                <form class="daily-quiz-form">
+                <form class="daily-quiz-form" id="daily-answer-form">
 
-                    <label class="quiz-option">
-                        <input type="radio" name="answer" value="Venus" required>
-                        <span class="option-letter">A</span>
-                        <span>Venus</span>
-                    </label>
+                    <div id="daily-options"></div>
 
-                    <label class="quiz-option">
-                        <input type="radio" name="answer" value="Mars">
-                        <span class="option-letter">B</span>
-                        <span>Mars</span>
-                    </label>
-
-                    <label class="quiz-option">
-                        <input type="radio" name="answer" value="Jupiter">
-                        <span class="option-letter">C</span>
-                        <span>Jupiter</span>
-                    </label>
-
-                    <label class="quiz-option">
-                        <input type="radio" name="answer" value="Mercury">
-                        <span class="option-letter">D</span>
-                        <span>Mercury</span>
-                    </label>
-
-                    <button type="submit" class="btn quiz-submit">
+                    <button
+                        type="submit"
+                        class="btn quiz-submit"
+                        id="daily-submit"
+                        disabled>
                         SUBMIT ANSWER →
                     </button>
 
                 </form>
+
+                <p
+                    class="quiz-feedback"
+                    id="daily-feedback"
+                    aria-live="polite">
+                </p>
+
+                <button
+                    type="button"
+                    class="btn quiz-submit"
+                    id="daily-next"
+                    hidden>
+                    NEXT QUESTION →
+                </button>
+
             </div>
+
         </div>
 
-        <div class="quiz-reminder">
+        <div class="quiz-reminder" id="daily-reminder">
             <h3>Believe in Yourself!</h3>
             <p>
                 Every question is a new adventure.
@@ -128,6 +131,412 @@
     <p>© 2026 Quizivia. All rights reserved.</p>
     <p>Learn, Play, and Challenge Yourself! ✦</p>
 </footer>
+
+<script type="module">
+import { createClient } from
+    "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+// Use the SAME project URL and Publishable Key from admin.html.
+// Never put your Supabase Secret Key here.
+
+const SUPABASE_URL = "PASTE_YOUR_PROJECT_URL";
+const SUPABASE_PUBLISHABLE_KEY = "PASTE_YOUR_PUBLISHABLE_KEY";
+
+const supabase = createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+);
+
+// ELEMENTS
+
+const card = document.getElementById("daily-quiz-card");
+const categoryDisplay = document.getElementById("daily-category");
+const totalDisplay = document.getElementById("daily-total");
+const timerDisplay = document.getElementById("daily-timer");
+
+const questionNumber = document.getElementById("daily-question-number");
+const progressText = document.getElementById("daily-progress-text");
+const progressFill = document.getElementById("daily-progress-fill");
+
+const questionCategory = document.getElementById("daily-question-category");
+const questionText = document.getElementById("daily-question");
+const optionsContainer = document.getElementById("daily-options");
+
+const answerForm = document.getElementById("daily-answer-form");
+const submitButton = document.getElementById("daily-submit");
+const nextButton = document.getElementById("daily-next");
+const feedback = document.getElementById("daily-feedback");
+
+// QUIZ STATE
+
+let questions = [];
+let currentIndex = 0;
+let selectedAnswer = null;
+let score = 0;
+
+let timeLeft = 600;
+let timerInterval = null;
+
+let submitted = false;
+let checkingAnswer = false;
+let finished = false;
+
+// LOAD DAILY QUESTIONS
+
+async function loadDailyQuestions() {
+
+    try {
+
+        const { data, error } = await supabase.functions.invoke(
+            "get-daily-questions",
+            {
+                body: {}
+            }
+        );
+
+        if (error) throw error;
+
+        if (!data || !Array.isArray(data.questions)) {
+            throw new Error("Invalid daily quiz response.");
+        }
+
+        if (data.questions.length < 10) {
+            showError(
+                "There are not enough active questions in the question bank. " +
+                "Please ask the admin to add at least 10 questions."
+            );
+            return;
+        }
+
+        questions = data.questions.slice(0, 10);
+
+        categoryDisplay.textContent = "Mixed";
+        totalDisplay.textContent = questions.length;
+
+        renderQuestion();
+        startTimer();
+
+    } catch (error) {
+
+        console.error("Daily quiz loading error:", error);
+
+        showError(
+            "Unable to load today's Daily Quiz. Please try again later."
+        );
+    }
+}
+
+// ERROR DISPLAY
+
+function showError(message) {
+
+    clearInterval(timerInterval);
+
+    card.innerHTML = "";
+
+    const errorText = document.createElement("p");
+    errorText.className = "quiz-feedback";
+    errorText.textContent = message;
+
+    const backLink = document.createElement("a");
+    backLink.href = "index.html";
+    backLink.className = "btn";
+    backLink.textContent = "BACK TO HOME";
+
+    card.appendChild(errorText);
+    card.appendChild(backLink);
+}
+
+// DISPLAY QUESTION
+
+function renderQuestion() {
+
+    if (finished) return;
+
+    const item = questions[currentIndex];
+
+    selectedAnswer = null;
+    submitted = false;
+    checkingAnswer = false;
+
+    questionNumber.textContent =
+        `QUESTION ${String(currentIndex + 1).padStart(2, "0")} / ${questions.length}`;
+
+    progressText.textContent =
+        `${Math.round((currentIndex / questions.length) * 100)}% COMPLETE`;
+
+    progressFill.style.width =
+        `${(currentIndex / questions.length) * 100}%`;
+
+    questionCategory.textContent =
+        `✦ ${item.category_name || "DAILY CHALLENGE"} CHALLENGE`;
+
+    questionText.textContent = item.question_text;
+
+    optionsContainer.innerHTML = "";
+
+    feedback.textContent = "";
+    feedback.className = "quiz-feedback";
+
+    submitButton.disabled = true;
+    submitButton.hidden = false;
+    submitButton.textContent = "SUBMIT ANSWER →";
+
+    nextButton.hidden = true;
+    nextButton.disabled = true;
+
+    let options = item.options;
+
+    if (typeof options === "string") {
+        try {
+            options = JSON.parse(options);
+        } catch {
+            options = [];
+        }
+    }
+
+    if (!Array.isArray(options) || options.length !== 4) {
+        showError("A question has invalid answer options.");
+        return;
+    }
+
+    // SHUFFLE ANSWER CHOICES
+
+    options = [...options].sort(() => Math.random() - 0.5);
+
+    options.forEach((option, index) => {
+
+        const label = document.createElement("label");
+        label.className = "quiz-option";
+
+        const radio = document.createElement("input");
+        radio.type = "radio";
+        radio.name = "answer";
+        radio.value = option;
+
+        const letter = document.createElement("span");
+        letter.className = "option-letter";
+        letter.textContent = String.fromCharCode(65 + index);
+
+        const answerText = document.createElement("span");
+        answerText.textContent = option;
+
+        label.appendChild(radio);
+        label.appendChild(letter);
+        label.appendChild(answerText);
+
+        radio.addEventListener("change", () => {
+
+            if (submitted || checkingAnswer || finished) return;
+
+            selectedAnswer = option;
+
+            document.querySelectorAll("#daily-options .quiz-option")
+                .forEach(item => item.classList.remove("selected"));
+
+            label.classList.add("selected");
+
+            submitButton.disabled = false;
+        });
+
+        optionsContainer.appendChild(label);
+    });
+
+    nextButton.textContent =
+        currentIndex === questions.length - 1
+            ? "FINISH DAILY QUIZ ✦"
+            : "NEXT QUESTION →";
+}
+
+// SUBMIT ANSWER
+
+async function submitAnswer(event) {
+
+    event.preventDefault();
+
+    if (
+        selectedAnswer === null ||
+        submitted ||
+        checkingAnswer ||
+        finished
+    ) {
+        return;
+    }
+
+    checkingAnswer = true;
+
+    submitButton.disabled = true;
+    submitButton.textContent = "CHECKING...";
+
+    try {
+
+        const item = questions[currentIndex];
+
+        const { data, error } = await supabase.functions.invoke(
+            "check-answer",
+            {
+                body: {
+                    question_id: item.question_id,
+                    answer: selectedAnswer
+                }
+            }
+        );
+
+        if (error) throw error;
+
+        if (!data || typeof data.correct !== "boolean") {
+            throw new Error("Invalid answer response.");
+        }
+
+        if (finished) return;
+
+        submitted = true;
+        checkingAnswer = false;
+
+        if (data.correct) {
+
+            score++;
+
+            feedback.textContent = "✦ Correct! Amazing work!";
+            feedback.className = "quiz-feedback correct";
+
+        } else {
+
+            feedback.textContent = "Not quite! Keep learning. ♡";
+            feedback.className = "quiz-feedback wrong";
+        }
+
+        // LOCK ANSWERS AFTER SUBMISSION
+
+        document.querySelectorAll("#daily-options .quiz-option")
+            .forEach(label => {
+
+                const radio = label.querySelector("input");
+
+                radio.disabled = true;
+
+                if (radio.value === selectedAnswer) {
+                    label.classList.add(
+                        data.correct ? "correct" : "wrong"
+                    );
+                }
+            });
+
+        submitButton.hidden = true;
+
+        nextButton.hidden = false;
+        nextButton.disabled = false;
+
+    } catch (error) {
+
+        console.error("Daily answer checking error:", error);
+
+        checkingAnswer = false;
+
+        submitButton.disabled = false;
+        submitButton.textContent = "SUBMIT ANSWER →";
+
+        feedback.textContent =
+            "Unable to check your answer. Please try again.";
+
+        feedback.className = "quiz-feedback wrong";
+    }
+}
+
+// NEXT QUESTION
+
+function nextQuestion() {
+
+    if (!submitted || checkingAnswer || finished) return;
+
+    currentIndex++;
+
+    if (currentIndex >= questions.length) {
+        finishQuiz();
+        return;
+    }
+
+    renderQuestion();
+}
+
+// TIMER
+
+function formatTime(seconds) {
+
+    const minutes = Math.floor(seconds / 60);
+    const remaining = seconds % 60;
+
+    return (
+        String(minutes).padStart(2, "0") +
+        ":" +
+        String(remaining).padStart(2, "0")
+    );
+}
+
+function updateTimer() {
+
+    timerDisplay.textContent = formatTime(timeLeft);
+
+}
+
+function startTimer() {
+
+    updateTimer();
+
+    timerInterval = setInterval(() => {
+
+        if (finished) return;
+
+        timeLeft--;
+
+        updateTimer();
+
+        if (timeLeft <= 0) {
+            finishQuiz();
+        }
+
+    }, 1000);
+}
+
+// FINISH DAILY QUIZ
+
+function finishQuiz() {
+
+    if (finished || questions.length === 0) return;
+
+    finished = true;
+
+    clearInterval(timerInterval);
+
+    const result = {
+        category: "daily",
+        quizId: "daily-challenge",
+        difficulty: "daily",
+        title: "Daily Quiz",
+        score: score,
+        total: questions.length,
+        timeLeft: timeLeft
+    };
+
+    sessionStorage.setItem(
+        "quiziviaResult",
+        JSON.stringify(result)
+    );
+
+    window.location.href = "quiz-results.html";
+}
+
+// EVENTS
+
+answerForm.addEventListener("submit", submitAnswer);
+
+nextButton.addEventListener("click", nextQuestion);
+
+// START DAILY QUIZ
+
+loadDailyQuestions();
+
+</script>
 
 </body>
 </html>
