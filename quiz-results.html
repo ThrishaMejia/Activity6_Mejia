@@ -1,0 +1,173 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Results | Quizivia</title>
+    <link rel="stylesheet" href="css/style.css?v=9">
+</head>
+<body>
+
+<header class="site-header">
+    <h1 class="logo">
+        <a href="index.html">
+            <img src="assets/images/quizivia_logo.png" alt="Quizivia Logo">
+        </a>
+    </h1>
+
+    <nav class="main-nav">
+        <a href="index.html">Home</a>
+        <a href="categories.html" class="active">Categories</a>
+        <a href="daily-quiz.html">Daily Quiz</a>
+        <a href="leaderboard.html">Leaderboard</a>
+        <a href="index.html#about">About</a>
+    </nav>
+</header>
+
+<main class="quiz-results-page">
+
+    <section class="page-intro">
+        <p class="eyebrow">✦ CHALLENGE COMPLETED ✦</p>
+        <h2>Quiz <span>Results!</span></h2>
+        <p>Every question is a chance to learn something new!</p>
+    </section>
+
+    <section class="results-card">
+
+        <div class="results-trophy">🏆</div>
+
+        <p class="results-label">YOUR FINAL SCORE</p>
+
+        <h2 class="results-score" id="score">0 / 10</h2>
+
+        <div class="results-progress">
+            <div id="score-progress"></div>
+        </div>
+
+        <h3 id="performance">Great effort, quizzer!</h3>
+
+        <p class="results-message" id="result-message">
+            Every challenge makes you smarter. Keep going!
+        </p>
+
+        <div class="results-stats">
+
+            <div class="result-stat">
+                <span>✦</span>
+                <strong id="percentage">0%</strong>
+                <small>ACCURACY</small>
+            </div>
+
+            <div class="result-stat">
+                <span>✓</span>
+                <strong id="correct-answers">0</strong>
+                <small>CORRECT</small>
+            </div>
+
+            <div class="result-stat">
+                <span>✕</span>
+                <strong id="wrong-answers">0</strong>
+                <small>INCORRECT</small>
+            </div>
+
+        </div>
+
+        <div class="results-quiz-name">
+            <span>COMPLETED QUIZ</span>
+            <h3 id="completed-quiz">Quiz Challenge</h3>
+        </div>
+
+        <div class="results-buttons">
+            <a href="#" class="btn" id="retake-button">↻ RETAKE QUIZ</a>
+            <a href="categories.html" class="btn results-back-btn">
+                BACK TO CATEGORIES
+            </a>
+        </div>
+
+    </section>
+
+    <section class="results-encouragement">
+        <p>✦ Keep learning. Keep playing. Keep growing! ✦</p>
+    </section>
+
+</main>
+
+<footer class="site-footer">
+    <p>© 2026 Quizivia. Learn, play, and challenge yourself!</p>
+</footer>
+
+<script>
+const savedResult = sessionStorage.getItem("quiziviaResult");
+
+const scoreElement = document.getElementById("score");
+const percentageElement = document.getElementById("percentage");
+const correctElement = document.getElementById("correct-answers");
+const wrongElement = document.getElementById("wrong-answers");
+const progressElement = document.getElementById("score-progress");
+const performanceElement = document.getElementById("performance");
+const messageElement = document.getElementById("result-message");
+const completedQuizElement = document.getElementById("completed-quiz");
+const retakeButton = document.getElementById("retake-button");
+
+if (savedResult) {
+    const result = JSON.parse(savedResult);
+
+    const score = Number(result.score) || 0;
+    const total = Number(result.total) || 10;
+    const percentage = Math.round((score / total) * 100);
+
+    scoreElement.textContent = score + " / " + total;
+    percentageElement.textContent = percentage + "%";
+    correctElement.textContent = score;
+    wrongElement.textContent = total - score;
+    progressElement.style.width = percentage + "%";
+
+    completedQuizElement.textContent = result.title;
+
+    retakeButton.href =
+        "quiz.html?category=" +
+        encodeURIComponent(result.category) +
+        "&quiz=" +
+        encodeURIComponent(result.quizId);
+
+    if (percentage === 100) {
+        performanceElement.textContent = "PERFECT SCORE!";
+        messageElement.textContent =
+            "Amazing! You answered every question correctly. You're a Quizivia superstar!";
+    } else if (percentage >= 80) {
+        performanceElement.textContent = "EXCELLENT WORK!";
+        messageElement.textContent =
+            "Fantastic job! You really know your stuff. Keep shining!";
+    } else if (percentage >= 60) {
+        performanceElement.textContent = "GREAT JOB!";
+        messageElement.textContent =
+            "You're doing really well! Keep practicing and learning.";
+    } else if (percentage >= 40) {
+        performanceElement.textContent = "GOOD TRY!";
+        messageElement.textContent =
+            "You're getting there! A little more practice can help you improve.";
+    } else {
+        performanceElement.textContent = "KEEP PRACTICING!";
+        messageElement.textContent =
+            "Don't give up! Every attempt is a new opportunity to learn.";
+    }
+
+} else {
+    scoreElement.textContent = "—";
+    percentageElement.textContent = "—";
+    correctElement.textContent = "—";
+    wrongElement.textContent = "—";
+
+    performanceElement.textContent = "NO RESULTS FOUND";
+    messageElement.textContent =
+        "Play a quiz first to see your results here.";
+
+    completedQuizElement.textContent = "No completed quiz";
+    retakeButton.style.display = "none";
+    progressElement.style.width = "0%";
+}
+</script>
+
+</body>
+</html>
