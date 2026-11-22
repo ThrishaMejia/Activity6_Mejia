@@ -40,7 +40,6 @@
 
     <!-- PLAYER PROFILE -->
     <section class="content-card">
-
         <div class="hero">
             <div class="hero-image">
                 <img src="assets/images/mascot.PNG"
@@ -65,7 +64,6 @@
                 </button>
             </div>
         </div>
-
     </section>
 
     <!-- XP AND STATISTICS -->
@@ -177,13 +175,11 @@
         </p>
 
         <div id="missions-container">
-
             <article class="category-card">
                 <div class="category-content">
                     <p>Loading your daily missions...</p>
                 </div>
             </article>
-
         </div>
 
         <p id="missions-message" class="small-note"></p>
@@ -196,15 +192,22 @@
         <p class="category-label">YOUR COLLECTION</p>
         <h2>🏆 Achievements</h2>
 
+        <p class="small-note">
+            Complete challenges and unlock achievements as you progress!
+        </p>
+
         <div class="category-grid">
 
             <article class="category-card">
                 <div class="category-content">
                     <h3>🌟 First Steps</h3>
                     <p>Complete your first quiz.</p>
-                    <span class="small-note" id="achievement-first">
+                    <strong class="small-note" id="achievement-first">
                         🔒 Locked
-                    </span>
+                    </strong>
+                    <p class="small-note" id="achievement-first-progress">
+                        Progress: 0 / 1
+                    </p>
                 </div>
             </article>
 
@@ -212,9 +215,12 @@
                 <div class="category-content">
                     <h3>📚 Knowledge Seeker</h3>
                     <p>Complete 5 quizzes.</p>
-                    <span class="small-note" id="achievement-five">
+                    <strong class="small-note" id="achievement-five">
                         🔒 Locked
-                    </span>
+                    </strong>
+                    <p class="small-note" id="achievement-five-progress">
+                        Progress: 0 / 5
+                    </p>
                 </div>
             </article>
 
@@ -222,9 +228,12 @@
                 <div class="category-content">
                     <h3>👑 Quiz Champion</h3>
                     <p>Reach Level 10.</p>
-                    <span class="small-note" id="achievement-level">
+                    <strong class="small-note" id="achievement-level">
                         🔒 Locked
-                    </span>
+                    </strong>
+                    <p class="small-note" id="achievement-level-progress">
+                        Progress: 1 / 10
+                    </p>
                 </div>
             </article>
 
@@ -232,9 +241,12 @@
                 <div class="category-content">
                     <h3>🔥 Consistency Starter</h3>
                     <p>Reach a 3-day Daily Quiz streak.</p>
-                    <span class="small-note" id="achievement-streak-3">
+                    <strong class="small-note" id="achievement-streak-3">
                         🔒 Locked
-                    </span>
+                    </strong>
+                    <p class="small-note" id="achievement-streak-3-progress">
+                        Progress: 0 / 3
+                    </p>
                 </div>
             </article>
 
@@ -242,9 +254,12 @@
                 <div class="category-content">
                     <h3>⚡ Weekly Warrior</h3>
                     <p>Reach a 7-day Daily Quiz streak.</p>
-                    <span class="small-note" id="achievement-streak-7">
+                    <strong class="small-note" id="achievement-streak-7">
                         🔒 Locked
-                    </span>
+                    </strong>
+                    <p class="small-note" id="achievement-streak-7-progress">
+                        Progress: 0 / 7
+                    </p>
                 </div>
             </article>
 
@@ -252,9 +267,12 @@
                 <div class="category-content">
                     <h3>💎 Knowledge Devotee</h3>
                     <p>Reach a 14-day Daily Quiz streak.</p>
-                    <span class="small-note" id="achievement-streak-14">
+                    <strong class="small-note" id="achievement-streak-14">
                         🔒 Locked
-                    </span>
+                    </strong>
+                    <p class="small-note" id="achievement-streak-14-progress">
+                        Progress: 0 / 14
+                    </p>
                 </div>
             </article>
 
@@ -262,9 +280,12 @@
                 <div class="category-content">
                     <h3>👑 Quizivia Legend</h3>
                     <p>Reach a 30-day Daily Quiz streak.</p>
-                    <span class="small-note" id="achievement-streak-30">
+                    <strong class="small-note" id="achievement-streak-30">
                         🔒 Locked
-                    </span>
+                    </strong>
+                    <p class="small-note" id="achievement-streak-30-progress">
+                        Progress: 0 / 30
+                    </p>
                 </div>
             </article>
 
@@ -435,15 +456,15 @@ async function loadPlayerProfile() {
                 ? "Keep completing your Daily Quiz every day to maintain your streak! 🔥"
                 : "Complete your Daily Quiz to start your streak!";
 
-        // ACHIEVEMENTS
-        setAchievement("achievement-first", quizCount >= 1);
-        setAchievement("achievement-five", quizCount >= 5);
-        setAchievement("achievement-level", level >= 10);
+        // ACHIEVEMENTS WITH LIVE PROGRESS
+        updateAchievement("achievement-first", quizCount, 1);
+        updateAchievement("achievement-five", quizCount, 5);
+        updateAchievement("achievement-level", level, 10);
 
-        setAchievement("achievement-streak-3", longestStreak >= 3);
-        setAchievement("achievement-streak-7", longestStreak >= 7);
-        setAchievement("achievement-streak-14", longestStreak >= 14);
-        setAchievement("achievement-streak-30", longestStreak >= 30);
+        updateAchievement("achievement-streak-3", longestStreak, 3);
+        updateAchievement("achievement-streak-7", longestStreak, 7);
+        updateAchievement("achievement-streak-14", longestStreak, 14);
+        updateAchievement("achievement-streak-30", longestStreak, 30);
 
         // QUIZ HISTORY
         renderQuizHistory(history);
@@ -465,14 +486,24 @@ async function loadPlayerProfile() {
     }
 }
 
-function setAchievement(elementId, unlocked) {
-    const element = document.getElementById(elementId);
+// UPDATE ACHIEVEMENT STATUS AND PROGRESS
+function updateAchievement(elementId, current, target) {
+    const achievement = document.getElementById(elementId);
+    const progress = document.getElementById(elementId + "-progress");
 
-    if (!element) return;
+    if (!achievement || !progress) return;
 
-    element.textContent = unlocked
+    const currentValue = Math.max(0, Number(current) || 0);
+    const targetValue = Math.max(1, Number(target) || 1);
+    const displayedValue = Math.min(currentValue, targetValue);
+    const unlocked = currentValue >= targetValue;
+
+    achievement.textContent = unlocked
         ? "✓ UNLOCKED"
-        : "🔒 Not unlocked yet";
+        : "🔒 Locked";
+
+    progress.textContent =
+        "Progress: " + displayedValue + " / " + targetValue;
 }
 
 function renderQuizHistory(history) {
@@ -723,7 +754,6 @@ async function claimMission(missionId, button) {
         message.textContent =
             "🎉 +" + data.reward_xp + " XP collected! Great job!";
 
-        // Refresh player information and mission statuses.
         await loadPlayerProfile();
 
     } catch (error) {
