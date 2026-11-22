@@ -24,7 +24,6 @@
         <a href="daily-quiz.html">Daily Quiz</a>
         <a href="leaderboard.html">Leaderboard</a>
         <a href="#about">About</a>
-        <a href="login.html">Login</a>
     </nav>
 </header>
 
@@ -258,10 +257,8 @@ const savedPlayer = JSON.parse(
     localStorage.getItem("quizivia_player") || "null"
 );
 
-const startButton = document.getElementById("qv-start-playing");
-
-if (startButton && savedPlayer && savedPlayer.id) {
-    startButton.href = "categories.html";
+if (!savedPlayer || !savedPlayer.id) {
+    window.location.replace("login.html");
 }
 </script>
 </body>
