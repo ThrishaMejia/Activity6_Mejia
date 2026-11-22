@@ -6,72 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leaderboard | Quizivia</title>
     <link rel="stylesheet" href="css/style.css?v=6">
-
-    <style>
-        .leaderboard-tabs {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            margin: 25px 0;
-            flex-wrap: wrap;
-        }
-
-        .leaderboard-tab {
-            padding: 11px 25px;
-            border: 2px solid #a58bd8;
-            border-radius: 30px;
-            background: transparent;
-            color: #7655aa;
-            font-weight: bold;
-            cursor: pointer;
-            font-family: inherit;
-        }
-
-        .leaderboard-tab.active {
-            background: #7655aa;
-            color: white;
-        }
-
-        .player-avatar {
-            width: 42px;
-            height: 42px;
-            min-width: 42px;
-            border-radius: 50%;
-            background: #e8dcff;
-            color: #7655aa;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            font-weight: bold;
-            font-size: 15px;
-            border: 2px solid #cbb6f0;
-            vertical-align: middle;
-        }
-
-        .player-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .champion-avatar {
-            overflow: hidden;
-        }
-
-        .champion-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
-        }
-
-        .player-name-content {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-        }
-    </style>
 </head>
 <body>
 
@@ -110,14 +44,20 @@
             <h2>Top 3 Champions</h2>
         </div>
 
-        <div class="leaderboard-tabs">
-            <button type="button" class="leaderboard-tab active"
-                data-period="weekly">
+        <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin:20px 0;">
+            <button
+                type="button"
+                class="btn btn-purple leaderboard-tab"
+                data-period="weekly"
+                aria-pressed="true">
                 WEEKLY
             </button>
 
-            <button type="button" class="leaderboard-tab"
-                data-period="all_time">
+            <button
+                type="button"
+                class="btn leaderboard-tab"
+                data-period="all_time"
+                aria-pressed="false">
                 ALL-TIME
             </button>
         </div>
@@ -185,18 +125,42 @@ const SUPABASE_URL = "https://mnknxizgpkznkboingbf.supabase.co";
 const SUPABASE_KEY = "sb_publishable_2Y6PlxPEFUdgIXuTTAhtag_XGPy-008";
 
 let currentPeriod = "weekly";
+let requestNumber = 0;
 
-function createAvatar(player, extraClass = "") {
-    const avatar = document.createElement("div");
-    avatar.className = "player-avatar " + extraClass;
-
-    const name = player.display_name || "Quizzer";
-    const initials = name
+function getInitials(name) {
+    return (name || "Quizzer")
         .trim()
         .split(/\s+/)
         .slice(0, 2)
         .map(part => part.charAt(0).toUpperCase())
-        .join("");
+        .join("") || "?";
+}
+
+function createAvatar(player, size = 42) {
+    const avatar = document.createElement("span");
+
+    avatar.style.display = "inline-flex";
+    avatar.style.alignItems = "center";
+    avatar.style.justifyContent = "center";
+    avatar.style.width = size + "px";
+    avatar.style.height = size + "px";
+    avatar.style.minWidth = size + "px";
+    avatar.style.borderRadius = "50%";
+    avatar.style.overflow = "hidden";
+    avatar.style.background = "#e4d5ff";
+    avatar.style.border = "3px solid #a987df";
+    avatar.style.color = "#57368c";
+    avatar.style.fontFamily = "'Pixelify Sans', sans-serif";
+    avatar.style.fontWeight = "700";
+    avatar.style.fontSize = Math.max(12, size * 0.32) + "px";
+    avatar.style.verticalAlign = "middle";
+
+    const initials = getInitials(player.display_name);
+
+    function showInitials() {
+        avatar.replaceChildren();
+        avatar.textContent = initials;
+    }
 
     const avatarUrl = player.avatar_url;
 
@@ -205,17 +169,39 @@ function createAvatar(player, extraClass = "") {
         /^https:\/\//i.test(avatarUrl)
     ) {
         const image = document.createElement("img");
+
         image.src = avatarUrl;
-        image.alt = name + " avatar";
-        image.onerror = () => {
-            avatar.textContent = initials || "?";
-        };
+        image.alt = (player.display_name || "Player") + " avatar";
+        image.style.width = "100%";
+        image.style.height = "100%";
+        image.style.objectFit = "cover";
+
+        image.onerror = showInitials;
+
         avatar.appendChild(image);
     } else {
-        avatar.textContent = initials || "?";
+        showInitials();
     }
 
     return avatar;
+}
+
+function showEmptyLeaderboard() {
+    const championsGrid = document.getElementById("champions-grid");
+    const rankingsBody = document.getElementById("rankings-body");
+
+    championsGrid.textContent = "No champions yet. Be the first!";
+
+    rankingsBody.replaceChildren();
+
+    const row = document.createElement("tr");
+    const cell = document.createElement("td");
+
+    cell.colSpan = 3;
+    cell.textContent = "No players have earned XP yet.";
+
+    row.appendChild(cell);
+    rankingsBody.appendChild(row);
 }
 
 async function loadLeaderboard(period) {
@@ -226,19 +212,24 @@ async function loadLeaderboard(period) {
 
     currentPeriod = period;
 
-    rankingsTitle.textContent =
-        period === "weekly" ? "Weekly Rankings" : "All-Time Rankings";
+    const thisRequest = ++requestNumber;
 
-    status.textContent = "Loading " + period.replace("_", "-") + " rankings...";
+    document.querySelectorAll(".leaderboard-tab").forEach(button => {
+        const active = button.dataset.period === period;
+
+        button.classList.toggle("btn-purple", active);
+        button.setAttribute("aria-pressed", String(active));
+    });
+
+    rankingsTitle.textContent =
+        period === "weekly"
+            ? "Weekly Rankings"
+            : "All-Time Rankings";
 
     championsGrid.textContent = "Loading champions...";
     rankingsBody.replaceChildren();
 
-    document.querySelectorAll(".leaderboard-tab").forEach(button => {
-        const active = button.dataset.period === period;
-        button.classList.toggle("active", active);
-        button.setAttribute("aria-pressed", String(active));
-    });
+    status.textContent = "Loading rankings...";
 
     try {
         const response = await fetch(
@@ -257,7 +248,10 @@ async function loadLeaderboard(period) {
 
         const players = await response.json();
 
+        if (thisRequest !== requestNumber) return;
+
         if (!response.ok || !Array.isArray(players)) {
+            console.error("Leaderboard response:", players);
             throw new Error("Unable to load leaderboard.");
         }
 
@@ -265,16 +259,7 @@ async function loadLeaderboard(period) {
         rankingsBody.replaceChildren();
 
         if (players.length === 0) {
-            championsGrid.textContent = "No champions yet. Be the first!";
-
-            const row = document.createElement("tr");
-            const cell = document.createElement("td");
-            cell.colSpan = 3;
-            cell.textContent = "No players have earned XP yet.";
-
-            row.appendChild(cell);
-            rankingsBody.appendChild(row);
-
+            showEmptyLeaderboard();
             status.textContent = "No rankings available yet.";
             return;
         }
@@ -320,11 +305,14 @@ async function loadLeaderboard(period) {
             rank.className = "champion-rank";
             rank.textContent = style.rank;
 
+            const medal = document.createElement("div");
+            medal.textContent = style.medal;
+            medal.style.marginTop = "10px";
+            medal.style.fontSize = "24px";
+
             const avatar = document.createElement("div");
             avatar.className = "champion-avatar";
-
-            const avatarContent = createAvatar(player);
-            avatar.appendChild(avatarContent);
+            avatar.appendChild(createAvatar(player, 65));
 
             const title = document.createElement("p");
             title.className = "champion-title";
@@ -339,10 +327,8 @@ async function loadLeaderboard(period) {
 
             const scoreLabel = document.createElement("span");
             scoreLabel.textContent = "XP";
-            score.appendChild(scoreLabel);
 
-            const medal = document.createElement("p");
-            medal.textContent = style.medal;
+            score.appendChild(scoreLabel);
 
             card.append(rank, medal, avatar, title, name, score);
             championsGrid.appendChild(card);
@@ -356,18 +342,23 @@ async function loadLeaderboard(period) {
             }
 
             const rankCell = document.createElement("td");
+
             const rankNumber = document.createElement("span");
             rankNumber.className = "rank-number";
             rankNumber.textContent = String(index + 1).padStart(2, "0");
+
             rankCell.appendChild(rankNumber);
 
             const nameCell = document.createElement("td");
             nameCell.className = "player-name";
 
             const nameContent = document.createElement("span");
-            nameContent.className = "player-name-content";
 
-            nameContent.appendChild(createAvatar(player));
+            nameContent.style.display = "inline-flex";
+            nameContent.style.alignItems = "center";
+            nameContent.style.gap = "10px";
+
+            nameContent.appendChild(createAvatar(player, 38));
 
             const nameText = document.createElement("span");
             nameText.textContent = player.display_name || "Quizzer";
@@ -389,6 +380,8 @@ async function loadLeaderboard(period) {
                 : "All-time rankings based on total accumulated XP.";
 
     } catch (error) {
+        if (thisRequest !== requestNumber) return;
+
         console.error("Leaderboard error:", error);
 
         championsGrid.textContent =
@@ -398,8 +391,10 @@ async function loadLeaderboard(period) {
 
         const row = document.createElement("tr");
         const cell = document.createElement("td");
+
         cell.colSpan = 3;
-        cell.textContent = "Unable to load rankings. Please try again later.";
+        cell.textContent =
+            "Unable to load rankings. Please try again later.";
 
         row.appendChild(cell);
         rankingsBody.appendChild(row);
