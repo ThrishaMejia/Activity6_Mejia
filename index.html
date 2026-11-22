@@ -1,12 +1,11 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#35146d">
-    <title>Quizivia | Learn, Play, Challenge</title>
-    <link rel="stylesheet" href="css/style.css?v=4">
+    <meta name="theme-color" content="#8171c9">
+    <title>Quizivia | Your Knowledge Adventure</title>
+    <link rel="stylesheet" href="css/style.css?v=5">
 </head>
 
 <body>
@@ -18,59 +17,68 @@
         </a>
     </h1>
 
-    <nav class="main-nav">
-        <a href="index.html" class="active">Home</a>
-        <a href="categories.html">Categories</a>
-        <a href="daily-quiz.html">Daily Quiz</a>
-        <a href="leaderboard.html">Leaderboard</a>
-        <a href="profile.html" id="qv-profile-link">Profile</a>
-        <a href="#about">About</a>
+    <nav class="main-nav" aria-label="Main navigation">
+        <a href="index.html" class="active">⌂ Home</a>
+        <a href="categories.html">▦ Categories</a>
+        <a href="daily-quiz.html">★ Daily Quiz</a>
+        <a href="leaderboard.html">♛ Leaderboard</a>
+        <a href="profile.html" id="qv-profile-link">♡ Profile</a>
+        <a href="#about">✦ About</a>
     </nav>
 </header>
 
 <main>
 
+    <!-- HERO SECTION -->
+
     <section class="hero">
         <div class="hero-content">
-            <p class="category-label">✦ YOUR LEARNING ADVENTURE ✦</p>
+            <p class="category-label">✦ WELCOME TO YOUR KNOWLEDGE ARCADE ✦</p>
 
-            <h2>Welcome to Quizivia!</h2>
+            <h2>Think. Discover. Become a Champion.</h2>
 
             <p>
-                Learn, play, and challenge yourself.
-                Explore exciting topics, answer fun questions,
-                and become a quiz champion!
+                Every question is a new opportunity to learn.
+                Explore different subjects, test your knowledge,
+                earn XP, and build your own journey to becoming
+                a Quizivia champion.
             </p>
 
             <a href="categories.html" class="btn" id="qv-start-playing">
-                Start Playing ▶
+                Explore Quizzes →
             </a>
+
+            <p class="small-note">Your next achievement starts with one question.</p>
         </div>
 
         <div class="hero-image">
             <img
                 src="assets/images/mascot.PNG"
-                alt="Quizivia chibi student mascot"
+                alt="Quizivia student mascot holding a quiz book"
             >
         </div>
     </section>
 
+    <!-- PLAYER DASHBOARD -->
+
     <section class="home-dashboard-grid">
 
         <article class="content-card player-panel">
-            <p class="category-label">PLAYER PROFILE</p>
+            <p class="category-label">✦ YOUR PLAYER SPACE</p>
+
             <h2 id="home-player-name">Hello, Quizzer! ♡</h2>
-            <p>Welcome to your Quizivia adventure.</p>
+
+            <p>Your learning journey, your progress, your achievements.</p>
 
             <div class="player-level">
                 <strong id="home-player-level">LV. 01</strong>
                 <span id="home-player-title">Beginner Quizzer</span>
             </div>
 
-            <h3>Your Progress</h3>
+            <h3>Experience Progress</h3>
 
             <div class="progress-info">
-                <span>XP Progress</span>
+                <span>Current XP</span>
                 <strong id="home-xp-text">0 / 100 XP</strong>
             </div>
 
@@ -81,36 +89,45 @@
             <p class="small-note" id="home-xp-note">
                 Keep playing to earn more XP!
             </p>
+
+            <a href="profile.html" class="btn btn-purple">View My Profile →</a>
         </article>
 
         <article class="content-card daily-quest">
-            <p class="category-label">DAILY QUEST</p>
-            <h2>Today's Challenge ⭐</h2>
+            <p class="category-label">✦ DAILY FEATURE</p>
 
-            <p>Complete a quiz and keep your learning streak going!</p>
+            <h2>Ready for Today's Challenge?</h2>
+
+            <p>
+                Take on your Daily Quiz, test what you know,
+                and earn rewards for your effort.
+            </p>
 
             <div class="quest-reward">
-                <span>QUEST REWARD</span>
-                <strong>+50 XP</strong>
+                <span>DAILY QUIZ REWARD</span>
+                <strong>50–100 XP</strong>
             </div>
 
             <a href="daily-quiz.html" class="btn btn-purple">
-                View Daily Quiz →
+                Enter Daily Quiz →
             </a>
         </article>
 
     </section>
 
+    <!-- CATEGORY EXPLORER -->
+
     <section class="home-categories">
 
         <div class="section-heading">
             <div>
-                <p class="category-label">PICK YOUR NEXT CHALLENGE</p>
-                <h2>⭐ Explore Categories</h2>
+                <p class="category-label">✦ FIND YOUR NEXT CHALLENGE</p>
+                <h2>Choose Your Subject</h2>
+                <p>Four learning worlds. Countless things to discover.</p>
             </div>
 
             <a href="categories.html" class="btn btn-purple">
-                View All →
+                All Categories →
             </a>
         </div>
 
@@ -124,9 +141,9 @@
 
                 <div class="category-content">
                     <h3>History</h3>
-                    <p>Discover the past and its amazing stories!</p>
+                    <p>Travel through time and uncover the stories that shaped our world.</p>
                     <a href="category-quizzes.html?category=history" class="btn">
-                        Play Now →
+                        Explore History →
                     </a>
                 </div>
             </article>
@@ -139,9 +156,9 @@
 
                 <div class="category-content">
                     <h3>Science</h3>
-                    <p>Explore the wonders of our world!</p>
+                    <p>Ask questions, discover nature, and explore how the universe works.</p>
                     <a href="category-quizzes.html?category=science" class="btn">
-                        Play Now →
+                        Explore Science →
                     </a>
                 </div>
             </article>
@@ -154,9 +171,9 @@
 
                 <div class="category-content">
                     <h3>Mathematics</h3>
-                    <p>Sharpen your thinking and problem-solving skills!</p>
+                    <p>Put your logic to work and turn challenging problems into victories.</p>
                     <a href="category-quizzes.html?category=mathematics" class="btn">
-                        Play Now →
+                        Explore Math →
                     </a>
                 </div>
             </article>
@@ -169,9 +186,9 @@
 
                 <div class="category-content">
                     <h3>General Knowledge</h3>
-                    <p>Test what you know about everything!</p>
+                    <p>Explore interesting facts and discover something new every day.</p>
                     <a href="category-quizzes.html?category=general-knowledge" class="btn">
-                        Play Now →
+                        Explore More →
                     </a>
                 </div>
             </article>
@@ -179,16 +196,19 @@
         </div>
     </section>
 
+    <!-- LEADERBOARD -->
+
     <section class="content-card home-leaderboard">
 
         <div class="section-heading">
             <div>
-                <p class="category-label">TOP PLAYERS</p>
-                <h2>🏆 Hall of Champions</h2>
+                <p class="category-label">✦ THE TOP OF THE CLASS</p>
+                <h2>Hall of Champions</h2>
+                <p>Meet the players making their mark in Quizivia.</p>
             </div>
 
             <a href="leaderboard.html" class="btn btn-purple">
-                View Rankings →
+                Full Rankings →
             </a>
         </div>
 
@@ -217,56 +237,36 @@
     <!-- ABOUT QUIZIVIA -->
 
     <section class="content-card about-section" id="about">
-        <p class="category-label">✦ ABOUT THE GAME ✦</p>
 
-        <h2>What is Quizivia?</h2>
+        <p class="category-label">✦ GET TO KNOW QUIZIVIA</p>
+
+        <h2>A Little About Our Learning World</h2>
 
         <p>
-            Quizivia is an interactive trivia quiz website designed
-            to make learning more exciting. Explore different subjects,
-            test your knowledge, earn experience points, and challenge
-            yourself to become a quiz champion!
+            Quizivia is an interactive trivia platform where curiosity
+            meets friendly competition. It gives learners a place to
+            explore different subjects, challenge their knowledge,
+            and celebrate their progress through quizzes, experience
+            points, missions, and achievements.
         </p>
 
-        <h2>🎮 How to Play</h2>
+        <h2>How to Begin Your Adventure</h2>
 
         <ol>
-            <li>
-                <strong>Create Your Player Account.</strong>
-                Register with your username and PIN to start your adventure.
-            </li>
-            <li>
-                <strong>Choose a Category.</strong>
-                Explore subjects such as History, Science,
-                Mathematics, and General Knowledge.
-            </li>
-            <li>
-                <strong>Select Your Difficulty.</strong>
-                Choose Easy, Medium, or Hard, depending on the available
-                quiz options.
-            </li>
-            <li>
-                <strong>Answer the Questions.</strong>
-                Read each question carefully and submit your answers.
-            </li>
-            <li>
-                <strong>Check Your Results.</strong>
-                View your score, accuracy, and XP earned after completing
-                the quiz.
-            </li>
-            <li>
-                <strong>Track Your Progress.</strong>
-                Visit your Profile to see your XP, level, quiz history,
-                missions, and achievements.
-            </li>
+            <li><strong>Create Your Account.</strong> Register using your username and PIN.</li>
+            <li><strong>Choose a Subject.</strong> Explore History, Science, Mathematics, or General Knowledge.</li>
+            <li><strong>Pick a Difficulty.</strong> Challenge yourself with Easy, Medium, or Hard quizzes when available.</li>
+            <li><strong>Answer the Questions.</strong> Read carefully and submit your answers.</li>
+            <li><strong>Earn Experience.</strong> Complete quizzes and qualify for XP rewards.</li>
+            <li><strong>Build Your Record.</strong> Visit your Profile to review your progress, missions, and achievements.</li>
         </ol>
 
-        <h2>⭐ XP and Level System</h2>
+        <h2>Experience Points and Levels</h2>
 
         <p>
-            Experience Points (XP) measure your progress in Quizivia.
-            Earn XP by completing quizzes and qualifying for rewards.
-            The more XP you collect, the higher your player level becomes!
+            XP represents your progress as a Quizivia player.
+            Every correct answer and completed challenge brings
+            you closer to your next level.
         </p>
 
         <div class="quest-reward">
@@ -280,24 +280,24 @@
         </div>
 
         <p>
-            Your Daily Quiz reward depends on your final score.
-            You can complete one Daily Quiz attempt per day.
+            Daily Quiz rewards depend on your final score.
+            Each player can claim one Daily Quiz reward per day.
         </p>
 
-        <h3>🏅 How Levels Work</h3>
+        <h3>Understanding Player Levels</h3>
 
         <ul>
             <li>Every 100 accumulated XP advances you by one level.</li>
-            <li>Your remaining XP progress is shown on your Profile and Home page.</li>
-            <li>Keep earning XP to unlock higher player levels and titles.</li>
+            <li>Your remaining XP progress appears on your Home page and Profile.</li>
+            <li>Continue earning XP to reach higher levels and player titles.</li>
         </ul>
 
-        <h2>🎯 Daily Missions</h2>
+        <h2>Daily Missions</h2>
 
         <p>
-            Complete special daily objectives to earn bonus XP.
-            Missions encourage you to explore categories, answer
-            questions, and complete your Daily Quiz.
+            Daily Missions give you extra goals to complete.
+            Explore the platform, improve your quiz performance,
+            and earn bonus experience.
         </p>
 
         <ul>
@@ -306,12 +306,11 @@
             <li><strong>Daily Challenger:</strong> Complete your Daily Quiz — +20 XP.</li>
         </ul>
 
-        <h2>🏆 Achievements</h2>
+        <h2>Achievements and Milestones</h2>
 
         <p>
-            Achievements recognize your milestones and dedication.
-            Complete quizzes, reach higher levels, and maintain
-            your Daily Quiz streak to qualify for achievement rewards.
+            Achievements celebrate your dedication and progress.
+            Work toward these milestones and collect their rewards.
         </p>
 
         <ul>
@@ -324,22 +323,17 @@
             <li><strong>Quizivia Legend:</strong> Reach a 30-day streak — +150 XP.</li>
         </ul>
 
-        <h2>👑 Leaderboard</h2>
+        <h2>Climb the Leaderboard</h2>
 
         <p>
-            Show off your progress on the Quizivia Leaderboard!
-            Compare your accumulated XP with other players through
-            the All-Time Rankings, or see who earned the most XP
-            during the current week in the Weekly Rankings.
-        </p>
-
-        <p>
-            Keep learning, complete challenges, collect XP,
-            and aim for the top!
+            Your effort deserves to be celebrated. The Quizivia
+            Leaderboard lets you compare player XP through Weekly
+            Rankings and All-Time Rankings. Keep learning, earn
+            more experience, and see how far you can climb.
         </p>
 
         <a href="categories.html" class="btn">
-            Start Your Adventure →
+            Start Exploring Quizivia →
         </a>
 
     </section>
@@ -347,7 +341,8 @@
 </main>
 
 <footer class="site-footer">
-    <p>© 2026 Quizivia. Learn, play, and challenge yourself!</p>
+    <p>© 2026 Quizivia. A little curiosity goes a long way.</p>
+    <p>Learn something new. Challenge yourself. Level up. ♡</p>
 </footer>
 
 <script>
