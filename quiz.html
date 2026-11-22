@@ -95,6 +95,23 @@ const supabase = createClient(
     SUPABASE_PUBLISHABLE_KEY
 );
 
+// PLAYER SESSION
+
+let player;
+
+try {
+    player = JSON.parse(
+        localStorage.getItem("quizivia_player") || "null"
+    );
+} catch {
+    player = null;
+}
+
+if (!player || !player.id || !player.token) {
+    window.location.replace("login.html");
+    throw new Error("Player login required.");
+}
+
 // URL PARAMETERS
 
 const params = new URLSearchParams(window.location.search);
@@ -111,7 +128,7 @@ const categoryNames = {
     "general-knowledge": "General Knowledge"
 };
 
-// QUIZ TITLES BY CATEGORY AND DIFFICULTY
+// QUIZ TITLES
 
 const quizTitles = {
     history: {
@@ -160,8 +177,10 @@ const quizCard = document.getElementById("quiz-card");
 // QUIZ STATE
 
 let questions = [];
+let answers = [];
+let sessionId = null;
+
 let currentQuestion = 0;
-let score = 0;
 let selectedAnswer = null;
 
 let timeLeft = 300;
@@ -170,6 +189,11 @@ let timerInterval = null;
 let finished = false;
 let submitted = false;
 let checkingAnswer = false;
+let savingResult = false;
+
+// UNANSWERED QUESTION MARKER
+
+const NO_ANSWER = "__QUIZIVIA_NO_ANSWER__";
 
 // SHOW ERROR
 
@@ -195,7 +219,7 @@ function showError(message) {
     quizCard.appendChild(backLink);
 }
 
-// LOAD QUESTIONS FROM SUPABASE
+// LOAD QUESTIONS
 
 async function loadQuestions() {
 
@@ -213,6 +237,9 @@ async function loadQuestions() {
         const { data, error } = await supabase.functions.invoke(
             "get-questions",
             {
+                headers: {
+                    Authorization: `Bearer ${player.token}`
+                },
                 body: {
                     category: category,
                     difficulty: difficulty
@@ -222,18 +249,23 @@ async function loadQuestions() {
 
         if (error) throw error;
 
-        if (!data || !Array.isArray(data.questions)) {
-            throw new Error("Unable to load questions.");
+        if (
+            !data ||
+            !Array.isArray(data.questions) ||
+            !data.session_id
+        ) {
+            throw new Error("Invalid quiz session response.");
         }
 
-        if (data.questions.length < 10) {
-            showError(
-                "Not enough active questions yet. Please ask the admin to add at least 10 questions for this category and difficulty."
-            );
+        if (data.questions.length !== 10) {
+            showError("We need exactly 10 questions to start this quiz.");
             return;
         }
 
-        questions = data.questions.slice(0, 10);
+        questions = data.questions;
+        sessionId = data.session_id;
+
+        answers = new Array(questions.length).fill(null);
 
         title.innerHTML = "";
 
@@ -264,7 +296,7 @@ async function loadQuestions() {
         console.error("Question loading error:", error);
 
         showError(
-            "We couldn't load your questions. Please try again later."
+            "We couldn't load your quiz. Please log in again or try later."
         );
     }
 }
@@ -350,13 +382,13 @@ function renderQuestion() {
     });
 }
 
-// ONE BUTTON ACTION
+// SAVE ANSWER AND MOVE FORWARD
 
-async function handleAction() {
+function handleAction() {
 
-    if (finished || checkingAnswer) return;
+    if (finished || checkingAnswer || savingResult) return;
 
-    // MOVE TO NEXT QUESTION OR RESULTS
+    if (finished) return;
 
     if (submitted) {
 
@@ -372,91 +404,24 @@ async function handleAction() {
 
     if (selectedAnswer === null) return;
 
-    checkingAnswer = true;
+    answers[currentQuestion] = selectedAnswer;
 
-    actionButton.disabled = true;
-    actionButton.textContent = "CHECKING...";
+    submitted = true;
 
-    try {
+    document.querySelectorAll(".quiz-option")
+        .forEach(button => {
+            button.disabled = true;
+        });
 
-        const item = questions[currentQuestion];
+    feedback.textContent = "✦ Answer saved! Ready for the next question?";
+    feedback.className = "quiz-feedback";
 
-        const { data, error } = await supabase.functions.invoke(
-            "check-answer",
-            {
-                body: {
-                    question_id: item.question_id,
-                    answer: selectedAnswer
-                }
-            }
-        );
+    actionButton.disabled = false;
 
-        if (error) throw error;
-
-        if (!data || typeof data.correct !== "boolean") {
-            throw new Error("Invalid answer response.");
-        }
-
-        if (finished) return;
-
-        submitted = true;
-        checkingAnswer = false;
-
-        if (data.correct) {
-
-            score++;
-
-            feedback.textContent = "✦ Correct! Great job!";
-            feedback.className = "quiz-feedback correct";
-
-        } else {
-
-            feedback.textContent =
-                "Not quite! Better luck next time. ♡";
-
-            feedback.className = "quiz-feedback wrong";
-        }
-
-        // LOCK ANSWERS AFTER SUBMISSION
-
-        document.querySelectorAll(".quiz-option")
-            .forEach(button => {
-
-                button.disabled = true;
-
-                const optionText =
-                    button.querySelector("span:last-child").textContent;
-
-                if (optionText === selectedAnswer) {
-                    button.classList.add(
-                        data.correct ? "correct" : "wrong"
-                    );
-                }
-            });
-
-        // UPDATE THE SAME BUTTON
-
-        actionButton.disabled = false;
-
-        actionButton.textContent =
-            currentQuestion === questions.length - 1
-                ? "SUBMIT QUIZ →"
-                : "NEXT QUESTION →";
-
-    } catch (error) {
-
-        console.error("Answer checking error:", error);
-
-        checkingAnswer = false;
-
-        actionButton.disabled = false;
-        actionButton.textContent = "SUBMIT ANSWER";
-
-        feedback.textContent =
-            "Unable to check your answer. Please try again.";
-
-        feedback.className = "quiz-feedback wrong";
-    }
+    actionButton.textContent =
+        currentQuestion === questions.length - 1
+            ? "SUBMIT QUIZ →"
+            : "NEXT QUESTION →";
 }
 
 // TIMER
@@ -488,7 +453,7 @@ function startTimer() {
 
     timerInterval = setInterval(() => {
 
-        if (finished) return;
+        if (finished || savingResult) return;
 
         timeLeft--;
 
@@ -501,32 +466,108 @@ function startTimer() {
     }, 1000);
 }
 
-// FINISH QUIZ
+// SAVE RESULT SECURELY
 
-function finishQuiz() {
+async function finishQuiz() {
 
-    if (finished || questions.length === 0) return;
+    if (finished || savingResult || questions.length !== 10) return;
 
     finished = true;
+    savingResult = true;
 
     clearInterval(timerInterval);
 
-    const result = {
-        category: category,
-        quizId: category + "-" + difficulty,
-        difficulty: difficulty,
-        title: quizTitle,
-        score: score,
-        total: questions.length,
-        timeLeft: timeLeft
-    };
-
-    sessionStorage.setItem(
-        "quiziviaResult",
-        JSON.stringify(result)
+    // Unanswered questions are submitted as incorrect answers.
+    answers = answers.map(answer =>
+        answer === null ? NO_ANSWER : answer
     );
 
-    window.location.href = "quiz-results.html";
+    actionButton.disabled = true;
+    actionButton.hidden = false;
+    actionButton.textContent = "SAVING RESULT...";
+
+    feedback.textContent = "✦ Checking your answers and saving your XP...";
+    feedback.className = "quiz-feedback";
+
+    try {
+
+        const answerSubmission = questions.map((item, index) => ({
+            question_id: item.question_id,
+            answer: answers[index]
+        }));
+
+        const { data, error } = await supabase.functions.invoke(
+            "save-quiz-result",
+            {
+                headers: {
+                    Authorization: `Bearer ${player.token}`
+                },
+                body: {
+                    session_id: sessionId,
+                    answers: answerSubmission
+                }
+            }
+        );
+
+        if (error) throw error;
+
+        if (
+            !data ||
+            data.success !== true ||
+            !data.result
+        ) {
+            throw new Error(
+                data?.error || "Unable to save quiz result."
+            );
+        }
+
+        const saved = data.result;
+
+        const result = {
+            category: category,
+            quizId: category + "-" + difficulty,
+            difficulty: difficulty,
+            title: quizTitle,
+            score: saved.correct_answers,
+            total: saved.total_questions,
+            timeLeft: timeLeft,
+            earned_xp: saved.earned_xp,
+            xp: saved.xp,
+            level: saved.level
+        };
+
+        // UPDATE SAVED PLAYER INFORMATION
+
+        player.xp = saved.xp;
+        player.level = saved.level;
+
+        localStorage.setItem(
+            "quizivia_player",
+            JSON.stringify(player)
+        );
+
+        sessionStorage.setItem(
+            "quiziviaResult",
+            JSON.stringify(result)
+        );
+
+        window.location.href = "quiz-results.html";
+
+    } catch (error) {
+
+        console.error("Result saving error:", error);
+
+        savingResult = false;
+
+        feedback.textContent =
+            "We couldn't save your result. Please tap retry. Your answers are still here.";
+
+        feedback.className = "quiz-feedback wrong";
+
+        actionButton.disabled = false;
+        actionButton.textContent = "RETRY SUBMISSION";
+        actionButton.onclick = finishQuiz;
+    }
 }
 
 // BUTTON EVENT
