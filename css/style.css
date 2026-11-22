@@ -2848,3 +2848,150 @@ button:hover {
         font-size: 12px;
     }
 }
+
+/* =========================================
+   QUIZIVIA — CENTERED PIXEL NAVIGATION
+========================================= */
+
+/* Center logo and navigation together */
+.site-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 14px 16px 18px;
+    background: linear-gradient(180deg, #302449, #443269);
+    border-bottom: 5px solid #b49ae8;
+    box-shadow: 0 6px 0 rgba(68, 50, 105, 0.2);
+}
+
+/* Center the logo */
+.logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.logo a {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.logo img {
+    width: 105px;
+    height: 78px;
+    object-fit: contain;
+}
+
+/* Navigation panel */
+.main-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    width: fit-content;
+    max-width: 100%;
+    padding: 10px 14px;
+
+    background: linear-gradient(145deg, #514078, #382653);
+    border: 2px solid #9279c9;
+    border-radius: 15px;
+    box-shadow:
+        0 5px 0 #241a39,
+        inset 0 1px 0 rgba(255,255,255,.12);
+}
+
+/* Icon buttons */
+.main-nav a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 52px;
+    height: 48px;
+    padding: 0;
+
+    color: #eee6ff;
+    background: rgba(255,255,255,.07);
+
+    border: 2px solid rgba(196,169,240,.25);
+    border-radius: 10px;
+
+    font-family: 'Nunito', sans-serif;
+    font-size: 23px;
+    line-height: 1;
+
+    transition: all .2s ease;
+}
+
+/* Hover effect */
+.main-nav a:hover {
+    color: #302449;
+    background: linear-gradient(145deg, #f3c1df, #e5d9ff);
+    border-color: #f3c1df;
+    transform: translateY(-4px);
+    box-shadow: 0 5px 0 #241a39;
+}
+
+/* Active page */
+.main-nav a.active {
+    color: #443269;
+    background: linear-gradient(145deg, #fff2c5, #f8d878);
+    border: 2px solid #f8d878;
+    box-shadow:
+        0 4px 0 #c49b3d,
+        0 0 12px rgba(248,216,120,.25);
+    transform: translateY(-2px);
+}
+
+/* Keyboard accessibility */
+.main-nav a:focus-visible {
+    outline: 3px solid #f3c1df;
+    outline-offset: 4px;
+}
+
+/* Mobile navigation */
+@media (max-width: 600px) {
+    .site-header {
+        padding: 12px 10px 16px;
+        gap: 10px;
+    }
+
+    .logo img {
+        width: 88px;
+        height: 66px;
+    }
+
+    .main-nav {
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 9px;
+    }
+
+    .main-nav a {
+        width: 44px;
+        height: 43px;
+        font-size: 20px;
+    }
+}
+
+/* Very small phones */
+@media (max-width: 360px) {
+    .main-nav {
+        gap: 6px;
+        padding: 7px;
+    }
+
+    .main-nav a {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+    }
+}
