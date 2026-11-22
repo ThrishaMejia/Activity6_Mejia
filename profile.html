@@ -14,8 +14,7 @@
 <header class="site-header">
     <h1 class="logo">
         <a href="index.html">
-            <img src="assets/images/quizivia_logo.png"
-                 alt="Quizivia Logo">
+            <img src="assets/images/quizivia_logo.png" alt="Quizivia Logo">
         </a>
     </h1>
 
@@ -39,8 +38,6 @@
         </p>
     </section>
 
-    <!-- PLAYER INFORMATION -->
-
     <section class="content-card">
 
         <div class="hero">
@@ -52,16 +49,14 @@
             <div class="hero-content">
                 <p class="category-label">PLAYER PROFILE</p>
 
-                <h2 id="player-name">Your Username</h2>
+                <h2 id="player-name">Loading player...</h2>
 
                 <div class="player-level">
                     <strong id="player-level">LV. 01</strong>
-                    <span>Beginner Quizzer</span>
+                    <span id="player-title">Beginner Quizzer</span>
                 </div>
 
-                <p id="player-xp">
-                    0 XP
-                </p>
+                <p id="player-xp">0 XP</p>
 
                 <button type="button"
                     class="btn btn-purple"
@@ -72,8 +67,6 @@
         </div>
 
     </section>
-
-    <!-- PLAYER STATISTICS -->
 
     <section class="home-dashboard-grid">
 
@@ -91,7 +84,7 @@
                      id="xp-progress"></div>
             </div>
 
-            <p class="small-note">
+            <p class="small-note" id="xp-note">
                 Keep playing to earn more experience points!
             </p>
         </article>
@@ -102,27 +95,25 @@
 
             <div class="progress-info">
                 <span>Quizzes Completed</span>
-                <strong id="quiz-count">0</strong>
+                <strong id="quiz-count">—</strong>
             </div>
 
             <div class="progress-info">
                 <span>Correct Answers</span>
-                <strong id="correct-count">0</strong>
+                <strong id="correct-count">—</strong>
             </div>
 
             <div class="progress-info">
                 <span>Total XP Earned</span>
-                <strong id="earned-xp">0 XP</strong>
+                <strong id="earned-xp">—</strong>
             </div>
 
-            <p class="small-note">
-                Your statistics will update as you complete quizzes.
+            <p class="small-note" id="stats-note">
+                Loading your statistics...
             </p>
         </article>
 
     </section>
-
-    <!-- ACHIEVEMENTS -->
 
     <section class="content-card">
 
@@ -135,7 +126,9 @@
                 <div class="category-content">
                     <h3>🌟 First Steps</h3>
                     <p>Complete your first quiz.</p>
-                    <span class="small-note">Not unlocked yet</span>
+                    <span class="small-note" id="achievement-first">
+                        Locked
+                    </span>
                 </div>
             </article>
 
@@ -143,7 +136,9 @@
                 <div class="category-content">
                     <h3>📚 Knowledge Seeker</h3>
                     <p>Complete 5 quizzes.</p>
-                    <span class="small-note">Not unlocked yet</span>
+                    <span class="small-note" id="achievement-five">
+                        Locked
+                    </span>
                 </div>
             </article>
 
@@ -151,7 +146,9 @@
                 <div class="category-content">
                     <h3>👑 Quiz Champion</h3>
                     <p>Reach Level 10.</p>
-                    <span class="small-note">Not unlocked yet</span>
+                    <span class="small-note" id="achievement-level">
+                        Locked
+                    </span>
                 </div>
             </article>
 
@@ -159,18 +156,13 @@
 
     </section>
 
-    <!-- QUIZ HISTORY -->
-
     <section class="content-card">
 
         <p class="category-label">YOUR ADVENTURE LOG</p>
         <h2>📜 Quiz History</h2>
 
         <div id="quiz-history">
-            <p class="small-note">
-                No completed quizzes yet.
-                Your quiz history will appear here!
-            </p>
+            <p class="small-note">Loading quiz history...</p>
         </div>
 
     </section>
@@ -182,49 +174,210 @@
 </footer>
 
 <script>
+const SUPABASE_URL = "https://mnknxizgpkznkboingbf.supabase.co";
+const SUPABASE_KEY = "sb_publishable_2Y6PlxPEFUdgIXuTTAhtag_XGPy-008";
 const PLAYER_STORAGE_KEY = "quizivia_player";
 
 let savedPlayer = null;
 
 try {
     savedPlayer = JSON.parse(
-        localStorage.getItem(PLAYER_STORAGE_KEY)
+        localStorage.getItem(PLAYER_STORAGE_KEY) || "null"
     );
 } catch {
     localStorage.removeItem(PLAYER_STORAGE_KEY);
 }
 
-if (!savedPlayer || !savedPlayer.id) {
+if (!savedPlayer || !savedPlayer.id || !savedPlayer.token) {
     window.location.replace("login.html");
 } else {
+    loadPlayerProfile();
+}
 
-    const username =
-        savedPlayer.display_name || "Quizzer";
+function getPlayerTitle(level) {
+    if (level >= 10) return "Quiz Master";
+    if (level >= 5) return "Advanced Quizzer";
+    if (level >= 2) return "Rising Quizzer";
+    return "Beginner Quizzer";
+}
 
-    const xp = Number(savedPlayer.xp) || 0;
-    const level = Number(savedPlayer.level) || 1;
+async function loadPlayerProfile() {
+    const historyContainer = document.getElementById("quiz-history");
 
-    document.getElementById("player-name").textContent =
-        username;
+    try {
+        const response = await fetch(
+            SUPABASE_URL + "/functions/v1/get-player-stats",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "apikey": SUPABASE_KEY,
+                    "Authorization": "Bearer " + savedPlayer.token
+                },
+                body: JSON.stringify({})
+            }
+        );
 
-    document.getElementById("player-level").textContent =
-        "LV. " + String(level).padStart(2, "0");
+        const data = await response.json();
 
-    document.getElementById("player-xp").textContent =
-        xp + " XP";
+        if (response.status === 401) {
+            localStorage.removeItem(PLAYER_STORAGE_KEY);
+            window.location.replace("login.html");
+            return;
+        }
 
-    document.getElementById("xp-total").textContent =
-        xp + " XP";
+        if (!response.ok || !data.success) {
+            throw new Error(data.message || "Unable to load profile.");
+        }
 
-    document.getElementById("earned-xp").textContent =
-        xp + " XP";
+        const player = data.player;
+        const stats = data.stats;
+        const history = data.history || [];
 
-    // Temporary progress display.
-    // We will connect the actual level requirements later.
-    const progress = Math.min(xp, 100);
+        const username = player.display_name || "Quizzer";
+        const xp = Number(player.xp) || 0;
+        const level = Number(player.level) || 1;
 
-    document.getElementById("xp-progress").style.width =
-        progress + "%";
+        // Update saved player data.
+        savedPlayer.display_name = username;
+        savedPlayer.xp = xp;
+        savedPlayer.level = level;
+
+        localStorage.setItem(
+            PLAYER_STORAGE_KEY,
+            JSON.stringify(savedPlayer)
+        );
+
+        // Player information.
+        document.getElementById("player-name").textContent = username;
+        document.getElementById("player-level").textContent =
+            "LV. " + String(level).padStart(2, "0");
+
+        document.getElementById("player-title").textContent =
+            getPlayerTitle(level);
+
+        document.getElementById("player-xp").textContent = xp + " XP";
+
+        // XP progress.
+        const currentLevelXP = xp % 100;
+
+        document.getElementById("xp-total").textContent = xp + " XP";
+        document.getElementById("xp-progress").style.width =
+            currentLevelXP + "%";
+
+        document.getElementById("xp-note").textContent =
+            (100 - currentLevelXP) +
+            " XP until your next level!";
+
+        // Quiz statistics.
+        const quizCount = Number(stats.total_quizzes) || 0;
+        const correctCount = Number(stats.correct_answers) || 0;
+        const earnedXP = Number(stats.total_xp_earned) || 0;
+
+        document.getElementById("quiz-count").textContent = quizCount;
+        document.getElementById("correct-count").textContent = correctCount;
+        document.getElementById("earned-xp").textContent = earnedXP + " XP";
+
+        document.getElementById("stats-note").textContent =
+            "Your statistics are up to date!";
+
+        // Achievements.
+        setAchievement(
+            "achievement-first",
+            quizCount >= 1
+        );
+
+        setAchievement(
+            "achievement-five",
+            quizCount >= 5
+        );
+
+        setAchievement(
+            "achievement-level",
+            level >= 10
+        );
+
+        // Quiz history.
+        renderQuizHistory(history);
+
+    } catch (error) {
+        console.error("Profile loading error:", error);
+
+        document.getElementById("stats-note").textContent =
+            "Unable to load your statistics. Please refresh.";
+
+        historyContainer.textContent =
+            "Unable to load quiz history. Please try again.";
+    }
+}
+
+function setAchievement(elementId, unlocked) {
+    const element = document.getElementById(elementId);
+
+    element.textContent = unlocked
+        ? "✓ UNLOCKED"
+        : "🔒 Not unlocked yet";
+}
+
+function renderQuizHistory(history) {
+    const container = document.getElementById("quiz-history");
+    container.replaceChildren();
+
+    if (!history.length) {
+        const message = document.createElement("p");
+        message.className = "small-note";
+        message.textContent =
+            "No completed quizzes yet. Your adventure starts now!";
+        container.appendChild(message);
+        return;
+    }
+
+    history.forEach((attempt) => {
+        const card = document.createElement("article");
+        card.className = "category-card";
+
+        const content = document.createElement("div");
+        content.className = "category-content";
+
+        const category = document.createElement("h3");
+        const categoryName =
+            attempt.categories?.name || "Quiz";
+        category.textContent = categoryName;
+
+        const difficulty = document.createElement("p");
+        difficulty.textContent =
+            "Difficulty: " +
+            (attempt.difficulty || "Unknown").toUpperCase();
+
+        const score = document.createElement("p");
+        score.textContent =
+            "Score: " +
+            (Number(attempt.correct_answers) || 0) +
+            " / " +
+            (Number(attempt.total_questions) || 0);
+
+        const xp = document.createElement("p");
+        xp.textContent =
+            "XP Earned: " +
+            (Number(attempt.earned_xp) || 0) +
+            " XP";
+
+        const date = document.createElement("span");
+        date.className = "small-note";
+
+        const completedDate = attempt.completed_at
+            ? new Date(attempt.completed_at)
+            : null;
+
+        date.textContent =
+            completedDate && !Number.isNaN(completedDate.getTime())
+                ? completedDate.toLocaleString()
+                : "Completion date unavailable";
+
+        content.append(category, difficulty, score, xp, date);
+        card.appendChild(content);
+        container.appendChild(card);
+    });
 }
 
 function qvLogout() {
@@ -235,7 +388,6 @@ function qvLogout() {
     if (!confirmLogout) return;
 
     localStorage.removeItem(PLAYER_STORAGE_KEY);
-
     window.location.replace("login.html");
 }
 </script>
