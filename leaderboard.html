@@ -21,6 +21,7 @@
         <a href="categories.html">Categories</a>
         <a href="daily-quiz.html">Daily Quiz</a>
         <a href="leaderboard.html" class="active">Leaderboard</a>
+        <a href="profile.html">Profile</a>
         <a href="index.html#about">About</a>
     </nav>
 </header>
@@ -43,32 +44,13 @@
             <h2>Top 3 Champions</h2>
         </div>
 
-        <div class="champions-grid">
-
-            <article class="champion-card second-place">
-                <div class="champion-rank">2ND</div>
-                <div class="champion-avatar">👑</div>
-                <p class="champion-title">SILVER CHAMPION</p>
-                <h3>Liam Chen</h3>
-                <div class="champion-score">940 <span>PTS</span></div>
-            </article>
-
-            <article class="champion-card first-place">
-                <div class="champion-rank">1ST</div>
+        <div class="champions-grid" id="champions-grid">
+            <article class="champion-card">
                 <div class="champion-avatar">🏆</div>
-                <p class="champion-title">GRAND CHAMPION</p>
-                <h3>Ava Thompson</h3>
-                <div class="champion-score">980 <span>PTS</span></div>
+                <p class="champion-title">LOADING CHAMPIONS</p>
+                <h3>Please wait...</h3>
+                <div class="champion-score">— <span>XP</span></div>
             </article>
-
-            <article class="champion-card third-place">
-                <div class="champion-rank">3RD</div>
-                <div class="champion-avatar">⭐</div>
-                <p class="champion-title">BRONZE CHAMPION</p>
-                <h3>Noor Haddad</h3>
-                <div class="champion-score">910 <span>PTS</span></div>
-            </article>
-
         </div>
     </section>
 
@@ -88,35 +70,18 @@
                         <th>SCORE</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr class="top-rank">
-                        <td><span class="rank-number">01</span></td>
-                        <td class="player-name">Ava Thompson</td>
-                        <td class="player-score">980 XP</td>
-                    </tr>
-                    <tr class="top-rank">
-                        <td><span class="rank-number">02</span></td>
-                        <td class="player-name">Liam Chen</td>
-                        <td class="player-score">940 XP</td>
-                    </tr>
-                    <tr class="top-rank">
-                        <td><span class="rank-number">03</span></td>
-                        <td class="player-name">Noor Haddad</td>
-                        <td class="player-score">910 XP</td>
-                    </tr>
+
+                <tbody id="rankings-body">
                     <tr>
-                        <td><span class="rank-number">04</span></td>
-                        <td class="player-name">Emma Wilson</td>
-                        <td class="player-score">875 XP</td>
-                    </tr>
-                    <tr>
-                        <td><span class="rank-number">05</span></td>
-                        <td class="player-name">Lucas Garcia</td>
-                        <td class="player-score">850 XP</td>
+                        <td colspan="3">Loading rankings...</td>
                     </tr>
                 </tbody>
             </table>
         </div>
+
+        <p class="small-note" id="leaderboard-status">
+            Rankings are based on player XP.
+        </p>
     </section>
 
     <section class="leaderboard-cta">
@@ -127,7 +92,7 @@
             Take a quiz, improve your score,
             and see if you can reach the top!
         </p>
-        <a href="daily-quiz.html" class="btn">PLAY NOW ✦</a>
+        <a href="categories.html" class="btn">PLAY NOW ✦</a>
     </section>
 
 </main>
@@ -136,6 +101,188 @@
     <p>© 2026 Quizivia. All rights reserved.</p>
     <p>Learn, Play, and Challenge Yourself! ✦</p>
 </footer>
+
+<script>
+const SUPABASE_URL = "https://mnknxizgpkznkboingbf.supabase.co";
+const SUPABASE_KEY = "sb_publishable_2Y6PlxPEFUdgIXuTTAhtag_XGPy-008";
+
+async function loadLeaderboard() {
+    const championsGrid = document.getElementById("champions-grid");
+    const rankingsBody = document.getElementById("rankings-body");
+    const status = document.getElementById("leaderboard-status");
+
+    try {
+        const response = await fetch(
+            SUPABASE_URL + "/functions/v1/get-leaderboard",
+            {
+                method: "GET",
+                headers: {
+                    "apikey": SUPABASE_KEY
+                }
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error("Unable to load leaderboard.");
+        }
+
+        const players = data.players || [];
+
+        championsGrid.replaceChildren();
+        rankingsBody.replaceChildren();
+
+        if (players.length === 0) {
+            championsGrid.textContent = "No champions yet. Be the first!";
+            const row = document.createElement("tr");
+            const cell = document.createElement("td");
+            cell.colSpan = 3;
+            cell.textContent = "No players have earned XP yet.";
+            row.appendChild(cell);
+            rankingsBody.appendChild(row);
+            return;
+        }
+
+        const topThree = players.slice(0, 3);
+
+        const championStyles = [
+            {
+                className: "second-place",
+                rank: "1ST",
+                title: "GRAND CHAMPION",
+                avatar: "🏆"
+            },
+            {
+                className: "first-place",
+                rank: "2ND",
+                title: "SILVER CHAMPION",
+                avatar: "👑"
+            },
+            {
+                className: "third-place",
+                rank: "3RD",
+                title: "BRONZE CHAMPION",
+                avatar: "⭐"
+            }
+        ];
+
+        // Display actual top three players.
+        // The first-place card is placed in the center.
+
+        const displayOrder = [
+            topThree[1],
+            topThree[0],
+            topThree[2]
+        ];
+
+        const displayStyles = [
+            {
+                className: "second-place",
+                rank: "2ND",
+                title: "SILVER CHAMPION",
+                avatar: "👑"
+            },
+            {
+                className: "first-place",
+                rank: "1ST",
+                title: "GRAND CHAMPION",
+                avatar: "🏆"
+            },
+            {
+                className: "third-place",
+                rank: "3RD",
+                title: "BRONZE CHAMPION",
+                avatar: "⭐"
+            }
+        ];
+
+        displayOrder.forEach((player, index) => {
+            if (!player) return;
+
+            const style = displayStyles[index];
+
+            const card = document.createElement("article");
+            card.className = "champion-card " + style.className;
+
+            const rank = document.createElement("div");
+            rank.className = "champion-rank";
+            rank.textContent = style.rank;
+
+            const avatar = document.createElement("div");
+            avatar.className = "champion-avatar";
+            avatar.textContent = style.avatar;
+
+            const title = document.createElement("p");
+            title.className = "champion-title";
+            title.textContent = style.title;
+
+            const name = document.createElement("h3");
+            name.textContent = player.display_name || "Quizzer";
+
+            const score = document.createElement("div");
+            score.className = "champion-score";
+            score.textContent = (Number(player.xp) || 0) + " ";
+
+            const scoreLabel = document.createElement("span");
+            scoreLabel.textContent = "XP";
+            score.appendChild(scoreLabel);
+
+            card.append(rank, avatar, title, name, score);
+            championsGrid.appendChild(card);
+        });
+
+        // Display all returned player rankings.
+
+        players.forEach((player, index) => {
+            const row = document.createElement("tr");
+
+            if (index < 3) {
+                row.classList.add("top-rank");
+            }
+
+            const rankCell = document.createElement("td");
+            const rankNumber = document.createElement("span");
+            rankNumber.className = "rank-number";
+            rankNumber.textContent = String(index + 1).padStart(2, "0");
+            rankCell.appendChild(rankNumber);
+
+            const nameCell = document.createElement("td");
+            nameCell.className = "player-name";
+            nameCell.textContent = player.display_name || "Quizzer";
+
+            const scoreCell = document.createElement("td");
+            scoreCell.className = "player-score";
+            scoreCell.textContent = (Number(player.xp) || 0) + " XP";
+
+            row.append(rankCell, nameCell, scoreCell);
+            rankingsBody.appendChild(row);
+        });
+
+        status.textContent = "Live rankings based on player XP.";
+
+    } catch (error) {
+        console.error("Leaderboard error:", error);
+
+        championsGrid.textContent =
+            "Leaderboard is currently unavailable.";
+
+        rankingsBody.replaceChildren();
+
+        const row = document.createElement("tr");
+        const cell = document.createElement("td");
+        cell.colSpan = 3;
+        cell.textContent = "Unable to load rankings. Please try again later.";
+
+        row.appendChild(cell);
+        rankingsBody.appendChild(row);
+
+        status.textContent = "Please try again later.";
+    }
+}
+
+loadLeaderboard();
+</script>
 
 </body>
 </html>
