@@ -76,10 +76,21 @@
         <div class="results-quiz-name">
             <span>COMPLETED QUIZ</span>
             <h3 id="completed-quiz">Quiz Challenge</h3>
+
+            <p class="results-message" id="xp-earned">
+                +0 XP earned!
+            </p>
+
+            <p class="results-message" id="player-level">
+                Level 1
+            </p>
         </div>
 
         <div class="results-buttons">
-            <a href="#" class="btn" id="retake-button">↻ RETAKE QUIZ</a>
+            <a href="#" class="btn" id="retake-button">
+                ↻ RETAKE QUIZ
+            </a>
+
             <a href="categories.html" class="btn results-back-btn">
                 BACK TO CATEGORIES
             </a>
@@ -109,62 +120,133 @@ const performanceElement = document.getElementById("performance");
 const messageElement = document.getElementById("result-message");
 const completedQuizElement = document.getElementById("completed-quiz");
 const retakeButton = document.getElementById("retake-button");
+const xpElement = document.getElementById("xp-earned");
+const levelElement = document.getElementById("player-level");
 
 if (savedResult) {
-    const result = JSON.parse(savedResult);
 
-    const score = Number(result.score) || 0;
-    const total = Number(result.total) || 10;
-    const percentage = Math.round((score / total) * 100);
+    try {
 
-    scoreElement.textContent = score + " / " + total;
-    percentageElement.textContent = percentage + "%";
-    correctElement.textContent = score;
-    wrongElement.textContent = total - score;
-    progressElement.style.width = percentage + "%";
+        const result = JSON.parse(savedResult);
 
-    completedQuizElement.textContent = result.title;
+        const score = Number(result.score);
+        const total = Number(result.total);
+        const earnedXP = Number(result.earned_xp) || 0;
+        const level = Number(result.level) || 1;
 
-    retakeButton.href =
-        "quiz.html?category=" +
-        encodeURIComponent(result.category) +
-        "&quiz=" +
-        encodeURIComponent(result.quizId);
+        if (
+            !Number.isFinite(score) ||
+            !Number.isFinite(total) ||
+            total <= 0 ||
+            score < 0 ||
+            score > total
+        ) {
+            throw new Error("Invalid quiz result.");
+        }
 
-    if (percentage === 100) {
-        performanceElement.textContent = "PERFECT SCORE!";
+        const percentage = Math.round((score / total) * 100);
+
+        scoreElement.textContent = score + " / " + total;
+        percentageElement.textContent = percentage + "%";
+        correctElement.textContent = score;
+        wrongElement.textContent = total - score;
+
+        progressElement.style.width = percentage + "%";
+
+        completedQuizElement.textContent =
+            result.title || "Quiz Challenge";
+
+        xpElement.textContent =
+            "+" + earnedXP + " XP earned!";
+
+        levelElement.textContent =
+            "Player Level " + level;
+
+        // RETAKE SELECTED CATEGORY AND DIFFICULTY
+
+        retakeButton.href =
+            "quiz.html?category=" +
+            encodeURIComponent(result.category) +
+            "&difficulty=" +
+            encodeURIComponent(result.difficulty);
+
+        if (percentage === 100) {
+
+            performanceElement.textContent = "PERFECT SCORE!";
+
+            messageElement.textContent =
+                "Amazing! You answered every question correctly. You're a Quizivia superstar!";
+
+        } else if (percentage >= 80) {
+
+            performanceElement.textContent = "EXCELLENT WORK!";
+
+            messageElement.textContent =
+                "Fantastic job! You really know your stuff. Keep shining!";
+
+        } else if (percentage >= 60) {
+
+            performanceElement.textContent = "GREAT JOB!";
+
+            messageElement.textContent =
+                "You're doing really well! Keep practicing and learning.";
+
+        } else if (percentage >= 40) {
+
+            performanceElement.textContent = "GOOD TRY!";
+
+            messageElement.textContent =
+                "You're getting there! A little more practice can help you improve.";
+
+        } else {
+
+            performanceElement.textContent = "KEEP PRACTICING!";
+
+            messageElement.textContent =
+                "Don't give up! Every attempt is a new opportunity to learn.";
+        }
+
+    } catch (error) {
+
+        console.error("Results loading error:", error);
+
+        performanceElement.textContent = "INVALID RESULTS";
+
         messageElement.textContent =
-            "Amazing! You answered every question correctly. You're a Quizivia superstar!";
-    } else if (percentage >= 80) {
-        performanceElement.textContent = "EXCELLENT WORK!";
-        messageElement.textContent =
-            "Fantastic job! You really know your stuff. Keep shining!";
-    } else if (percentage >= 60) {
-        performanceElement.textContent = "GREAT JOB!";
-        messageElement.textContent =
-            "You're doing really well! Keep practicing and learning.";
-    } else if (percentage >= 40) {
-        performanceElement.textContent = "GOOD TRY!";
-        messageElement.textContent =
-            "You're getting there! A little more practice can help you improve.";
-    } else {
-        performanceElement.textContent = "KEEP PRACTICING!";
-        messageElement.textContent =
-            "Don't give up! Every attempt is a new opportunity to learn.";
+            "We couldn't read your quiz results. Please play a quiz again.";
+
+        scoreElement.textContent = "—";
+        percentageElement.textContent = "—";
+        correctElement.textContent = "—";
+        wrongElement.textContent = "—";
+
+        completedQuizElement.textContent = "No valid result";
+        xpElement.textContent = "";
+        levelElement.textContent = "";
+
+        retakeButton.style.display = "none";
+        progressElement.style.width = "0%";
     }
 
 } else {
+
     scoreElement.textContent = "—";
     percentageElement.textContent = "—";
     correctElement.textContent = "—";
     wrongElement.textContent = "—";
 
     performanceElement.textContent = "NO RESULTS FOUND";
+
     messageElement.textContent =
         "Play a quiz first to see your results here.";
 
     completedQuizElement.textContent = "No completed quiz";
+
+    xpElement.textContent = "";
+    levelElement.textContent = "";
+
     retakeButton.style.display = "none";
+
     progressElement.style.width = "0%";
 }
 </script>
