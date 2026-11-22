@@ -1,0 +1,244 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#eee7ff">
+    <title>My Profile | Quizivia</title>
+    <link rel="stylesheet" href="css/style.css?v=4">
+</head>
+
+<body>
+
+<header class="site-header">
+    <h1 class="logo">
+        <a href="index.html">
+            <img src="assets/images/quizivia_logo.png"
+                 alt="Quizivia Logo">
+        </a>
+    </h1>
+
+    <nav class="main-nav">
+        <a href="index.html">Home</a>
+        <a href="categories.html">Categories</a>
+        <a href="daily-quiz.html">Daily Quiz</a>
+        <a href="leaderboard.html">Leaderboard</a>
+        <a href="profile.html" class="active">Profile</a>
+    </nav>
+</header>
+
+<main>
+
+    <section class="page-intro">
+        <p class="eyebrow">✦ YOUR PLAYER JOURNEY ✦</p>
+        <h2>MY PROFILE</h2>
+        <p>
+            Every quiz brings you one step closer
+            to becoming a Quizivia champion!
+        </p>
+    </section>
+
+    <!-- PLAYER INFORMATION -->
+
+    <section class="content-card">
+
+        <div class="hero">
+            <div class="hero-image">
+                <img src="assets/images/mascot.PNG"
+                     alt="Quizivia player avatar">
+            </div>
+
+            <div class="hero-content">
+                <p class="category-label">PLAYER PROFILE</p>
+
+                <h2 id="player-name">Your Username</h2>
+
+                <div class="player-level">
+                    <strong id="player-level">LV. 01</strong>
+                    <span>Beginner Quizzer</span>
+                </div>
+
+                <p id="player-xp">
+                    0 XP
+                </p>
+
+                <button type="button"
+                    class="btn btn-purple"
+                    onclick="qvLogout()">
+                    Log Out →
+                </button>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- PLAYER STATISTICS -->
+
+    <section class="home-dashboard-grid">
+
+        <article class="content-card">
+            <p class="category-label">YOUR EXPERIENCE</p>
+            <h2>⭐ XP Progress</h2>
+
+            <div class="progress-info">
+                <span>Total Experience</span>
+                <strong id="xp-total">0 XP</strong>
+            </div>
+
+            <div class="progress-track">
+                <div class="progress-fill"
+                     id="xp-progress"></div>
+            </div>
+
+            <p class="small-note">
+                Keep playing to earn more experience points!
+            </p>
+        </article>
+
+        <article class="content-card">
+            <p class="category-label">YOUR ACTIVITY</p>
+            <h2>📊 Quiz Statistics</h2>
+
+            <div class="progress-info">
+                <span>Quizzes Completed</span>
+                <strong id="quiz-count">0</strong>
+            </div>
+
+            <div class="progress-info">
+                <span>Correct Answers</span>
+                <strong id="correct-count">0</strong>
+            </div>
+
+            <div class="progress-info">
+                <span>Total XP Earned</span>
+                <strong id="earned-xp">0 XP</strong>
+            </div>
+
+            <p class="small-note">
+                Your statistics will update as you complete quizzes.
+            </p>
+        </article>
+
+    </section>
+
+    <!-- ACHIEVEMENTS -->
+
+    <section class="content-card">
+
+        <p class="category-label">YOUR COLLECTION</p>
+        <h2>🏆 Achievements</h2>
+
+        <div class="category-grid">
+
+            <article class="category-card">
+                <div class="category-content">
+                    <h3>🌟 First Steps</h3>
+                    <p>Complete your first quiz.</p>
+                    <span class="small-note">Not unlocked yet</span>
+                </div>
+            </article>
+
+            <article class="category-card">
+                <div class="category-content">
+                    <h3>📚 Knowledge Seeker</h3>
+                    <p>Complete 5 quizzes.</p>
+                    <span class="small-note">Not unlocked yet</span>
+                </div>
+            </article>
+
+            <article class="category-card">
+                <div class="category-content">
+                    <h3>👑 Quiz Champion</h3>
+                    <p>Reach Level 10.</p>
+                    <span class="small-note">Not unlocked yet</span>
+                </div>
+            </article>
+
+        </div>
+
+    </section>
+
+    <!-- QUIZ HISTORY -->
+
+    <section class="content-card">
+
+        <p class="category-label">YOUR ADVENTURE LOG</p>
+        <h2>📜 Quiz History</h2>
+
+        <div id="quiz-history">
+            <p class="small-note">
+                No completed quizzes yet.
+                Your quiz history will appear here!
+            </p>
+        </div>
+
+    </section>
+
+</main>
+
+<footer class="site-footer">
+    <p>© 2026 Quizivia. Learn, play, and challenge yourself!</p>
+</footer>
+
+<script>
+const PLAYER_STORAGE_KEY = "quizivia_player";
+
+let savedPlayer = null;
+
+try {
+    savedPlayer = JSON.parse(
+        localStorage.getItem(PLAYER_STORAGE_KEY)
+    );
+} catch {
+    localStorage.removeItem(PLAYER_STORAGE_KEY);
+}
+
+if (!savedPlayer || !savedPlayer.id) {
+    window.location.replace("login.html");
+} else {
+
+    const username =
+        savedPlayer.display_name || "Quizzer";
+
+    const xp = Number(savedPlayer.xp) || 0;
+    const level = Number(savedPlayer.level) || 1;
+
+    document.getElementById("player-name").textContent =
+        username;
+
+    document.getElementById("player-level").textContent =
+        "LV. " + String(level).padStart(2, "0");
+
+    document.getElementById("player-xp").textContent =
+        xp + " XP";
+
+    document.getElementById("xp-total").textContent =
+        xp + " XP";
+
+    document.getElementById("earned-xp").textContent =
+        xp + " XP";
+
+    // Temporary progress display.
+    // We will connect the actual level requirements later.
+    const progress = Math.min(xp, 100);
+
+    document.getElementById("xp-progress").style.width =
+        progress + "%";
+}
+
+function qvLogout() {
+    const confirmLogout = confirm(
+        "Are you sure you want to log out?"
+    );
+
+    if (!confirmLogout) return;
+
+    localStorage.removeItem(PLAYER_STORAGE_KEY);
+
+    window.location.replace("login.html");
+}
+</script>
+
+</body>
+</html>
