@@ -138,6 +138,22 @@ const supabase = createClient(
     SUPABASE_PUBLISHABLE_KEY
 );
 
+// PLAYER SESSION
+
+let player = null;
+
+try {
+    player = JSON.parse(
+        localStorage.getItem("quizivia_player")
+    );
+} catch (error) {
+    player = null;
+}
+
+if (!player || !player.id || !player.token) {
+    window.location.href = "login.html";
+}
+
 // ELEMENTS
 
 const card = document.getElementById("daily-quiz-card");
@@ -169,7 +185,12 @@ let timerInterval = null;
 
 let submitted = false;
 let checkingAnswer = false;
+let finishing = false;
 let finished = false;
+let rewardPending = false;
+
+// Store answers that have been checked by the server.
+const submittedAnswers = new Map();
 
 // LOAD DAILY QUESTIONS
 
@@ -240,7 +261,7 @@ function showError(message) {
 
 function renderQuestion() {
 
-    if (finished) return;
+    if (finished || finishing) return;
 
     const item = questions[currentIndex];
 
@@ -313,7 +334,9 @@ function renderQuestion() {
 
         radio.addEventListener("change", () => {
 
-            if (submitted || checkingAnswer || finished) return;
+            if (submitted || checkingAnswer || finished || finishing) {
+                return;
+            }
 
             selectedAnswer = option;
 
@@ -335,7 +358,14 @@ async function handleAction(event) {
 
     event.preventDefault();
 
-    if (finished || checkingAnswer) return;
+    if (finished || finishing || checkingAnswer) return;
+
+    // RETRY REWARD SUBMISSION
+
+    if (rewardPending) {
+        await finishQuiz();
+        return;
+    }
 
     // ANSWER ALREADY CHECKED:
     // MOVE TO NEXT QUESTION OR FINISH QUIZ
@@ -343,7 +373,7 @@ async function handleAction(event) {
     if (submitted) {
 
         if (currentIndex === questions.length - 1) {
-            finishQuiz();
+            await finishQuiz();
         } else {
             currentIndex++;
             renderQuestion();
@@ -381,7 +411,13 @@ async function handleAction(event) {
             throw new Error("Invalid answer response.");
         }
 
-        if (finished) return;
+        if (finishing || finished) return;
+
+        // Save the answer only after the server checks it.
+        submittedAnswers.set(
+            Number(item.question_id),
+            selectedAnswer
+        );
 
         submitted = true;
         checkingAnswer = false;
@@ -415,7 +451,7 @@ async function handleAction(event) {
                 }
             });
 
-        // CHANGE THE SAME BUTTON LABEL
+        // CHANGE BUTTON LABEL
 
         actionButton.disabled = false;
 
@@ -429,6 +465,8 @@ async function handleAction(event) {
         console.error("Daily answer checking error:", error);
 
         checkingAnswer = false;
+
+        if (finishing || finished) return;
 
         actionButton.disabled = false;
         actionButton.textContent = "SUBMIT ANSWER →";
@@ -464,7 +502,7 @@ function startTimer() {
 
     timerInterval = setInterval(() => {
 
-        if (finished) return;
+        if (finished || finishing) return;
 
         timeLeft--;
 
@@ -477,32 +515,181 @@ function startTimer() {
     }, 1000);
 }
 
-// FINISH DAILY QUIZ
+// UPDATE PLAYER DATA
 
-function finishQuiz() {
+async function refreshPlayerData(reward) {
 
-    if (finished || questions.length === 0) return;
+    // First use the reward response if it contains updated XP.
+    if (
+        reward &&
+        reward.awarded === true &&
+        typeof reward.xp === "number" &&
+        typeof reward.level === "number"
+    ) {
+        player.xp = reward.xp;
+        player.level = reward.level;
 
-    finished = true;
+        localStorage.setItem(
+            "quizivia_player",
+            JSON.stringify(player)
+        );
+    }
+
+    // Then retrieve the latest account data from the server.
+    try {
+
+        const { data, error } = await supabase.functions.invoke(
+            "get-player-stats",
+            {
+                body: {},
+                headers: {
+                    Authorization: `Bearer ${player.token}`
+                }
+            }
+        );
+
+        if (error) throw error;
+
+        if (data && data.success && data.player) {
+
+            player.xp = data.player.xp;
+            player.level = data.player.level;
+
+            localStorage.setItem(
+                "quizivia_player",
+                JSON.stringify(player)
+            );
+        }
+
+    } catch (error) {
+
+        console.error("Player data refresh error:", error);
+    }
+}
+
+// FINISH DAILY QUIZ AND CLAIM REWARD
+
+async function finishQuiz() {
+
+    if (
+        finished ||
+        finishing ||
+        questions.length !== 10
+    ) {
+        return;
+    }
+
+    finishing = true;
+    rewardPending = false;
 
     clearInterval(timerInterval);
 
-    const result = {
-        category: "daily",
-        quizId: "daily-challenge",
-        difficulty: "daily",
-        title: "Daily Quiz",
-        score: score,
-        total: questions.length,
-        timeLeft: timeLeft
-    };
+    actionButton.disabled = true;
+    actionButton.hidden = false;
+    actionButton.textContent = "SAVING YOUR REWARD...";
 
-    sessionStorage.setItem(
-        "quiziviaResult",
-        JSON.stringify(result)
-    );
+    feedback.textContent = "Checking your answers and saving your daily reward...";
+    feedback.className = "quiz-feedback";
 
-    window.location.href = "quiz-results.html";
+    try {
+
+        // Build all 10 answers.
+        // Unanswered questions receive a special incorrect-answer value.
+
+        const answers = questions.map(item => {
+
+            const questionId = Number(item.question_id);
+
+            return {
+                question_id: questionId,
+                answer: submittedAnswers.get(questionId)
+                    || "__QUIZIVIA_NO_ANSWER__"
+            };
+        });
+
+        // SECURE SERVER-SIDE SCORE CHECK AND DAILY REWARD
+
+        const { data, error } = await supabase.functions.invoke(
+            "claim-daily-reward",
+            {
+                body: {
+                    answers: answers
+                },
+                headers: {
+                    Authorization: `Bearer ${player.token}`
+                }
+            }
+        );
+
+        if (error) throw error;
+
+        if (
+            !data ||
+            data.success !== true ||
+            !data.reward
+        ) {
+            throw new Error(
+                data?.error || "Unable to claim the daily reward."
+            );
+        }
+
+        const reward = data.reward;
+
+        // The server-calculated score is the official score.
+        const finalScore =
+            Number.isInteger(data.score)
+                ? data.score
+                : score;
+
+        const rewardAwarded = reward.awarded === true;
+
+        // Refresh XP and level from the server.
+        await refreshPlayerData(reward);
+
+        const earnedXP = rewardAwarded ? 50 : 0;
+
+        const result = {
+            category: "daily",
+            quizId: "daily-challenge",
+            difficulty: "daily",
+            title: "Daily Quiz",
+            score: finalScore,
+            total: 10,
+            timeLeft: timeLeft,
+            earned_xp: earnedXP,
+            xp: Number(player.xp) || 0,
+            level: Number(player.level) || 1,
+            reward_message: rewardAwarded
+                ? "You earned your daily +50 XP reward!"
+                : "You already claimed today's +50 XP reward."
+        };
+
+        sessionStorage.setItem(
+            "quiziviaResult",
+            JSON.stringify(result)
+        );
+
+        finished = true;
+        finishing = false;
+
+        window.location.href = "quiz-results.html";
+
+    } catch (error) {
+
+        console.error("Daily reward error:", error);
+
+        finishing = false;
+        rewardPending = true;
+
+        actionButton.disabled = false;
+        actionButton.hidden = false;
+        actionButton.textContent = "RETRY REWARD →";
+
+        feedback.textContent =
+            "We couldn't save your Daily Quiz reward. Your answers are still here. Please tap RETRY REWARD.";
+
+        feedback.className = "quiz-feedback wrong";
+    }
 }
 
 // EVENTS
@@ -511,7 +698,9 @@ answerForm.addEventListener("submit", handleAction);
 
 // START DAILY QUIZ
 
-loadDailyQuestions();
+if (player && player.id && player.token) {
+    loadDailyQuestions();
+}
 
 </script>
 
