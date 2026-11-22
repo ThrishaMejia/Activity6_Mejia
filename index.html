@@ -30,8 +30,6 @@
 
 <main>
 
-    <!-- HERO / GAME LOBBY -->
-
     <section class="hero">
         <div class="hero-content">
             <p class="category-label">✦ YOUR LEARNING ADVENTURE ✦</p>
@@ -44,9 +42,9 @@
                 and become a quiz champion!
             </p>
 
-            <a href="login.html" class="btn" id="qv-start-playing">
-               Start Playing ▶
-   </a>
+            <a href="categories.html" class="btn" id="qv-start-playing">
+                Start Playing ▶
+            </a>
         </div>
 
         <div class="hero-image">
@@ -57,33 +55,31 @@
         </div>
     </section>
 
-    <!-- PLAYER DASHBOARD -->
-
     <section class="home-dashboard-grid">
 
         <article class="content-card player-panel">
             <p class="category-label">PLAYER PROFILE</p>
-            <h2>Hello, Quizzer! ♡</h2>
+            <h2 id="home-player-name">Hello, Quizzer! ♡</h2>
             <p>Welcome to your Quizivia adventure.</p>
 
             <div class="player-level">
-                <strong>LV. 01</strong>
-                <span>Beginner Quizzer</span>
+                <strong id="home-player-level">LV. 01</strong>
+                <span id="home-player-title">Beginner Quizzer</span>
             </div>
 
             <h3>Your Progress</h3>
 
             <div class="progress-info">
                 <span>XP Progress</span>
-                <strong>0 / 100 XP</strong>
+                <strong id="home-xp-text">0 / 100 XP</strong>
             </div>
 
             <div class="progress-track">
-                <div class="progress-fill"></div>
+                <div class="progress-fill" id="home-xp-bar"></div>
             </div>
 
-            <p class="small-note">
-                Your progress will appear here once quiz tracking is added.
+            <p class="small-note" id="home-xp-note">
+                Keep playing to earn more XP!
             </p>
         </article>
 
@@ -104,8 +100,6 @@
         </article>
 
     </section>
-
-    <!-- CATEGORIES -->
 
     <section class="home-categories">
 
@@ -131,7 +125,9 @@
                 <div class="category-content">
                     <h3>History</h3>
                     <p>Discover the past and its amazing stories!</p>
-                    <a href="daily-quiz.html" class="btn">Play Now →</a>
+                    <a href="category-quizzes.html?category=history" class="btn">
+                        Play Now →
+                    </a>
                 </div>
             </article>
 
@@ -144,7 +140,9 @@
                 <div class="category-content">
                     <h3>Science</h3>
                     <p>Explore the wonders of our world!</p>
-                    <a href="daily-quiz.html" class="btn">Play Now →</a>
+                    <a href="category-quizzes.html?category=science" class="btn">
+                        Play Now →
+                    </a>
                 </div>
             </article>
 
@@ -157,7 +155,9 @@
                 <div class="category-content">
                     <h3>Mathematics</h3>
                     <p>Sharpen your thinking and problem-solving skills!</p>
-                    <a href="daily-quiz.html" class="btn">Play Now →</a>
+                    <a href="category-quizzes.html?category=mathematics" class="btn">
+                        Play Now →
+                    </a>
                 </div>
             </article>
 
@@ -170,14 +170,14 @@
                 <div class="category-content">
                     <h3>General Knowledge</h3>
                     <p>Test what you know about everything!</p>
-                    <a href="daily-quiz.html" class="btn">Play Now →</a>
+                    <a href="category-quizzes.html?category=general-knowledge" class="btn">
+                        Play Now →
+                    </a>
                 </div>
             </article>
 
         </div>
     </section>
-
-    <!-- LEADERBOARD PREVIEW -->
 
     <section class="content-card home-leaderboard">
 
@@ -201,34 +201,18 @@
                 </tr>
             </thead>
 
-            <tbody>
+            <tbody id="home-leaderboard-body">
                 <tr>
-                    <td>🥇 1</td>
-                    <td>Ava Thompson</td>
-                    <td>980</td>
-                </tr>
-
-                <tr>
-                    <td>🥈 2</td>
-                    <td>Liam Chen</td>
-                    <td>940</td>
-                </tr>
-
-                <tr>
-                    <td>🥉 3</td>
-                    <td>Noor Haddad</td>
-                    <td>910</td>
+                    <td colspan="3">Loading leaderboard...</td>
                 </tr>
             </tbody>
         </table>
 
-        <p class="small-note">
-            Sample leaderboard entries for the website preview.
+        <p class="small-note" id="home-leaderboard-note">
+            Rankings are based on player XP.
         </p>
 
     </section>
-
-    <!-- ABOUT -->
 
     <section class="content-card about-section" id="about">
         <p class="category-label">ABOUT THE GAME</p>
@@ -254,13 +238,147 @@
 </footer>
 
 <script>
-const savedPlayer = JSON.parse(
-    localStorage.getItem("quizivia_player") || "null"
-);
+const SUPABASE_URL = "https://mnknxizgpkznkboingbf.supabase.co";
+const SUPABASE_KEY = "sb_publishable_2Y6PlxPEFUdgIXuTTAhtag_XGPy-008";
 
-if (!savedPlayer || !savedPlayer.id) {
+let savedPlayer = null;
+
+try {
+    savedPlayer = JSON.parse(
+        localStorage.getItem("quizivia_player") || "null"
+    );
+} catch (error) {
+    savedPlayer = null;
+}
+
+if (!savedPlayer || !savedPlayer.id || !savedPlayer.token) {
     window.location.replace("login.html");
+} else {
+
+    // PLAYER PROFILE
+
+    const playerName = savedPlayer.display_name || "Quizzer";
+    const playerXP = Math.max(0, Number(savedPlayer.xp) || 0);
+    const playerLevel = Math.max(
+        1,
+        Number(savedPlayer.level) || 1
+    );
+
+    const currentLevelXP = playerXP % 100;
+
+    document.getElementById("home-player-name").textContent =
+        "Hello, " + playerName + "! ♡";
+
+    document.getElementById("home-player-level").textContent =
+        "LV. " + String(playerLevel).padStart(2, "0");
+
+    document.getElementById("home-player-title").textContent =
+        playerLevel >= 10 ? "Quiz Master" :
+        playerLevel >= 5 ? "Advanced Quizzer" :
+        playerLevel >= 2 ? "Rising Quizzer" :
+        "Beginner Quizzer";
+
+    document.getElementById("home-xp-text").textContent =
+        currentLevelXP + " / 100 XP";
+
+    document.getElementById("home-xp-bar").style.width =
+        currentLevelXP + "%";
+
+    document.getElementById("home-xp-note").textContent =
+        (100 - currentLevelXP) +
+        " XP until your next level! Keep going!";
+
+    // LIVE LEADERBOARD
+
+    async function loadHomeLeaderboard() {
+        const tableBody = document.getElementById(
+            "home-leaderboard-body"
+        );
+
+        const note = document.getElementById(
+            "home-leaderboard-note"
+        );
+
+        try {
+            const response = await fetch(
+                SUPABASE_URL + "/functions/v1/get-leaderboard",
+                {
+                    method: "GET",
+                    headers: {
+                        "apikey": SUPABASE_KEY
+                    }
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error("Leaderboard request failed.");
+            }
+
+            tableBody.replaceChildren();
+
+            if (!data.players || data.players.length === 0) {
+                const row = document.createElement("tr");
+                const cell = document.createElement("td");
+
+                cell.colSpan = 3;
+                cell.textContent = "No players yet. Be the first champion!";
+
+                row.appendChild(cell);
+                tableBody.appendChild(row);
+                return;
+            }
+
+            const medals = ["🥇", "🥈", "🥉"];
+
+            data.players.slice(0, 5).forEach((player, index) => {
+                const row = document.createElement("tr");
+
+                if (index < 3) {
+                    row.classList.add("top-rank");
+                }
+
+                const rankCell = document.createElement("td");
+                rankCell.textContent =
+                    medals[index] || String(index + 1).padStart(2, "0");
+
+                const nameCell = document.createElement("td");
+                nameCell.className = "player-name";
+                nameCell.textContent = player.display_name || "Quizzer";
+
+                const scoreCell = document.createElement("td");
+                scoreCell.className = "player-score";
+                scoreCell.textContent =
+                    (Number(player.xp) || 0) + " XP";
+
+                row.append(rankCell, nameCell, scoreCell);
+                tableBody.appendChild(row);
+            });
+
+            note.textContent = "Live rankings based on player XP.";
+
+        } catch (error) {
+            console.error("Home leaderboard error:", error);
+
+            tableBody.replaceChildren();
+
+            const row = document.createElement("tr");
+            const cell = document.createElement("td");
+
+            cell.colSpan = 3;
+            cell.textContent = "Leaderboard is currently unavailable.";
+
+            row.appendChild(cell);
+            tableBody.appendChild(row);
+
+            note.textContent = "Please try again later.";
+        }
+    }
+
+    loadHomeLeaderboard();
 }
 </script>
+
 </body>
 </html>
