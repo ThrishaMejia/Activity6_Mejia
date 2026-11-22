@@ -2227,3 +2227,55 @@ textarea {
 
 
 
+
+/* =====================================
+   QUIZIVIA - CLEAR NUMBERS & MATH TEXT
+===================================== */
+
+/* Make numbers easier to distinguish */
+body,
+input,
+textarea,
+select,
+td,
+th {
+    font-family: 'Nunito', sans-serif;
+    font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* Quiz questions and answer choices */
+.quiz-question-content h3,
+.quiz-question-area h2,
+.question h3,
+.quiz-option,
+.question-option {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    line-height: 1.6;
+}
+
+/* XP, scores, timer, and progress numbers */
+.quiz-timer strong,
+.quiz-info-item h3,
+.results-score,
+.result-stat strong,
+.champion-score,
+.player-score,
+.rank-number,
+.quest-reward strong,
+#home-xp-text,
+#home-player-level {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* Keep pixel styling on decorative headings */
+.hero h2,
+.page-intro h2,
+.section-heading h2,
+.leaderboard-heading h2,
+.champion-title,
+.quiz-card-level {
+    font-family: 'Pixelify Sans', sans-serif;
+}
