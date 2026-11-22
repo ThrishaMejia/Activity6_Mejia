@@ -44,9 +44,9 @@
                 and become a quiz champion!
             </p>
 
-            <a href="categories.html" class="btn">
-                Start Playing ▶
-            </a>
+            <a href="login.html" class="btn" id="qv-start-playing">
+               Start Playing ▶
+   </a>
         </div>
 
         <div class="hero-image">
@@ -253,6 +253,16 @@
     <p>© 2026 Quizivia. Learn, play, and challenge yourself!</p>
 </footer>
 
+<script>
+const savedPlayer = JSON.parse(
+    localStorage.getItem("quizivia_player") || "null"
+);
 
+const startButton = document.getElementById("qv-start-playing");
+
+if (startButton && savedPlayer && savedPlayer.id) {
+    startButton.href = "categories.html";
+}
+</script>
 </body>
 </html>
