@@ -2995,3 +2995,41 @@ button:hover {
         font-size: 18px;
     }
 }
+
+/* DAILY QUIZ HEADER CENTER FIX */
+.daily-quiz-page {
+    width: 100%;
+}
+
+.site-header {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center;
+    gap: 12px;
+}
+
+.site-header .logo {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+}
+
+.site-header .logo a {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.site-header .main-nav {
+    display: flex;
+    justify-content: center !important;
+    align-items: center;
+    margin: 0 auto !important;
+    float: none;
+    left: auto;
+    right: auto;
+}
