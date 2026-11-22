@@ -115,6 +115,53 @@
 
     </section>
 
+    <!-- DAILY STREAK -->
+    <section class="content-card">
+
+        <p class="category-label">YOUR DAILY JOURNEY</p>
+        <h2>🔥 Daily Streak</h2>
+
+        <div class="home-dashboard-grid">
+
+            <article class="category-card">
+                <div class="category-content">
+                    <h3>🔥 Current Streak</h3>
+                    <p id="current-streak"
+                       style="font-size: 2rem; font-weight: bold;">
+                        0 Days
+                    </p>
+                    <p class="small-note">
+                        Consecutive days completing Daily Quiz.
+                    </p>
+                </div>
+            </article>
+
+            <article class="category-card">
+                <div class="category-content">
+                    <h3>🏆 Longest Streak</h3>
+                    <p id="longest-streak"
+                       style="font-size: 2rem; font-weight: bold;">
+                        0 Days
+                    </p>
+                    <p class="small-note">
+                        Your personal best streak.
+                    </p>
+                </div>
+            </article>
+
+        </div>
+
+        <div class="progress-info">
+            <span>Last Daily Quiz Completed</span>
+            <strong id="last-streak-date">Not yet completed</strong>
+        </div>
+
+        <p class="small-note" id="streak-note">
+            Complete your Daily Quiz to start your streak!
+        </p>
+
+    </section>
+
     <section class="content-card">
 
         <p class="category-label">YOUR COLLECTION</p>
@@ -233,12 +280,12 @@ async function loadPlayerProfile() {
         const player = data.player;
         const stats = data.stats;
         const history = data.history || [];
+        const streak = data.streak || {};
 
         const username = player.display_name || "Quizzer";
         const xp = Number(player.xp) || 0;
         const level = Number(player.level) || 1;
 
-        // Update saved player data.
         savedPlayer.display_name = username;
         savedPlayer.xp = xp;
         savedPlayer.level = level;
@@ -281,21 +328,40 @@ async function loadPlayerProfile() {
         document.getElementById("stats-note").textContent =
             "Your statistics are up to date!";
 
+        // Daily streak.
+        const currentStreak = Number(streak.current_streak) || 0;
+        const longestStreak = Number(streak.longest_streak) || 0;
+
+        document.getElementById("current-streak").textContent =
+            currentStreak + (currentStreak === 1 ? " Day" : " Days");
+
+        document.getElementById("longest-streak").textContent =
+            longestStreak + (longestStreak === 1 ? " Day" : " Days");
+
+        const lastDate = streak.last_completed_date;
+
+        document.getElementById("last-streak-date").textContent =
+            lastDate
+                ? new Date(lastDate + "T00:00:00+08:00").toLocaleDateString(
+                    "en-PH",
+                    {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                        timeZone: "Asia/Manila"
+                    }
+                )
+                : "Not yet completed";
+
+        document.getElementById("streak-note").textContent =
+            currentStreak > 0
+                ? "Keep completing your Daily Quiz every day to maintain your streak! 🔥"
+                : "Complete your Daily Quiz to start your streak!";
+
         // Achievements.
-        setAchievement(
-            "achievement-first",
-            quizCount >= 1
-        );
-
-        setAchievement(
-            "achievement-five",
-            quizCount >= 5
-        );
-
-        setAchievement(
-            "achievement-level",
-            level >= 10
-        );
+        setAchievement("achievement-first", quizCount >= 1);
+        setAchievement("achievement-five", quizCount >= 5);
+        setAchievement("achievement-level", level >= 10);
 
         // Quiz history.
         renderQuizHistory(history);
@@ -305,6 +371,9 @@ async function loadPlayerProfile() {
 
         document.getElementById("stats-note").textContent =
             "Unable to load your statistics. Please refresh.";
+
+        document.getElementById("streak-note").textContent =
+            "Unable to load your streak. Please refresh.";
 
         historyContainer.textContent =
             "Unable to load quiz history. Please try again.";
@@ -340,9 +409,7 @@ function renderQuizHistory(history) {
         content.className = "category-content";
 
         const category = document.createElement("h3");
-        const categoryName =
-            attempt.categories?.name || "Quiz";
-        category.textContent = categoryName;
+        category.textContent = attempt.categories?.name || "Quiz";
 
         const difficulty = document.createElement("p");
         difficulty.textContent =
