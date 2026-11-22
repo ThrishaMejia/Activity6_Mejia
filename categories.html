@@ -6,57 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Categories | Quizivia</title>
     <link rel="stylesheet" href="css/style.css?v=4">
-
-    <style>
-        .category-progress {
-            margin: 18px 0;
-            padding: 14px;
-            background: rgba(139, 92, 246, 0.08);
-            border: 1px solid rgba(139, 92, 246, 0.18);
-            border-radius: 12px;
-        }
-
-        .category-progress-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 9px;
-            font-size: 0.85rem;
-        }
-
-        .category-progress-top strong {
-            color: #8052c7;
-        }
-
-        .category-progress-bar {
-            width: 100%;
-            height: 9px;
-            background: #e8def8;
-            border-radius: 20px;
-            overflow: hidden;
-        }
-
-        .category-progress-fill {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, #a78bfa, #8052c7);
-            border-radius: 20px;
-            transition: width 0.5s ease;
-        }
-
-        .category-progress-details {
-            margin-top: 8px;
-            font-size: 0.8rem;
-            color: #777;
-        }
-
-        .category-progress-loading {
-            font-size: 0.82rem;
-            color: #8052c7;
-            margin: 12px 0;
-        }
-    </style>
 </head>
 <body>
 
@@ -67,13 +16,13 @@
         </a>
     </h1>
 
-    <nav class="main-nav">
-        <a href="index.html">Home</a>
-        <a href="categories.html" class="active">Categories</a>
-        <a href="daily-quiz.html">Daily Quiz</a>
-        <a href="leaderboard.html">Leaderboard</a>
-        <a href="profile.html" id="qv-profile-link">Profile</a>
-        <a href="index.html#about">About</a>
+    <nav class="main-nav" aria-label="Main navigation">
+        <a href="index.html" aria-label="Home" title="Home">🏠</a>
+        <a href="categories.html" class="active" aria-label="Categories" title="Categories">📚</a>
+        <a href="daily-quiz.html" aria-label="Daily Quiz" title="Daily Quiz">📅</a>
+        <a href="leaderboard.html" aria-label="Leaderboard" title="Leaderboard">🏆</a>
+        <a href="profile.html" id="qv-profile-link" aria-label="Profile" title="Profile">👤</a>
+        <a href="index.html#about" aria-label="About" title="About">ℹ️</a>
     </nav>
 </header>
 
