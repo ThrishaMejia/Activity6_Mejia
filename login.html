@@ -1,0 +1,301 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#eee7ff">
+    <title>Player Login | Quizivia</title>
+    <link rel="stylesheet" href="css/style.css?v=4">
+</head>
+
+<body>
+
+<header class="site-header">
+    <h1 class="logo">
+        <a href="login.html">
+            <img src="assets/images/quizivia_logo.png" alt="Quizivia Logo">
+        </a>
+    </h1>
+
+    <nav class="main-nav">
+        <a href="login.html" class="active">Player Login</a>
+        <a href="#account">Create Account</a>
+        <a href="#about">About</a>
+    </nav>
+</header>
+
+<main>
+
+    <section class="page-intro">
+        <p class="eyebrow">✦ YOUR LEARNING ADVENTURE ✦</p>
+        <h2>WELCOME, PLAYER!</h2>
+        <p>
+            Every question is a new adventure.
+            Sign in and continue your journey
+            to become a Quizivia champion!
+        </p>
+    </section>
+
+    <section class="home-dashboard-grid">
+
+        <article class="content-card">
+            <div style="text-align:center;">
+                <p class="category-label">PLAYER'S GUIDE</p>
+
+                <h2 style="margin-top:18px;">
+                    Ready for your next quest?
+                </h2>
+
+                <img
+                    src="assets/images/mascot.PNG"
+                    alt="Quizivia mascot"
+                    style="width:100%;max-width:280px;
+                    max-height:300px;object-fit:contain;
+                    image-rendering:pixelated;margin:20px auto;"
+                >
+
+                <p style="line-height:1.8;color:#76668f;">
+                    Explore different categories, challenge
+                    your knowledge, collect XP, and unlock
+                    your next level!
+                </p>
+
+                <div class="player-level" style="justify-content:center;">
+                    <strong>✦ QUEST START ✦</strong>
+                    <span>Your adventure awaits!</span>
+                </div>
+            </div>
+        </article>
+
+        <article class="content-card" id="account">
+
+            <div style="text-align:center;margin-bottom:22px;">
+                <p class="category-label">QUIZIVIA PLAYER ACCOUNT</p>
+                <h2 id="form-heading" style="margin-top:15px;">
+                    Log In
+                </h2>
+                <p id="form-subheading">
+                    Welcome back! Enter your player details.
+                </p>
+            </div>
+
+            <div style="display:flex;gap:10px;margin-bottom:20px;">
+                <button type="button" id="login-tab"
+                    class="btn-purple" style="flex:1;"
+                    onclick="qvSetMode('login')">
+                    Log In
+                </button>
+
+                <button type="button" id="register-tab"
+                    style="flex:1;"
+                    onclick="qvSetMode('register')">
+                    Sign Up
+                </button>
+            </div>
+
+            <form id="account-form">
+
+                <label for="qv-username">
+                    **PLAYER USERNAME**
+                </label>
+
+                <input
+                    id="qv-username"
+                    type="text"
+                    placeholder="Enter your username"
+                    minlength="3"
+                    maxlength="20"
+                    autocomplete="username"
+                    required
+                >
+
+                <label for="qv-pin">
+                    **6-DIGIT PIN**
+                </label>
+
+                <input
+                    id="qv-pin"
+                    type="password"
+                    placeholder="Enter your 6-digit PIN"
+                    inputmode="numeric"
+                    maxlength="6"
+                    pattern="[0-9]{6}"
+                    autocomplete="current-password"
+                    required
+                >
+
+                <p class="small-note">
+                    Keep your PIN private. Never share it with anyone.
+                </p>
+
+                <button type="submit" id="qv-submit"
+                    class="btn-purple" style="width:100%;">
+                    ENTER QUIZIVIA →
+                </button>
+
+                <p id="qv-player-message"
+                    role="status"
+                    style="min-height:25px;margin-top:15px;
+                    overflow-wrap:anywhere;">
+                </p>
+
+            </form>
+
+        </article>
+
+    </section>
+
+    <section class="content-card about-section" id="about">
+        <p class="category-label">ABOUT QUIZIVIA</p>
+        <h2>Your Knowledge, Your Adventure!</h2>
+        <p>
+            Quizivia is an interactive trivia game where
+            curiosity becomes a challenge. Learn new things,
+            test your knowledge, and earn experience points
+            as you progress through your journey.
+        </p>
+    </section>
+
+</main>
+
+<footer class="site-footer">
+    <p>© 2026 Quizivia. Learn, play, and challenge yourself!</p>
+</footer>
+
+<script>
+const PLAYER_AUTH_URL =
+    "https://mnknxizgpkznkboingbf.supabase.co/functions/v1/player-auth";
+
+const PLAYER_ANON_KEY =
+    "sb_publishable_2Y6PlxPEFUdgIXuTTAhtag_XGPy-008";
+
+const PLAYER_STORAGE_KEY = "quizivia_player";
+
+let qvAccountMode = "login";
+
+function qvSetMode(mode) {
+    qvAccountMode = mode;
+
+    document.getElementById("login-tab").classList.toggle(
+        "btn-purple", mode === "login"
+    );
+
+    document.getElementById("register-tab").classList.toggle(
+        "btn-purple", mode === "register"
+    );
+
+    document.getElementById("form-heading").textContent =
+        mode === "login" ? "Log In" : "Create Account";
+
+    document.getElementById("form-subheading").textContent =
+        mode === "login"
+        ? "Welcome back! Enter your player details."
+        : "Choose your username and 6-digit PIN.";
+
+    document.getElementById("qv-submit").textContent =
+        mode === "login" ? "ENTER QUIZIVIA →" : "CREATE ACCOUNT →";
+
+    document.getElementById("qv-pin").value = "";
+    document.getElementById("qv-player-message").textContent = "";
+
+    document.getElementById("qv-pin").autocomplete =
+        mode === "login" ? "current-password" : "new-password";
+}
+
+document.getElementById("account-form").addEventListener(
+    "submit", async function(event) {
+        event.preventDefault();
+
+        const username =
+            document.getElementById("qv-username").value.trim();
+
+        const pin =
+            document.getElementById("qv-pin").value.trim();
+
+        const message =
+            document.getElementById("qv-player-message");
+
+        const submit =
+            document.getElementById("qv-submit");
+
+        if (!/^[A-Za-z0-9_]{3,20}$/.test(username)) {
+            message.textContent = "Invalid username. Use 3–20 characters.";
+            return;
+        }
+
+        if (!/^\d{6}$/.test(pin)) {
+            message.textContent = "Your PIN must contain exactly 6 digits.";
+            return;
+        }
+
+        submit.disabled = true;
+        message.textContent = "Connecting to Quizivia...";
+
+        try {
+            const response = await fetch(PLAYER_AUTH_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "apikey": PLAYER_ANON_KEY
+                },
+                body: JSON.stringify({
+                    action: qvAccountMode,
+                    username: username,
+                    pin: pin
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || data.error || data.success === false) {
+                throw new Error(
+                    data.error || "Unable to access your account."
+                );
+            }
+
+            const player = data.player || data;
+            const playerId = player.id || player.player_id;
+
+            if (!playerId) {
+                throw new Error("Player information was not returned.");
+            }
+
+            localStorage.setItem(PLAYER_STORAGE_KEY, JSON.stringify({
+                id: playerId,
+                display_name: player.display_name || username,
+                xp: player.xp || 0,
+                level: player.level || 1,
+                token: data.token || player.token || ""
+            }));
+
+            message.textContent = "Success! Entering Quizivia...";
+
+            setTimeout(() => {
+                window.location.href = "index.html";
+            }, 700);
+
+        } catch (error) {
+            message.textContent = error.message;
+        } finally {
+            submit.disabled = false;
+        }
+    }
+);
+
+// Already logged in? Go straight to homepage.
+try {
+    const savedPlayer = JSON.parse(
+        localStorage.getItem(PLAYER_STORAGE_KEY)
+    );
+
+    if (savedPlayer && savedPlayer.id) {
+        window.location.replace("index.html");
+    }
+} catch {
+    localStorage.removeItem(PLAYER_STORAGE_KEY);
+}
+</script>
+
+</body>
+</html>
