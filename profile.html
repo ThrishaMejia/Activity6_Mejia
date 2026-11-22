@@ -194,6 +194,7 @@
 
         <p class="small-note">
             Complete challenges and unlock achievements as you progress!
+            Claim your XP rewards when you unlock them!
         </p>
 
         <div class="category-grid">
@@ -202,12 +203,9 @@
                 <div class="category-content">
                     <h3>🌟 First Steps</h3>
                     <p>Complete your first quiz.</p>
-                    <strong class="small-note" id="achievement-first">
-                        🔒 Locked
-                    </strong>
-                    <p class="small-note" id="achievement-first-progress">
-                        Progress: 0 / 1
-                    </p>
+                    <strong class="small-note" id="achievement-first">🔒 Locked</strong>
+                    <p class="small-note" id="achievement-first-progress">Progress: 0 / 1</p>
+                    <div id="claim-area-first"></div>
                 </div>
             </article>
 
@@ -215,12 +213,9 @@
                 <div class="category-content">
                     <h3>📚 Knowledge Seeker</h3>
                     <p>Complete 5 quizzes.</p>
-                    <strong class="small-note" id="achievement-five">
-                        🔒 Locked
-                    </strong>
-                    <p class="small-note" id="achievement-five-progress">
-                        Progress: 0 / 5
-                    </p>
+                    <strong class="small-note" id="achievement-five">🔒 Locked</strong>
+                    <p class="small-note" id="achievement-five-progress">Progress: 0 / 5</p>
+                    <div id="claim-area-five"></div>
                 </div>
             </article>
 
@@ -228,12 +223,9 @@
                 <div class="category-content">
                     <h3>👑 Quiz Champion</h3>
                     <p>Reach Level 10.</p>
-                    <strong class="small-note" id="achievement-level">
-                        🔒 Locked
-                    </strong>
-                    <p class="small-note" id="achievement-level-progress">
-                        Progress: 1 / 10
-                    </p>
+                    <strong class="small-note" id="achievement-level">🔒 Locked</strong>
+                    <p class="small-note" id="achievement-level-progress">Progress: 1 / 10</p>
+                    <div id="claim-area-level"></div>
                 </div>
             </article>
 
@@ -241,12 +233,9 @@
                 <div class="category-content">
                     <h3>🔥 Consistency Starter</h3>
                     <p>Reach a 3-day Daily Quiz streak.</p>
-                    <strong class="small-note" id="achievement-streak-3">
-                        🔒 Locked
-                    </strong>
-                    <p class="small-note" id="achievement-streak-3-progress">
-                        Progress: 0 / 3
-                    </p>
+                    <strong class="small-note" id="achievement-streak-3">🔒 Locked</strong>
+                    <p class="small-note" id="achievement-streak-3-progress">Progress: 0 / 3</p>
+                    <div id="claim-area-streak-3"></div>
                 </div>
             </article>
 
@@ -254,12 +243,9 @@
                 <div class="category-content">
                     <h3>⚡ Weekly Warrior</h3>
                     <p>Reach a 7-day Daily Quiz streak.</p>
-                    <strong class="small-note" id="achievement-streak-7">
-                        🔒 Locked
-                    </strong>
-                    <p class="small-note" id="achievement-streak-7-progress">
-                        Progress: 0 / 7
-                    </p>
+                    <strong class="small-note" id="achievement-streak-7">🔒 Locked</strong>
+                    <p class="small-note" id="achievement-streak-7-progress">Progress: 0 / 7</p>
+                    <div id="claim-area-streak-7"></div>
                 </div>
             </article>
 
@@ -267,12 +253,9 @@
                 <div class="category-content">
                     <h3>💎 Knowledge Devotee</h3>
                     <p>Reach a 14-day Daily Quiz streak.</p>
-                    <strong class="small-note" id="achievement-streak-14">
-                        🔒 Locked
-                    </strong>
-                    <p class="small-note" id="achievement-streak-14-progress">
-                        Progress: 0 / 14
-                    </p>
+                    <strong class="small-note" id="achievement-streak-14">🔒 Locked</strong>
+                    <p class="small-note" id="achievement-streak-14-progress">Progress: 0 / 14</p>
+                    <div id="claim-area-streak-14"></div>
                 </div>
             </article>
 
@@ -280,16 +263,15 @@
                 <div class="category-content">
                     <h3>👑 Quizivia Legend</h3>
                     <p>Reach a 30-day Daily Quiz streak.</p>
-                    <strong class="small-note" id="achievement-streak-30">
-                        🔒 Locked
-                    </strong>
-                    <p class="small-note" id="achievement-streak-30-progress">
-                        Progress: 0 / 30
-                    </p>
+                    <strong class="small-note" id="achievement-streak-30">🔒 Locked</strong>
+                    <p class="small-note" id="achievement-streak-30-progress">Progress: 0 / 30</p>
+                    <div id="claim-area-streak-30"></div>
                 </div>
             </article>
 
         </div>
+
+        <p id="achievements-message" class="small-note"></p>
 
     </section>
 
@@ -319,6 +301,8 @@ const PLAYER_STORAGE_KEY = "quizivia_player";
 let savedPlayer = null;
 let missionsLoading = false;
 let claimingMission = false;
+let claimingAchievement = false;
+let claimedAchievements = new Set();
 
 try {
     savedPlayer = JSON.parse(
@@ -456,15 +440,18 @@ async function loadPlayerProfile() {
                 ? "Keep completing your Daily Quiz every day to maintain your streak! 🔥"
                 : "Complete your Daily Quiz to start your streak!";
 
-        // ACHIEVEMENTS WITH LIVE PROGRESS
-        updateAchievement("achievement-first", quizCount, 1);
-        updateAchievement("achievement-five", quizCount, 5);
-        updateAchievement("achievement-level", level, 10);
+        // LOAD CLAIMED ACHIEVEMENT REWARDS
+        await loadAchievementRewards();
 
-        updateAchievement("achievement-streak-3", longestStreak, 3);
-        updateAchievement("achievement-streak-7", longestStreak, 7);
-        updateAchievement("achievement-streak-14", longestStreak, 14);
-        updateAchievement("achievement-streak-30", longestStreak, 30);
+        // ACHIEVEMENTS WITH LIVE PROGRESS AND REWARD BUTTONS
+        updateAchievement("achievement-first", quizCount, 1, "first_steps", 10);
+        updateAchievement("achievement-five", quizCount, 5, "knowledge_seeker", 25);
+        updateAchievement("achievement-level", level, 10, "quiz_champion", 100);
+
+        updateAchievement("achievement-streak-3", longestStreak, 3, "consistency_starter", 15);
+        updateAchievement("achievement-streak-7", longestStreak, 7, "weekly_warrior", 35);
+        updateAchievement("achievement-streak-14", longestStreak, 14, "knowledge_devotee", 75);
+        updateAchievement("achievement-streak-30", longestStreak, 30, "quizivia_legend", 150);
 
         // QUIZ HISTORY
         renderQuizHistory(history);
@@ -486,17 +473,57 @@ async function loadPlayerProfile() {
     }
 }
 
-// UPDATE ACHIEVEMENT STATUS AND PROGRESS
-function updateAchievement(elementId, current, target) {
+// LOAD PREVIOUSLY CLAIMED ACHIEVEMENTS
+async function loadAchievementRewards() {
+    const response = await fetch(
+        SUPABASE_URL + "/functions/v1/get-achievement-rewards",
+        {
+            method: "POST",
+            headers: authHeaders(),
+            body: JSON.stringify({})
+        }
+    );
+
+    const data = await response.json();
+
+    if (response.status === 401) {
+        localStorage.removeItem(PLAYER_STORAGE_KEY);
+        window.location.replace("login.html");
+        throw new Error("Your session has expired.");
+    }
+
+    if (!response.ok || !data.success) {
+        throw new Error(
+            data.message || "Unable to load achievement rewards."
+        );
+    }
+
+    claimedAchievements = new Set(
+        (data.claims || []).map(claim => claim.achievement_id)
+    );
+}
+
+// UPDATE ACHIEVEMENT STATUS AND DISPLAY CLAIM BUTTON
+function updateAchievement(
+    elementId,
+    current,
+    target,
+    achievementId,
+    rewardXP
+) {
     const achievement = document.getElementById(elementId);
     const progress = document.getElementById(elementId + "-progress");
+    const claimArea = document.getElementById(
+        "claim-area-" + elementId.replace("achievement-", "")
+    );
 
-    if (!achievement || !progress) return;
+    if (!achievement || !progress || !claimArea) return;
 
     const currentValue = Math.max(0, Number(current) || 0);
     const targetValue = Math.max(1, Number(target) || 1);
     const displayedValue = Math.min(currentValue, targetValue);
     const unlocked = currentValue >= targetValue;
+    const claimed = claimedAchievements.has(achievementId);
 
     achievement.textContent = unlocked
         ? "✓ UNLOCKED"
@@ -504,6 +531,89 @@ function updateAchievement(elementId, current, target) {
 
     progress.textContent =
         "Progress: " + displayedValue + " / " + targetValue;
+
+    claimArea.replaceChildren();
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "btn btn-purple";
+
+    if (claimed) {
+        button.textContent = "✓ REWARD COLLECTED";
+        button.disabled = true;
+    } else if (unlocked) {
+        button.textContent = "🎁 CLAIM +" + rewardXP + " XP";
+        button.addEventListener("click", () => {
+            claimAchievement(achievementId, button);
+        });
+    } else {
+        button.textContent = "🔒 LOCKED";
+        button.disabled = true;
+    }
+
+    claimArea.appendChild(button);
+}
+
+// CLAIM ACHIEVEMENT REWARD
+async function claimAchievement(achievementId, button) {
+    if (claimingAchievement) return;
+
+    claimingAchievement = true;
+    button.disabled = true;
+    button.textContent = "CLAIMING...";
+
+    const message = document.getElementById("achievements-message");
+
+    try {
+        const response = await fetch(
+            SUPABASE_URL + "/functions/v1/claim-achievement",
+            {
+                method: "POST",
+                headers: authHeaders(),
+                body: JSON.stringify({
+                    achievement_id: achievementId
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        if (response.status === 401) {
+            localStorage.removeItem(PLAYER_STORAGE_KEY);
+            window.location.replace("login.html");
+            return;
+        }
+
+        if (!response.ok || !data.success) {
+            throw new Error(
+                data.message || "Unable to claim achievement reward."
+            );
+        }
+
+        message.textContent =
+            "🎉 Achievement reward collected! +" +
+            data.reward_xp + " XP added to your account!";
+
+        claimedAchievements.add(achievementId);
+
+        // REFRESH PLAYER XP, LEVEL, AND CLAIMED REWARDS
+        await loadPlayerProfile();
+
+    } catch (error) {
+        console.error("Achievement claim error:", error);
+
+        message.textContent =
+            error.message || "Unable to claim reward. Please try again.";
+
+        try {
+            await loadPlayerProfile();
+        } catch (refreshError) {
+            console.error("Profile refresh error:", refreshError);
+        }
+
+    } finally {
+        claimingAchievement = false;
+    }
 }
 
 function renderQuizHistory(history) {
