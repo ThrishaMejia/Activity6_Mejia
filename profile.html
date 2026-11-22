@@ -38,6 +38,7 @@
         </p>
     </section>
 
+    <!-- PLAYER PROFILE -->
     <section class="content-card">
 
         <div class="hero">
@@ -68,6 +69,7 @@
 
     </section>
 
+    <!-- XP AND STATISTICS -->
     <section class="home-dashboard-grid">
 
         <article class="content-card">
@@ -162,6 +164,7 @@
 
     </section>
 
+    <!-- ACHIEVEMENTS -->
     <section class="content-card">
 
         <p class="category-label">YOUR COLLECTION</p>
@@ -174,7 +177,7 @@
                     <h3>🌟 First Steps</h3>
                     <p>Complete your first quiz.</p>
                     <span class="small-note" id="achievement-first">
-                        Locked
+                        🔒 Locked
                     </span>
                 </div>
             </article>
@@ -184,7 +187,7 @@
                     <h3>📚 Knowledge Seeker</h3>
                     <p>Complete 5 quizzes.</p>
                     <span class="small-note" id="achievement-five">
-                        Locked
+                        🔒 Locked
                     </span>
                 </div>
             </article>
@@ -194,7 +197,47 @@
                     <h3>👑 Quiz Champion</h3>
                     <p>Reach Level 10.</p>
                     <span class="small-note" id="achievement-level">
-                        Locked
+                        🔒 Locked
+                    </span>
+                </div>
+            </article>
+
+            <article class="category-card">
+                <div class="category-content">
+                    <h3>🔥 Consistency Starter</h3>
+                    <p>Reach a 3-day Daily Quiz streak.</p>
+                    <span class="small-note" id="achievement-streak-3">
+                        🔒 Locked
+                    </span>
+                </div>
+            </article>
+
+            <article class="category-card">
+                <div class="category-content">
+                    <h3>⚡ Weekly Warrior</h3>
+                    <p>Reach a 7-day Daily Quiz streak.</p>
+                    <span class="small-note" id="achievement-streak-7">
+                        🔒 Locked
+                    </span>
+                </div>
+            </article>
+
+            <article class="category-card">
+                <div class="category-content">
+                    <h3>💎 Knowledge Devotee</h3>
+                    <p>Reach a 14-day Daily Quiz streak.</p>
+                    <span class="small-note" id="achievement-streak-14">
+                        🔒 Locked
+                    </span>
+                </div>
+            </article>
+
+            <article class="category-card">
+                <div class="category-content">
+                    <h3>👑 Quizivia Legend</h3>
+                    <p>Reach a 30-day Daily Quiz streak.</p>
+                    <span class="small-note" id="achievement-streak-30">
+                        🔒 Locked
                     </span>
                 </div>
             </article>
@@ -203,6 +246,7 @@
 
     </section>
 
+    <!-- QUIZ HISTORY -->
     <section class="content-card">
 
         <p class="category-label">YOUR ADVENTURE LOG</p>
@@ -286,6 +330,7 @@ async function loadPlayerProfile() {
         const xp = Number(player.xp) || 0;
         const level = Number(player.level) || 1;
 
+        // Update saved player information.
         savedPlayer.display_name = username;
         savedPlayer.xp = xp;
         savedPlayer.level = level;
@@ -297,6 +342,7 @@ async function loadPlayerProfile() {
 
         // Player information.
         document.getElementById("player-name").textContent = username;
+
         document.getElementById("player-level").textContent =
             "LV. " + String(level).padStart(2, "0");
 
@@ -309,6 +355,7 @@ async function loadPlayerProfile() {
         const currentLevelXP = xp % 100;
 
         document.getElementById("xp-total").textContent = xp + " XP";
+
         document.getElementById("xp-progress").style.width =
             currentLevelXP + "%";
 
@@ -358,10 +405,17 @@ async function loadPlayerProfile() {
                 ? "Keep completing your Daily Quiz every day to maintain your streak! 🔥"
                 : "Complete your Daily Quiz to start your streak!";
 
-        // Achievements.
+        // Existing achievements.
         setAchievement("achievement-first", quizCount >= 1);
         setAchievement("achievement-five", quizCount >= 5);
         setAchievement("achievement-level", level >= 10);
+
+        // Streak achievements use the longest streak.
+        // This keeps earned badges unlocked after a streak resets.
+        setAchievement("achievement-streak-3", longestStreak >= 3);
+        setAchievement("achievement-streak-7", longestStreak >= 7);
+        setAchievement("achievement-streak-14", longestStreak >= 14);
+        setAchievement("achievement-streak-30", longestStreak >= 30);
 
         // Quiz history.
         renderQuizHistory(history);
@@ -382,6 +436,8 @@ async function loadPlayerProfile() {
 
 function setAchievement(elementId, unlocked) {
     const element = document.getElementById(elementId);
+
+    if (!element) return;
 
     element.textContent = unlocked
         ? "✓ UNLOCKED"
