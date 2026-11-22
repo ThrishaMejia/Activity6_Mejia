@@ -21,7 +21,7 @@
         <a href="categories.html">Categories</a>
         <a href="daily-quiz.html" class="active">Daily Quiz</a>
         <a href="leaderboard.html">Leaderboard</a>
-<a href="profile.html" id="qv-profile-link">Profile</a>
+        <a href="profile.html" id="qv-profile-link">Profile</a>
         <a href="index.html#about">About</a>
     </nav>
 </header>
@@ -96,6 +96,15 @@
                         SUBMIT ANSWER →
                     </button>
 
+                    <button
+                        type="button"
+                        class="btn"
+                        id="daily-restart"
+                        hidden
+                        style="margin-top: 12px;">
+                        ↻ RESTART QUIZ
+                    </button>
+
                 </form>
 
                 <p
@@ -113,6 +122,10 @@
             <p>
                 Every question is a new adventure.
                 Think carefully, do your best, and enjoy the challenge!
+            </p>
+            <p>
+                Complete your Daily Quiz to earn at least +50 XP.
+                Your score can increase your reward up to +100 XP!
             </p>
         </div>
 
@@ -172,6 +185,7 @@ const optionsContainer = document.getElementById("daily-options");
 
 const answerForm = document.getElementById("daily-answer-form");
 const actionButton = document.getElementById("daily-submit");
+const restartButton = document.getElementById("daily-restart");
 const feedback = document.getElementById("daily-feedback");
 
 // QUIZ STATE
@@ -242,9 +256,6 @@ async function loadDailyQuestions() {
 
     try {
 
-        // Load today's questions first.
-        // This prevents consuming an attempt if the question bank is unavailable.
-
         const { data, error } = await supabase.functions.invoke(
             "get-daily-questions",
             {
@@ -265,13 +276,11 @@ async function loadDailyQuestions() {
             return;
         }
 
-        // RESERVE THE PLAYER'S ONE DAILY ATTEMPT
-
         const allowed = await startDailyAttempt();
 
         if (!allowed) {
             showError(
-                "You've already used today's Daily Quiz attempt! Come back tomorrow for a brand-new challenge and another +50 XP opportunity. ♡"
+                "You've already used today's Daily Quiz attempt! Come back tomorrow for a brand-new challenge and another XP opportunity. ♡"
             );
             return;
         }
@@ -280,6 +289,8 @@ async function loadDailyQuestions() {
 
         categoryDisplay.textContent = "Mixed";
         totalDisplay.textContent = questions.length;
+
+        restartButton.hidden = false;
 
         renderQuestion();
         startTimer();
@@ -385,6 +396,47 @@ function renderQuestion() {
 
         optionsContainer.appendChild(label);
     });
+}
+
+// RESTART CURRENT DAILY ATTEMPT
+
+function restartQuiz() {
+
+    if (
+        finished ||
+        finishing ||
+        checkingAnswer ||
+        questions.length !== 10
+    ) {
+        return;
+    }
+
+    const confirmed = window.confirm(
+        "Restart this Daily Quiz? Your current answers and score will be reset. This will not create another daily attempt."
+    );
+
+    if (!confirmed) return;
+
+    clearInterval(timerInterval);
+
+    currentIndex = 0;
+    selectedAnswer = null;
+    score = 0;
+
+    timeLeft = 600;
+
+    submitted = false;
+    checkingAnswer = false;
+    rewardPending = false;
+
+    submittedAnswers.clear();
+
+    updateTimer();
+    renderQuestion();
+    startTimer();
+
+    feedback.textContent = "Your quiz has been restarted. Good luck! ♡";
+    feedback.className = "quiz-feedback";
 }
 
 // SUBMIT ANSWER OR MOVE TO NEXT QUESTION
@@ -521,6 +573,8 @@ function updateTimer() {
 
 function startTimer() {
 
+    clearInterval(timerInterval);
+
     updateTimer();
 
     timerInterval = setInterval(() => {
@@ -605,6 +659,8 @@ async function finishQuiz() {
 
     clearInterval(timerInterval);
 
+    restartButton.hidden = true;
+
     actionButton.disabled = true;
     actionButton.hidden = false;
     actionButton.textContent = "SAVING YOUR REWARD...";
@@ -658,9 +714,11 @@ async function finishQuiz() {
 
         const rewardAwarded = reward.awarded === true;
 
-        await refreshPlayerData(reward);
+        const earnedXP = rewardAwarded
+            ? Number(reward.xp_awarded) || 0
+            : 0;
 
-        const earnedXP = rewardAwarded ? 50 : 0;
+        await refreshPlayerData(reward);
 
         const result = {
             category: "daily",
@@ -674,8 +732,8 @@ async function finishQuiz() {
             xp: Number(player.xp) || 0,
             level: Number(player.level) || 1,
             reward_message: rewardAwarded
-                ? "You earned your daily +50 XP reward!"
-                : "You already claimed today's +50 XP reward."
+                ? `Amazing! You earned +${earnedXP} XP from today's Daily Quiz!`
+                : "You already claimed today's Daily Quiz reward."
         };
 
         sessionStorage.setItem(
@@ -700,7 +758,7 @@ async function finishQuiz() {
         actionButton.textContent = "RETRY REWARD →";
 
         feedback.textContent =
-            "We couldn't save your Daily Quiz reward. Your answers are still here. Please tap RETRY REWARD.";
+            "We couldn't confirm your Daily Quiz reward. Your answers are still here. Please tap RETRY REWARD.";
 
         feedback.className = "quiz-feedback wrong";
     }
@@ -709,6 +767,8 @@ async function finishQuiz() {
 // EVENTS
 
 answerForm.addEventListener("submit", handleAction);
+
+restartButton.addEventListener("click", restartQuiz);
 
 // START DAILY QUIZ
 
