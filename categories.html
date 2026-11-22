@@ -6,6 +6,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Categories | Quizivia</title>
     <link rel="stylesheet" href="css/style.css?v=4">
+
+    <style>
+        .category-progress {
+            margin: 18px 0;
+            padding: 14px;
+            background: rgba(139, 92, 246, 0.08);
+            border: 1px solid rgba(139, 92, 246, 0.18);
+            border-radius: 12px;
+        }
+
+        .category-progress-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 9px;
+            font-size: 0.85rem;
+        }
+
+        .category-progress-top strong {
+            color: #8052c7;
+        }
+
+        .category-progress-bar {
+            width: 100%;
+            height: 9px;
+            background: #e8def8;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .category-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #a78bfa, #8052c7);
+            border-radius: 20px;
+            transition: width 0.5s ease;
+        }
+
+        .category-progress-details {
+            margin-top: 8px;
+            font-size: 0.8rem;
+            color: #777;
+        }
+
+        .category-progress-loading {
+            font-size: 0.82rem;
+            color: #8052c7;
+            margin: 12px 0;
+        }
+    </style>
 </head>
 <body>
 
@@ -37,6 +88,10 @@
         </p>
     </section>
 
+    <p id="category-progress-status" class="category-progress-loading" style="text-align:center;">
+        Loading your learning progress...
+    </p>
+
     <section class="category-grid">
 
         <article class="category-card">
@@ -50,6 +105,18 @@
                     Travel through time and discover important
                     events, famous people, and fascinating stories.
                 </p>
+
+                <div class="category-progress" data-category="history">
+                    <div class="category-progress-top">
+                        <strong>YOUR PROGRESS</strong>
+                        <span class="progress-percentage">0%</span>
+                    </div>
+                    <div class="category-progress-bar">
+                        <div class="category-progress-fill"></div>
+                    </div>
+                    <p class="category-progress-details">Loading progress...</p>
+                </div>
+
                 <a href="category-quizzes.html?category=history" class="btn">Explore Category →</a>
             </div>
         </article>
@@ -65,6 +132,18 @@
                     Discover the wonders of nature, space,
                     experiments, and the world around you.
                 </p>
+
+                <div class="category-progress" data-category="science">
+                    <div class="category-progress-top">
+                        <strong>YOUR PROGRESS</strong>
+                        <span class="progress-percentage">0%</span>
+                    </div>
+                    <div class="category-progress-bar">
+                        <div class="category-progress-fill"></div>
+                    </div>
+                    <p class="category-progress-details">Loading progress...</p>
+                </div>
+
                 <a href="category-quizzes.html?category=science" class="btn">Explore Category →</a>
             </div>
         </article>
@@ -80,6 +159,18 @@
                     Challenge your mind with numbers, equations,
                     patterns, and problem-solving activities.
                 </p>
+
+                <div class="category-progress" data-category="mathematics">
+                    <div class="category-progress-top">
+                        <strong>YOUR PROGRESS</strong>
+                        <span class="progress-percentage">0%</span>
+                    </div>
+                    <div class="category-progress-bar">
+                        <div class="category-progress-fill"></div>
+                    </div>
+                    <p class="category-progress-details">Loading progress...</p>
+                </div>
+
                 <a href="category-quizzes.html?category=mathematics" class="btn">Explore Category →</a>
             </div>
         </article>
@@ -95,6 +186,18 @@
                     Test what you know about everyday life,
                     culture, geography, and many more topics.
                 </p>
+
+                <div class="category-progress" data-category="general-knowledge">
+                    <div class="category-progress-top">
+                        <strong>YOUR PROGRESS</strong>
+                        <span class="progress-percentage">0%</span>
+                    </div>
+                    <div class="category-progress-bar">
+                        <div class="category-progress-fill"></div>
+                    </div>
+                    <p class="category-progress-details">Loading progress...</p>
+                </div>
+
                 <a href="category-quizzes.html?category=general-knowledge" class="btn">Explore Category →</a>
             </div>
         </article>
@@ -112,6 +215,90 @@
 <footer class="site-footer">
     <p>© 2026 Quizivia. Learn, play, and challenge yourself!</p>
 </footer>
+
+<script>
+const SUPABASE_URL = "https://mnknxizgpkznkboingbf.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_2Y6PlxPEFUdgIXuTTAhtag_XGPy-008";
+
+async function loadCategoryProgress() {
+    const status = document.getElementById("category-progress-status");
+
+    try {
+        const savedPlayer = JSON.parse(
+            localStorage.getItem("quizivia_player") || "null"
+        );
+
+        const token = savedPlayer?.token ||
+                      savedPlayer?.session_token ||
+                      savedPlayer?.sessionToken ||
+                      savedPlayer?.access_token;
+
+        if (!token) {
+            status.textContent = "Log in to see your category progress.";
+            document.querySelectorAll(".category-progress-details")
+                .forEach(el => el.textContent = "Log in to track your progress.");
+            return;
+        }
+
+        const response = await fetch(
+            `${SUPABASE_URL}/functions/v1/get-category-progress`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                    "apikey": SUPABASE_ANON_KEY
+                }
+            }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+            throw new Error(result.message || "Unable to load progress.");
+        }
+
+        const progressList = result.category_progress || [];
+
+        document.querySelectorAll(".category-progress").forEach(card => {
+            const slug = card.dataset.category;
+
+            const category = progressList.find(
+                item => item.category_slug === slug
+            );
+
+            const percentage = category
+                ? Number(category.accuracy_percentage) || 0
+                : 0;
+
+            const quizzes = category
+                ? Number(category.quizzes_completed) || 0
+                : 0;
+
+            card.querySelector(".progress-percentage").textContent =
+                `${percentage}%`;
+
+            card.querySelector(".category-progress-fill").style.width =
+                `${Math.min(100, Math.max(0, percentage))}%`;
+
+            card.querySelector(".category-progress-details").textContent =
+                quizzes === 0
+                    ? "No quizzes completed yet. Start your first challenge!"
+                    : `${quizzes} ${quizzes === 1 ? "quiz" : "quizzes"} completed • ${category.correct_answers}/${category.total_questions} correct answers • ${category.xp_earned} XP earned`;
+        });
+
+        status.textContent = "Your learning progress is up to date!";
+
+    } catch (error) {
+        console.error("Category progress error:", error);
+        status.textContent = "Unable to load progress right now. Please refresh.";
+        document.querySelectorAll(".category-progress-details")
+            .forEach(el => el.textContent = "Progress is temporarily unavailable.");
+    }
+}
+
+loadCategoryProgress();
+</script>
 
 </body>
 </html>
