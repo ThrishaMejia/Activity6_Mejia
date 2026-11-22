@@ -189,14 +189,60 @@ let finishing = false;
 let finished = false;
 let rewardPending = false;
 
-// Store answers that have been checked by the server.
 const submittedAnswers = new Map();
+
+// ERROR DISPLAY
+
+function showError(message) {
+
+    clearInterval(timerInterval);
+
+    card.innerHTML = "";
+
+    const errorText = document.createElement("p");
+    errorText.className = "quiz-feedback";
+    errorText.textContent = message;
+
+    const backLink = document.createElement("a");
+    backLink.href = "index.html";
+    backLink.className = "btn";
+    backLink.textContent = "BACK TO HOME";
+
+    card.appendChild(errorText);
+    card.appendChild(backLink);
+}
+
+// START DAILY ATTEMPT
+
+async function startDailyAttempt() {
+
+    const { data, error } = await supabase.functions.invoke(
+        "start-daily-quiz",
+        {
+            body: {},
+            headers: {
+                Authorization: `Bearer ${player.token}`
+            }
+        }
+    );
+
+    if (error) throw error;
+
+    if (!data || data.success !== true) {
+        throw new Error("Unable to verify your Daily Quiz attempt.");
+    }
+
+    return data.allowed === true;
+}
 
 // LOAD DAILY QUESTIONS
 
 async function loadDailyQuestions() {
 
     try {
+
+        // Load today's questions first.
+        // This prevents consuming an attempt if the question bank is unavailable.
 
         const { data, error } = await supabase.functions.invoke(
             "get-daily-questions",
@@ -218,6 +264,17 @@ async function loadDailyQuestions() {
             return;
         }
 
+        // RESERVE THE PLAYER'S ONE DAILY ATTEMPT
+
+        const allowed = await startDailyAttempt();
+
+        if (!allowed) {
+            showError(
+                "You've already used today's Daily Quiz attempt! Come back tomorrow for a brand-new challenge and another +50 XP opportunity. ♡"
+            );
+            return;
+        }
+
         questions = data.questions.slice(0, 10);
 
         categoryDisplay.textContent = "Mixed";
@@ -231,30 +288,9 @@ async function loadDailyQuestions() {
         console.error("Daily quiz loading error:", error);
 
         showError(
-            "Unable to load today's Daily Quiz. Please try again later."
+            "Unable to start today's Daily Quiz. Please try again later."
         );
     }
-}
-
-// ERROR DISPLAY
-
-function showError(message) {
-
-    clearInterval(timerInterval);
-
-    card.innerHTML = "";
-
-    const errorText = document.createElement("p");
-    errorText.className = "quiz-feedback";
-    errorText.textContent = message;
-
-    const backLink = document.createElement("a");
-    backLink.href = "index.html";
-    backLink.className = "btn";
-    backLink.textContent = "BACK TO HOME";
-
-    card.appendChild(errorText);
-    card.appendChild(backLink);
 }
 
 // DISPLAY QUESTION
@@ -307,8 +343,6 @@ function renderQuestion() {
         return;
     }
 
-    // SHUFFLE ANSWER CHOICES
-
     options = [...options].sort(() => Math.random() - 0.5);
 
     options.forEach((option, index) => {
@@ -360,15 +394,10 @@ async function handleAction(event) {
 
     if (finished || finishing || checkingAnswer) return;
 
-    // RETRY REWARD SUBMISSION
-
     if (rewardPending) {
         await finishQuiz();
         return;
     }
-
-    // ANSWER ALREADY CHECKED:
-    // MOVE TO NEXT QUESTION OR FINISH QUIZ
 
     if (submitted) {
 
@@ -381,8 +410,6 @@ async function handleAction(event) {
 
         return;
     }
-
-    // NO ANSWER SELECTED
 
     if (selectedAnswer === null) return;
 
@@ -413,7 +440,6 @@ async function handleAction(event) {
 
         if (finishing || finished) return;
 
-        // Save the answer only after the server checks it.
         submittedAnswers.set(
             Number(item.question_id),
             selectedAnswer
@@ -435,8 +461,6 @@ async function handleAction(event) {
             feedback.className = "quiz-feedback wrong";
         }
 
-        // LOCK ANSWERS AFTER SUBMISSION
-
         document.querySelectorAll("#daily-options .quiz-option")
             .forEach(label => {
 
@@ -450,8 +474,6 @@ async function handleAction(event) {
                     );
                 }
             });
-
-        // CHANGE BUTTON LABEL
 
         actionButton.disabled = false;
 
@@ -519,7 +541,6 @@ function startTimer() {
 
 async function refreshPlayerData(reward) {
 
-    // First use the reward response if it contains updated XP.
     if (
         reward &&
         reward.awarded === true &&
@@ -535,7 +556,6 @@ async function refreshPlayerData(reward) {
         );
     }
 
-    // Then retrieve the latest account data from the server.
     try {
 
         const { data, error } = await supabase.functions.invoke(
@@ -593,9 +613,6 @@ async function finishQuiz() {
 
     try {
 
-        // Build all 10 answers.
-        // Unanswered questions receive a special incorrect-answer value.
-
         const answers = questions.map(item => {
 
             const questionId = Number(item.question_id);
@@ -606,8 +623,6 @@ async function finishQuiz() {
                     || "__QUIZIVIA_NO_ANSWER__"
             };
         });
-
-        // SECURE SERVER-SIDE SCORE CHECK AND DAILY REWARD
 
         const { data, error } = await supabase.functions.invoke(
             "claim-daily-reward",
@@ -635,7 +650,6 @@ async function finishQuiz() {
 
         const reward = data.reward;
 
-        // The server-calculated score is the official score.
         const finalScore =
             Number.isInteger(data.score)
                 ? data.score
@@ -643,7 +657,6 @@ async function finishQuiz() {
 
         const rewardAwarded = reward.awarded === true;
 
-        // Refresh XP and level from the server.
         await refreshPlayerData(reward);
 
         const earnedXP = rewardAwarded ? 50 : 0;
