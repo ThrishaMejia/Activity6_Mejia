@@ -133,19 +133,16 @@ const quizTitles = {
         medium: "Across the Centuries",
         hard: "Untold History"
     },
-
     science: {
         easy: "Science Around Us",
         medium: "Nature & Discovery",
         hard: "Philippine Science Challenge"
     },
-
     mathematics: {
         easy: "Everyday Math",
         medium: "Numbers in Action",
         hard: "Math Mastery"
     },
-
     "general-knowledge": {
         easy: "Know the Philippines",
         medium: "Beyond the Basics",
@@ -183,6 +180,9 @@ let selectedAnswer = null;
 let deadline = null;
 let timerInterval = null;
 
+// FIX: Declare timeLeft before it is used by the timer.
+let timeLeft = 300;
+
 let finished = false;
 let savingResult = false;
 let submissionFailed = false;
@@ -191,7 +191,6 @@ let submissionFailed = false;
 
 const QUIZ_DURATION = 300;
 const SESSION_MAX_AGE = 2 * 60 * 60 * 1000;
-
 const NO_ANSWER = "__QUIZIVIA_NO_ANSWER__";
 
 const storageKey =
@@ -277,6 +276,11 @@ function restoreProgress() {
 
     deadline = saved.deadline;
 
+    timeLeft = Math.max(
+        0,
+        Math.ceil((deadline - Date.now()) / 1000)
+    );
+
     return true;
 }
 
@@ -361,6 +365,14 @@ async function loadQuestions() {
                 return;
             }
 
+            // If the final answer was already saved before refresh,
+            // continue submitting instead of getting stuck.
+            if (answers.every(answer => answer !== null)) {
+                renderQuestion();
+                finishQuiz();
+                return;
+            }
+
             renderQuestion();
             startTimer();
 
@@ -403,6 +415,7 @@ async function loadQuestions() {
         currentQuestion = 0;
         selectedAnswer = null;
 
+        timeLeft = QUIZ_DURATION;
         deadline = Date.now() + QUIZ_DURATION * 1000;
 
         setQuizHeader();
