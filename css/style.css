@@ -3033,3 +3033,24 @@ button:hover {
     left: auto;
     right: auto;
 }
+
+/* CATEGORY QUIZ SELECTED ANSWER FIX */
+
+.play-quiz-page .quiz-option.selected,
+.play-quiz-page .quiz-option:focus {
+    background: linear-gradient(135deg, #6d3acb, #9b65e8) !important;
+    color: #ffffff !important;
+    border: 2px solid #f5c96a !important;
+    box-shadow: 0 0 0 3px rgba(245, 201, 106, 0.25) !important;
+    transform: translateY(-2px);
+}
+
+.play-quiz-page .quiz-option.selected span {
+    color: #ffffff !important;
+}
+
+.play-quiz-page .quiz-option {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
