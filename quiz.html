@@ -17,13 +17,13 @@
     </h1>
 
     <nav class="main-nav" aria-label="Main navigation">
-    <a href="index.html" aria-label="Home" title="Home">🏠</a>
-    <a href="categories.html" class="active" aria-label="Categories" title="Categories">📚</a>
-    <a href="daily-quiz.html" aria-label="Daily Quiz" title="Daily Quiz">📅</a>
-    <a href="leaderboard.html" aria-label="Leaderboard" title="Leaderboard">🏆</a>
-    <a href="profile.html" id="qv-profile-link" aria-label="Profile" title="Profile">👤</a>
-    <a href="index.html#about" aria-label="About" title="About">ℹ️</a>
-</nav>
+        <a href="index.html" aria-label="Home" title="Home">🏠</a>
+        <a href="categories.html" class="active" aria-label="Categories" title="Categories">📚</a>
+        <a href="daily-quiz.html" aria-label="Daily Quiz" title="Daily Quiz">📅</a>
+        <a href="leaderboard.html" aria-label="Leaderboard" title="Leaderboard">🏆</a>
+        <a href="profile.html" id="qv-profile-link" aria-label="Profile" title="Profile">👤</a>
+        <a href="index.html#about" aria-label="About" title="About">ℹ️</a>
+    </nav>
 </header>
 
 <main class="play-quiz-page">
@@ -61,12 +61,8 @@
         <p class="quiz-feedback" id="quiz-feedback" aria-live="polite"></p>
 
         <div class="quiz-game-bottom">
-            <button
-                type="button"
-                class="btn"
-                id="action-button"
-                disabled>
-                SUBMIT ANSWER
+            <button type="button" class="btn" id="action-button" disabled>
+                SAVE & NEXT
             </button>
         </div>
 
@@ -184,17 +180,105 @@ let sessionId = null;
 let currentQuestion = 0;
 let selectedAnswer = null;
 
-let timeLeft = 300;
+let deadline = null;
 let timerInterval = null;
 
 let finished = false;
-let submitted = false;
-let checkingAnswer = false;
 let savingResult = false;
+let submissionFailed = false;
 
-// UNANSWERED QUESTION MARKER
+// SETTINGS
+
+const QUIZ_DURATION = 300;
+const SESSION_MAX_AGE = 2 * 60 * 60 * 1000;
 
 const NO_ANSWER = "__QUIZIVIA_NO_ANSWER__";
+
+const storageKey =
+    `quizivia_category_progress_${player.id}_${category}_${difficulty}`;
+
+// LOCAL PROGRESS
+
+function saveProgress() {
+
+    if (!sessionId || !questions.length || finished) return;
+
+    const progressData = {
+        sessionId,
+        questions,
+        answers,
+        currentQuestion,
+        selectedAnswer,
+        deadline,
+        createdAt: Date.now()
+    };
+
+    try {
+        localStorage.setItem(
+            storageKey,
+            JSON.stringify(progressData)
+        );
+    } catch (error) {
+        console.error("Could not save quiz progress:", error);
+    }
+}
+
+function clearProgress() {
+    localStorage.removeItem(storageKey);
+}
+
+function restoreProgress() {
+
+    let saved;
+
+    try {
+        saved = JSON.parse(
+            localStorage.getItem(storageKey) || "null"
+        );
+    } catch {
+        clearProgress();
+        return false;
+    }
+
+    if (!saved) return false;
+
+    if (
+        !saved.sessionId ||
+        !Array.isArray(saved.questions) ||
+        saved.questions.length !== 10 ||
+        !Array.isArray(saved.answers) ||
+        saved.answers.length !== 10 ||
+        !Number.isInteger(saved.currentQuestion) ||
+        saved.currentQuestion < 0 ||
+        saved.currentQuestion >= 10 ||
+        !Number.isFinite(saved.deadline) ||
+        !Number.isFinite(saved.createdAt)
+    ) {
+        clearProgress();
+        return false;
+    }
+
+    if (Date.now() - saved.createdAt > SESSION_MAX_AGE) {
+        clearProgress();
+
+        showError(
+            "Your previous quiz session has expired. Please start a new quiz."
+        );
+
+        return true;
+    }
+
+    questions = saved.questions;
+    answers = saved.answers;
+    sessionId = saved.sessionId;
+
+    currentQuestion = saved.currentQuestion;
+    selectedAnswer = saved.selectedAnswer ?? null;
+
+    deadline = saved.deadline;
+
+    return true;
+}
 
 // SHOW ERROR
 
@@ -220,6 +304,32 @@ function showError(message) {
     quizCard.appendChild(backLink);
 }
 
+// SET QUIZ HEADER
+
+function setQuizHeader() {
+
+    title.innerHTML = "";
+
+    title.append(
+        document.createTextNode(quizTitle + " ")
+    );
+
+    const titleSpan = document.createElement("span");
+    titleSpan.textContent = "Challenge!";
+    title.appendChild(titleSpan);
+
+    const formattedDifficulty =
+        difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+
+    description.textContent =
+        categoryNames[category] +
+        " • " +
+        formattedDifficulty +
+        " • Test your knowledge and earn XP!";
+
+    document.title = quizTitle + " | Quizivia";
+}
+
 // LOAD QUESTIONS
 
 async function loadQuestions() {
@@ -234,6 +344,28 @@ async function loadQuestions() {
     }
 
     try {
+
+        const restored = restoreProgress();
+
+        if (restored) {
+
+            if (!sessionId) return;
+
+            setQuizHeader();
+
+            if (deadline <= Date.now()) {
+                timeLeft = 0;
+                updateTimer();
+                renderQuestion();
+                finishQuiz();
+                return;
+            }
+
+            renderQuestion();
+            startTimer();
+
+            return;
+        }
 
         const { data, error } = await supabase.functions.invoke(
             "get-questions",
@@ -268,26 +400,14 @@ async function loadQuestions() {
 
         answers = new Array(questions.length).fill(null);
 
-        title.innerHTML = "";
+        currentQuestion = 0;
+        selectedAnswer = null;
 
-        title.append(
-            document.createTextNode(quizTitle + " ")
-        );
+        deadline = Date.now() + QUIZ_DURATION * 1000;
 
-        const titleSpan = document.createElement("span");
-        titleSpan.textContent = "Challenge!";
-        title.appendChild(titleSpan);
+        setQuizHeader();
 
-        const formattedDifficulty =
-            difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
-
-        description.textContent =
-            categoryNames[category] +
-            " • " +
-            formattedDifficulty +
-            " • Test your knowledge and earn XP!";
-
-        document.title = quizTitle + " | Quizivia";
+        saveProgress();
 
         renderQuestion();
         startTimer();
@@ -306,13 +426,9 @@ async function loadQuestions() {
 
 function renderQuestion() {
 
-    if (finished) return;
+    if (finished || !questions.length) return;
 
     const item = questions[currentQuestion];
-
-    selectedAnswer = null;
-    submitted = false;
-    checkingAnswer = false;
 
     questionNumber.textContent =
         (currentQuestion + 1) + " / " + questions.length;
@@ -327,9 +443,13 @@ function renderQuestion() {
     feedback.textContent = "";
     feedback.className = "quiz-feedback";
 
-    actionButton.disabled = true;
+    actionButton.disabled = selectedAnswer === null;
     actionButton.hidden = false;
-    actionButton.textContent = "SUBMIT ANSWER";
+
+    actionButton.textContent =
+        currentQuestion === questions.length - 1
+            ? "SUBMIT QUIZ"
+            : "SAVE & NEXT";
 
     let options = item.options;
 
@@ -363,9 +483,13 @@ function renderQuestion() {
         button.appendChild(letter);
         button.appendChild(answerText);
 
+        if (selectedAnswer === option) {
+            button.classList.add("selected");
+        }
+
         button.addEventListener("click", () => {
 
-            if (submitted || checkingAnswer || finished) return;
+            if (finished || savingResult) return;
 
             selectedAnswer = option;
 
@@ -377,6 +501,8 @@ function renderQuestion() {
             button.classList.add("selected");
 
             actionButton.disabled = false;
+
+            saveProgress();
         });
 
         optionsContainer.appendChild(button);
@@ -387,19 +513,10 @@ function renderQuestion() {
 
 function handleAction() {
 
-    if (finished || checkingAnswer || savingResult) return;
+    if (finished || savingResult) return;
 
-    if (finished) return;
-
-    if (submitted) {
-
-        if (currentQuestion === questions.length - 1) {
-            finishQuiz();
-        } else {
-            currentQuestion++;
-            renderQuestion();
-        }
-
+    if (submissionFailed) {
+        finishQuiz();
         return;
     }
 
@@ -407,22 +524,20 @@ function handleAction() {
 
     answers[currentQuestion] = selectedAnswer;
 
-    submitted = true;
+    selectedAnswer = null;
 
-    document.querySelectorAll(".quiz-option")
-        .forEach(button => {
-            button.disabled = true;
-        });
+    saveProgress();
 
-    feedback.textContent = "✦ Answer saved! Ready for the next question?";
-    feedback.className = "quiz-feedback";
+    if (currentQuestion === questions.length - 1) {
+        finishQuiz();
+        return;
+    }
 
-    actionButton.disabled = false;
+    currentQuestion++;
 
-    actionButton.textContent =
-        currentQuestion === questions.length - 1
-            ? "SUBMIT QUIZ →"
-            : "NEXT QUESTION →";
+    saveProgress();
+
+    renderQuestion();
 }
 
 // TIMER
@@ -450,36 +565,47 @@ function updateTimer() {
 
 function startTimer() {
 
-    updateTimer();
+    clearInterval(timerInterval);
 
-    timerInterval = setInterval(() => {
+    function tick() {
 
-        if (finished || savingResult) return;
-
-        timeLeft--;
+        timeLeft = Math.max(
+            0,
+            Math.ceil((deadline - Date.now()) / 1000)
+        );
 
         updateTimer();
 
         if (timeLeft <= 0) {
+            clearInterval(timerInterval);
             finishQuiz();
         }
+    }
 
-    }, 1000);
+    tick();
+
+    if (timeLeft <= 0) return;
+
+    timerInterval = setInterval(tick, 1000);
 }
 
 // SAVE RESULT SECURELY
 
 async function finishQuiz() {
 
-    if (finished || savingResult || questions.length !== 10) return;
+    if (
+        finished ||
+        savingResult ||
+        questions.length !== 10 ||
+        !sessionId
+    ) return;
 
     finished = true;
     savingResult = true;
 
     clearInterval(timerInterval);
 
-    // Unanswered questions are submitted as incorrect answers.
-    answers = answers.map(answer =>
+    const finalAnswers = answers.map(answer =>
         answer === null ? NO_ANSWER : answer
     );
 
@@ -487,14 +613,16 @@ async function finishQuiz() {
     actionButton.hidden = false;
     actionButton.textContent = "SAVING RESULT...";
 
-    feedback.textContent = "✦ Checking your answers and saving your XP...";
+    feedback.textContent =
+        "✦ Checking your answers and saving your XP...";
+
     feedback.className = "quiz-feedback";
 
     try {
 
         const answerSubmission = questions.map((item, index) => ({
             question_id: item.question_id,
-            answer: answers[index]
+            answer: finalAnswers[index]
         }));
 
         const { data, error } = await supabase.functions.invoke(
@@ -537,8 +665,6 @@ async function finishQuiz() {
             level: saved.level
         };
 
-        // UPDATE SAVED PLAYER INFORMATION
-
         player.xp = saved.xp;
         player.level = saved.level;
 
@@ -552,6 +678,8 @@ async function finishQuiz() {
             JSON.stringify(result)
         );
 
+        clearProgress();
+
         window.location.href = "quiz-results.html";
 
     } catch (error) {
@@ -559,15 +687,17 @@ async function finishQuiz() {
         console.error("Result saving error:", error);
 
         savingResult = false;
+        finished = false;
+        submissionFailed = true;
 
         feedback.textContent =
-            "We couldn't save your result. Please tap retry. Your answers are still here.";
+            "We couldn't save your result. Your answers are still saved. Please retry.";
 
         feedback.className = "quiz-feedback wrong";
 
         actionButton.disabled = false;
+        actionButton.hidden = false;
         actionButton.textContent = "RETRY SUBMISSION";
-        actionButton.onclick = finishQuiz;
     }
 }
 
