@@ -1,7 +1,7 @@
 
 QUIZIVIA — PROJECT HANDOFF
 
-Project Title: Quizivia: A Web-Based Educational Trivia Platform Academic Year: 2026 Development Status: Developed website with ongoing final testing and individual defense preparation.
+Project Title: Quizivia: A Web-Based Educational Trivia Platform Academic Year: 2026 Development
 
 Project Overview
 
